@@ -1,0 +1,10 @@
+before_script:
+ - pwd
+ 
+rspec:
+  script:
+    - echo 111
+
+rubocop:
+  script:
+    - echo success!
