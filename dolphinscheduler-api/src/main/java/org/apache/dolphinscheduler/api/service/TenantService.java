@@ -26,10 +26,7 @@ import org.apache.dolphinscheduler.common.utils.CollectionUtils;
 import org.apache.dolphinscheduler.common.utils.HadoopUtils;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 import org.apache.dolphinscheduler.common.utils.StringUtils;
-import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
-import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
-import org.apache.dolphinscheduler.dao.entity.Tenant;
-import org.apache.dolphinscheduler.dao.entity.User;
+import org.apache.dolphinscheduler.dao.entity.*;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessInstanceMapper;
 import org.apache.dolphinscheduler.dao.mapper.TenantMapper;
@@ -64,6 +61,9 @@ public class TenantService extends BaseService{
 
   @Autowired
   private UserMapper userMapper;
+
+  @Autowired
+  private QueueService queueService;
 
 
 
@@ -105,9 +105,15 @@ public class TenantService extends BaseService{
       putMsg(result, Status.VERIFY_TENANT_CODE_ERROR);
       return result;
     }
+
+    // 创建租户同时自动创建队列
+    String queueName = "root."+tenantCode;
+    queueService.createQueue(null, queueName, queueName);
+    Queue q = queueService.queryQueueByQueue(queueName);
+
     tenant.setTenantCode(tenantCode);
     tenant.setTenantName(tenantName);
-    tenant.setQueueId(queueId);
+    tenant.setQueueId(q.getId());
     tenant.setDescription(desc);
     tenant.setCreateTime(now);
     tenant.setUpdateTime(now);
@@ -226,7 +232,7 @@ public class TenantService extends BaseService{
   }
 
   /**
-   * delete tenant 
+   * delete tenant
    *
    * @param loginUser login user
    * @param id tenant id
@@ -297,7 +303,7 @@ public class TenantService extends BaseService{
     List<Tenant> resourceList = tenantMapper.selectList(null);
     result.put(Constants.DATA_LIST, resourceList);
     putMsg(result, Status.SUCCESS);
-    
+
     return result;
   }
 

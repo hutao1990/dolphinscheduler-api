@@ -252,6 +252,11 @@ public enum Status {
     QUEUE_COUNT_ERROR(90001,"queue count error", "查询队列数据错误"),
 
     KERBEROS_STARTUP_STATE(100001,"get kerberos startup state error", "获取kerberos启动状态错误"),
+
+
+    TOKEN_TIME_OUT(100002,"huking token timeout", "虎鲸token超时"),
+    TEAM_CODE_NOT_MATCH(100003,"huking team code not match tenant code", "虎鲸团队账号[{0}]与系统租户[{1}]不匹配"),
+    ADMIN_LOGIN_AS_TOKEN_ERROR(100003,"admin login as token error， plaese use user/password login", "admin帐号使用token登录错误，请使用用户名密码登录"),
     ;
 
     private final int code;

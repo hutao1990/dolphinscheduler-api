@@ -32,6 +32,16 @@ public interface Authenticator {
     Result<Map<String, String>> authenticate(String username, String password, String extra);
 
     /**
+     * Verifying legality via token
+     * @param user user name
+     * @param email email
+     * @param teamCode team info
+     * @param timestamp time
+     * @return result object
+     */
+    Result<Map<String, String>> authenticateTokens(String user, String email, String teamCode,String timestamp,String token,String extra,String mobile);
+
+    /**
      * Get authenticated user
      * @param request http servlet request
      * @return user

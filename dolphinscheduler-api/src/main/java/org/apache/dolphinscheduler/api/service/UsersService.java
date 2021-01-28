@@ -77,6 +77,9 @@ public class UsersService extends BaseService {
     @Autowired
     private ProcessDefinitionMapper processDefinitionMapper;
 
+    @Autowired
+    private TenantService tenantService;
+
 
     /**
      * create user, only system admin have permission
@@ -136,6 +139,59 @@ public class UsersService extends BaseService {
         return result;
 
     }
+
+    /**
+     * create user, huking platform used.
+     *
+     * @param userName user name
+     * @param userPassword user password
+     * @param email email
+     * @param tenantCode tenant code
+     * @param phone phone
+     * @return create result code
+     * @throws Exception exception
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> createUser(String userName,
+                                          String userPassword,
+                                          String email,
+                                          String tenantCode,
+                                          String phone) throws Exception {
+
+        Map<String, Object> result = new HashMap<>(5);
+
+        //check all user params
+        String msg = this.checkUserParams(userName, userPassword, email, phone);
+
+        if (!StringUtils.isEmpty(msg)) {
+            putMsg(result, Status.REQUEST_PARAMS_NOT_VALID_ERROR,msg);
+            return result;
+        }
+
+        Tenant tenant = checkTenantExists(tenantCode);
+        if (tenant == null){
+            tenantService.createTenant(null,tenantCode,tenantCode,0,"");
+            tenant = checkTenantExists(tenantCode);
+        }
+
+        User user = createUser(userName, userPassword, email, tenant.getId(), phone, tenant.getQueue());
+
+//        Tenant tenant = tenantMapper.queryById(tenantId);
+        // resource upload startup
+        if (PropertyUtils.getResUploadStartupState()){
+            // if tenant not exists
+            if (!HadoopUtils.getInstance().exists(HadoopUtils.getHdfsTenantDir(tenant.getTenantCode()))){
+                createTenantDirIfNotExists(tenant.getTenantCode());
+            }
+            String userPath = HadoopUtils.getHdfsUserDir(tenant.getTenantCode(),user.getId());
+            HadoopUtils.getInstance().mkdir(userPath);
+        }
+
+        putMsg(result, Status.SUCCESS);
+        return result;
+
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public User createUser(String userName,
@@ -822,9 +878,21 @@ public class UsersService extends BaseService {
      * @return true if tenant exists, otherwise return false
      */
     private boolean checkTenantExists(int tenantId) {
-        return tenantMapper.queryById(tenantId) != null ? true : false;
+        return tenantMapper.queryById(tenantId) != null;
     }
 
+
+    /**
+     * @param tenantCode tenant code
+     * @return true if tenant exists, otherwise return false
+     */
+    private Tenant checkTenantExists(String tenantCode) {
+        List<Tenant> tenantList = tenantMapper.queryByTenantCode(tenantCode);
+        if (tenantList != null && tenantList.size() > 0 ){
+            return tenantList.get(0);
+        }
+        return null;
+    }
     /**
      *
      * @param userName

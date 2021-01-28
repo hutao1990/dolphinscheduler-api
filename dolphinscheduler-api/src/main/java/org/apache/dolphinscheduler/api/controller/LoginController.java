@@ -37,6 +37,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.apache.dolphinscheduler.api.enums.Status.*;
@@ -109,6 +110,75 @@ public class LoginController extends BaseController {
             response.addCookie(cookie);
         }
 
+        return result;
+    }
+
+
+    /**
+     * huking login
+     *
+     * @param user     user name
+     * @param email email
+     * @param teamCode team code
+     * @param timestamp timestamp
+     * @param token token
+     * @param request      request
+     * @param response     response
+     * @return login result
+     */
+    @ApiOperation(value = "hklogin", notes = "LOGIN_NOTES")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "user", value = "USER_NAME", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "email", value = "EMAIL", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "teamCode", value = "TEAM_CODE", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "timestamp", value = "TIMESTAMP", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "token", value = "TOKEN", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "mobile", value = "MOBILE", required = true, dataType = "String")
+    })
+    @GetMapping(value = "/hklogin")
+    @ApiException(USER_LOGIN_FAILURE)
+    public Result hklogin(@RequestParam(value = "user_domain_account") String user,
+                        @RequestParam(value = "email") String email,
+                        @RequestParam(value = "dept_en_name") String teamCode,
+                        @RequestParam(value = "ts") String timestamp,
+                        @RequestParam(value = "access_token") String token,
+                        @RequestParam(value = "mobile") String mobile,
+                        HttpServletRequest request,
+                        HttpServletResponse response) {
+        logger.info("login user name: {} ", user);
+
+        //user name check
+        if (StringUtils.isEmpty(user)) {
+            return error(Status.USER_NAME_NULL.getCode(),
+                    Status.USER_NAME_NULL.getMsg());
+        }
+
+        // user ip check
+        String ip = getClientIpAddress(request);
+        if (StringUtils.isEmpty(ip)) {
+            return error(IP_IS_EMPTY.getCode(), IP_IS_EMPTY.getMsg());
+        }
+
+        // verify username and password
+        Result<Map<String, String>> result = authenticator.authenticateTokens(user, email,teamCode,timestamp,token, ip,mobile);
+        if (result.getCode() != Status.SUCCESS.getCode()) {
+            return result;
+        }
+
+        response.setStatus(HttpStatus.SC_OK);
+        Map<String, String> cookieMap = result.getData();
+        for (Map.Entry<String, String> cookieEntry : cookieMap.entrySet()) {
+            Cookie cookie = new Cookie(cookieEntry.getKey(), cookieEntry.getValue());
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+        }
+//        if (result.getCode() == SUCCESS.getCode()){
+//            try {
+//                request.getRequestDispatcher("/dolphinscheduler").forward(request,response);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         return result;
     }
 

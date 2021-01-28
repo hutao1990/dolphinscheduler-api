@@ -41,7 +41,7 @@ public class BaseService {
      * @return ture if administrator, otherwise return false
      */
     protected boolean isAdmin(User user) {
-        return user.getUserType() == UserType.ADMIN_USER;
+        return user == null || user.getUserType() == UserType.ADMIN_USER;
     }
 
     /**

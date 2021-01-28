@@ -291,4 +291,13 @@ public class QueueService extends BaseService {
         return !oldQueue.equals(newQueue) && CollectionUtils.isNotEmpty(userMapper.queryUserListByQueue(oldQueue));
     }
 
+    /**
+     * query queue by queue code
+     * @param queue queue
+     * @return queue
+     */
+    public Queue queryQueueByQueue(String queue){
+        return queueMapper.queryQueueByQueue(queue);
+    }
+
 }

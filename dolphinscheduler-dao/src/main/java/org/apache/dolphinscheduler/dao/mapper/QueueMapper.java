@@ -20,12 +20,15 @@ import org.apache.dolphinscheduler.dao.entity.Queue;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * queue mapper interface
  */
+@Repository
 public interface QueueMapper extends BaseMapper<Queue> {
 
     /**
@@ -45,5 +48,13 @@ public interface QueueMapper extends BaseMapper<Queue> {
      */
     List<Queue> queryAllQueueList(@Param("queue") String queue,
                              @Param("queueName") String queueName);
+
+    /**
+     * query queue by queue code
+     * @param queue queue
+     * @return queue
+     */
+    @Select("select * from t_ds_queue where queue=#{queue} limit 1")
+    Queue queryQueueByQueue(@Param("queue") String queue);
 
 }
