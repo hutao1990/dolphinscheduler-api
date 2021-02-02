@@ -325,8 +325,9 @@ public class MasterExecThread implements Runnable {
         if(processInstance.getState().typeIsWaitingThread()){
             processService.createRecoveryWaitingThreadCommand(null, processInstance);
         }
-        List<TaskInstance> taskInstances = processService.findValidTaskListByProcessId(processInstance.getId());
-        alertManager.sendAlertProcessInstance(processInstance, taskInstances);
+//        List<TaskInstance> taskInstances = processService.findValidTaskListByProcessId(processInstance.getId());
+        alertManager.sendAlertProcessInstance(processInstance, new ArrayList<>());
+        AlertManager.cache.invalidateAll(Collections.singletonList(processInstance.getId()));
     }
 
 
@@ -888,6 +889,9 @@ public class MasterExecThread implements Runnable {
                             }
                         }
                     }
+                    logger.error("=====> task failed! task name: {}",task.getName());
+                    List<TaskInstance> taskInstances = processService.findValidTaskListByProcessId(processInstance.getId());
+                    alertManager.sendAlertProcessInstance(processInstance,taskInstances);
                     continue;
                 }
                 // other status stop/pause

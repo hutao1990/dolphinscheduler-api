@@ -17,6 +17,8 @@
 package org.apache.dolphinscheduler.server.utils;
 
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.dolphinscheduler.common.enums.AlertType;
 import org.apache.dolphinscheduler.common.enums.CommandType;
 import org.apache.dolphinscheduler.common.enums.Flag;
@@ -33,10 +35,10 @@ import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * alert manager
@@ -53,6 +55,11 @@ public class AlertManager {
      */
     private AlertDao alertDao = DaoFactory.getDaoInstance(AlertDao.class);
 
+
+    public static Cache<Integer,List<Integer>> cache = CacheBuilder.newBuilder()
+            .initialCapacity(128)
+            .expireAfterWrite(18, TimeUnit.HOURS)
+            .build();
 
     /**
      * command type convert chinese
@@ -111,7 +118,8 @@ public class AlertManager {
                                             List<TaskInstance> taskInstances){
 
         String res = "";
-        if(processInstance.getState().typeIsSuccess()){
+        logger.info("====> task instance num: {}",taskInstances.size());
+        if(processInstance.getState().typeIsSuccess() || taskInstances.size() == 0){
             res = String.format(PROCESS_INSTANCE_FORMAT,
                     processInstance.getId(),
                     processInstance.getName(),
@@ -125,14 +133,25 @@ public class AlertManager {
 
             );
             res = "[" + res + "]";
-        }else if(processInstance.getState().typeIsFailure()){
+        }else{
 
             List<LinkedHashMap> failedTaskList = new ArrayList<>();
 
             for(TaskInstance task : taskInstances){
-                if(task.getState().typeIsSuccess()){
+                if(!task.getState().typeIsFailure()){
                     continue;
                 }
+                List<Integer> list = new ArrayList<>();
+                try {
+                    list = cache.get(task.getProcessInstanceId(), ArrayList::new);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                if (!list.isEmpty() && list.contains(task.getId())){
+                    continue;
+                }
+                list.add(task.getId());
+                cache.put(task.getProcessInstanceId(),list);
                 LinkedHashMap<String, String> failedTaskMap = new LinkedHashMap();
                 failedTaskMap.put("process instance id", String.valueOf(processInstance.getId()));
                 failedTaskMap.put("process instance name", processInstance.getName());
@@ -141,7 +160,7 @@ public class AlertManager {
                 failedTaskMap.put("task type", task.getTaskType());
                 failedTaskMap.put("task state", task.getState().toString());
                 failedTaskMap.put("task start time", DateUtils.dateToString(task.getStartTime()));
-                failedTaskMap.put("task end time", DateUtils.dateToString(task.getEndTime()));
+                failedTaskMap.put("task end time", task.getEndTime()!= null?DateUtils.dateToString(task.getEndTime()):"");
                 failedTaskMap.put("host", task.getHost());
                 failedTaskMap.put("log path", task.getLogPath());
                 failedTaskList.add(failedTaskMap);
@@ -232,6 +251,16 @@ public class AlertManager {
                 break;
                 default:
         }
+        // 未完成的process中task error送错误信息
+        if (!processInstance.getState().typeIsFinished()){
+            for (TaskInstance task: taskInstances){
+                if (task.getState().typeIsFailure()){
+                    logger.error(" ----> send mail notice!");
+                    sendWarnning = true;
+                    break;
+                }
+            }
+        }
         if(!sendWarnning){
             return;
         }
@@ -242,6 +271,9 @@ public class AlertManager {
         String success = processInstance.getState().typeIsSuccess() ? "success" :"failed";
         alert.setTitle(cmdName + " " + success);
         ShowType showType = processInstance.getState().typeIsSuccess() ? ShowType.TEXT : ShowType.TABLE;
+        if (processInstance.getState().typeIsFailure() && taskInstances.isEmpty()){
+            showType = ShowType.TEXT;
+        }
         alert.setShowType(showType);
         String content = getContentProcessInstance(processInstance, taskInstances);
         alert.setContent(content);
