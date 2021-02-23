@@ -1002,6 +1002,7 @@
     </build>
 
     <modules>
+        <module>dolphinscheduler-ui</module>
         <module>dolphinscheduler-server</module>
         <module>dolphinscheduler-common</module>
         <module>dolphinscheduler-api</module>
@@ -1011,6 +1012,5 @@
         <module>dolphinscheduler-remote</module>
         <module>dolphinscheduler-service</module>
         <module>dolphinscheduler-plugin-api</module>
-        <module>dolphinscheduler-ui</module>
     </modules>
 </project>
