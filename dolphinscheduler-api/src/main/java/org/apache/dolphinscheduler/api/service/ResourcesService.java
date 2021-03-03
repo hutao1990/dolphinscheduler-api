@@ -157,7 +157,7 @@ public class ResourcesService extends BaseService {
      * @param loginUser login user
      * @param name alias
      * @param desc description
-     * @param file file
+     * @param files files
      * @param type type
      * @param pid parent id
      * @param currentDir current directory
@@ -168,7 +168,7 @@ public class ResourcesService extends BaseService {
                                  String name,
                                  String desc,
                                  ResourceType type,
-                                 MultipartFile file,
+                                 MultipartFile[] files,
                                  int pid,
                                  String currentDir) {
         Result result = new Result();
@@ -194,6 +194,14 @@ public class ResourcesService extends BaseService {
             }
         }
 
+        for (MultipartFile file:files){
+            uploadFile(file,result,type,currentDir,desc,pid,loginUser);
+        }
+
+        return result;
+    }
+
+    private Result uploadFile(MultipartFile file,Result result,ResourceType type,String currentDir,String desc,int pid,User loginUser){
         // file is empty
         if (file.isEmpty()) {
             logger.error("file is empty: {}", file.getOriginalFilename());
@@ -202,7 +210,8 @@ public class ResourcesService extends BaseService {
         }
 
         // file suffix
-        String fileSuffix = FileUtils.suffix(file.getOriginalFilename());
+        String name = file.getOriginalFilename();
+        String fileSuffix = FileUtils.suffix(name);
         String nameSuffix = FileUtils.suffix(name);
 
         // determine file suffix
