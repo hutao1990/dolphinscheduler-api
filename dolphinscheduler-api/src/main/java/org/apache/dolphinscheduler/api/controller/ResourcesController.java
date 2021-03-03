@@ -43,7 +43,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.apache.dolphinscheduler.api.enums.Status.*;
 
@@ -117,11 +119,11 @@ public class ResourcesController extends BaseController {
                                  @RequestParam(value = "type") ResourceType type,
                                  @RequestParam(value = "name") String alias,
                                  @RequestParam(value = "description", required = false) String description,
-                                 @RequestParam("file") MultipartFile file,
+                                 @RequestParam("file") MultipartFile[] file,
                                  @RequestParam(value = "pid") int pid,
                                  @RequestParam(value = "currentDir") String currentDir) {
-        logger.info("login user {}, create resource, type: {}, resource alias: {}, desc: {}, file: {},{}",
-                loginUser.getUserName(), type, alias, description, file.getName(), file.getOriginalFilename());
+        logger.info("login user {}, create resource, type: {}, resource alias: {}, desc: {}, file: {}",
+                loginUser.getUserName(), type, alias, description, Arrays.asList(file).stream().map(f->f.getOriginalFilename()).collect(Collectors.toList()));
         return resourceService.createResource(loginUser, alias, description, type, file, pid, currentDir);
     }
 

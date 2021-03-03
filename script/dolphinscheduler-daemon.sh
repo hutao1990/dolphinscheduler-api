@@ -28,6 +28,11 @@ startStop=$1
 shift
 command=$1
 shift
+debug=$1
+shift
+waiting=$1
+shift
+
 
 echo "Begin $startStop $command......"
 
@@ -56,6 +61,10 @@ log=$DOLPHINSCHEDULER_LOG_DIR/dolphinscheduler-$command-$HOSTNAME.out
 pid=$DOLPHINSCHEDULER_PID_DIR/dolphinscheduler-$command.pid
 
 cd $DOLPHINSCHEDULER_HOME
+
+if [ "$debug" = "debug" ];then
+  DEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=${waiting:-n},address=5010"
+fi
 
 if [ "$command" = "api-server" ]; then
   HEAP_INITIAL_SIZE=1g
@@ -106,7 +115,7 @@ case $startStop in
 
     echo starting $command, logging to $log
 
-    exec_command="$LOG_FILE $DOLPHINSCHEDULER_OPTS -classpath $DOLPHINSCHEDULER_CONF_DIR:$DOLPHINSCHEDULER_LIB_JARS $CLASS"
+    exec_command="$LOG_FILE $DEBUG $DOLPHINSCHEDULER_OPTS -classpath $DOLPHINSCHEDULER_CONF_DIR:$DOLPHINSCHEDULER_LIB_JARS $CLASS"
 
     echo "nohup $JAVA_HOME/bin/java $exec_command > $log 2>&1 &"
     nohup $JAVA_HOME/bin/java $exec_command > $log 2>&1 &

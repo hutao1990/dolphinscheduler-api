@@ -45,7 +45,7 @@ public class CheckUtils {
    * @return true if user name regex valid,otherwise return false
    */
   public static boolean checkUserName(String userName) {
-    return regexChecks(userName, Pattern.compile("^[a-zA-Z0-9._-]{2,39}$"));
+    return regexChecks(userName, Constants.REGEX_USER_NAME);
   }
 
   /**
