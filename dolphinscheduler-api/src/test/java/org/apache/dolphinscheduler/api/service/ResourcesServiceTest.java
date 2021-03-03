@@ -103,24 +103,24 @@ public class ResourcesServiceTest {
         Assert.assertEquals(Status.HDFS_NOT_STARTUP.getMsg(),result.getMsg());
 
         //RESOURCE_FILE_IS_EMPTY
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("test.pdf",new String().getBytes());
+        MockMultipartFile[] mockMultipartFile = {new MockMultipartFile("test.pdf",new String().getBytes())};
         PowerMockito.when(PropertyUtils.getResUploadStartupState()).thenReturn(true);
         result = resourcesService.createResource(user,"ResourcesServiceTest","ResourcesServiceTest",ResourceType.FILE,mockMultipartFile,-1,"/");
         logger.info(result.toString());
         Assert.assertEquals(Status.RESOURCE_FILE_IS_EMPTY.getMsg(),result.getMsg());
 
         //RESOURCE_SUFFIX_FORBID_CHANGE
-        mockMultipartFile = new MockMultipartFile("test.pdf","test.pdf","pdf",new String("test").getBytes());
+        MockMultipartFile[] mockMultipartFile1 = {new MockMultipartFile("test.pdf","test.pdf","pdf",new String("test").getBytes())};
         PowerMockito.when(FileUtils.suffix("test.pdf")).thenReturn("pdf");
         PowerMockito.when(FileUtils.suffix("ResourcesServiceTest.jar")).thenReturn("jar");
-        result = resourcesService.createResource(user,"ResourcesServiceTest.jar","ResourcesServiceTest",ResourceType.FILE,mockMultipartFile,-1,"/");
+        result = resourcesService.createResource(user,"ResourcesServiceTest.jar","ResourcesServiceTest",ResourceType.FILE,mockMultipartFile1,-1,"/");
         logger.info(result.toString());
         Assert.assertEquals(Status.RESOURCE_SUFFIX_FORBID_CHANGE.getMsg(),result.getMsg());
 
         //UDF_RESOURCE_SUFFIX_NOT_JAR
-        mockMultipartFile = new MockMultipartFile("ResourcesServiceTest.pdf","ResourcesServiceTest.pdf","pdf",new String("test").getBytes());
+        MockMultipartFile[] mockMultipartFile2 = {new MockMultipartFile("ResourcesServiceTest.pdf","ResourcesServiceTest.pdf","pdf",new String("test").getBytes())};
         PowerMockito.when(FileUtils.suffix("ResourcesServiceTest.pdf")).thenReturn("pdf");
-        result = resourcesService.createResource(user,"ResourcesServiceTest.pdf","ResourcesServiceTest",ResourceType.UDF,mockMultipartFile,-1,"/");
+        result = resourcesService.createResource(user,"ResourcesServiceTest.pdf","ResourcesServiceTest",ResourceType.UDF,mockMultipartFile2,-1,"/");
         logger.info(result.toString());
         Assert.assertEquals(Status.UDF_RESOURCE_SUFFIX_NOT_JAR.getMsg(),result.getMsg());
 
