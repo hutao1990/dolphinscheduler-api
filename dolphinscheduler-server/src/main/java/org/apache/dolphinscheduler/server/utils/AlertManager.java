@@ -205,6 +205,10 @@ public class AlertManager {
             alert.setTitle("worker fault tolerance");
             alert.setShowType(ShowType.TABLE);
             String content = getWorkerToleranceContent(processInstance, toleranceTaskList);
+            if (content == null || content.trim().length() < 8){
+                logger.info("ignore blank alert...");
+                return;
+            }
             alert.setContent(content);
             alert.setAlertType(AlertType.EMAIL);
             alert.setCreateTime(new Date());
