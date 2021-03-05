@@ -280,6 +280,10 @@ public class AlertManager {
         }
         alert.setShowType(showType);
         String content = getContentProcessInstance(processInstance, taskInstances);
+        if (content == null || content.trim().length() < 8){
+            logger.info("ignore blank alert...");
+            return;
+        }
         alert.setContent(content);
         alert.setAlertType(AlertType.EMAIL);
         alert.setAlertGroupId(processInstance.getWarningGroupId());
