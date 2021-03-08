@@ -129,6 +129,16 @@ public class TaskNode {
    */
   private Integer workerGroupId;
 
+  /**
+   * mail alarm enable
+   */
+  private boolean mailAlarmEnable;
+
+  /**
+   * phone alarm enable
+   */
+  private boolean phoneAlarmEnable;
+
 
   /**
    * task time out
@@ -136,6 +146,23 @@ public class TaskNode {
   @JsonDeserialize(using = JSONUtils.JsonDataDeserializer.class)
   @JsonSerialize(using = JSONUtils.JsonDataSerializer.class)
   private String timeout;
+
+
+  public boolean isMailAlarmEnable() {
+    return mailAlarmEnable;
+  }
+
+  public void setMailAlarmEnable(boolean mailAlarmEnable) {
+    this.mailAlarmEnable = mailAlarmEnable;
+  }
+
+  public boolean isPhoneAlarmEnable() {
+    return phoneAlarmEnable;
+  }
+
+  public void setPhoneAlarmEnable(boolean phoneAlarmEnable) {
+    this.phoneAlarmEnable = phoneAlarmEnable;
+  }
 
   public String getId() {
     return id;
