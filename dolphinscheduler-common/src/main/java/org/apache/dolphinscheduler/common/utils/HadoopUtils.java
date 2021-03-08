@@ -64,7 +64,7 @@ public class HadoopUtils implements Closeable {
 
     private static final LoadingCache<String, HadoopUtils> cache = CacheBuilder
             .newBuilder()
-            .expireAfterWrite(PropertyUtils.getInt(Constants.KERBEROS_EXPIRE_TIME, 7), TimeUnit.DAYS)
+            .expireAfterWrite(PropertyUtils.getInt(Constants.KERBEROS_EXPIRE_TIME, 1), TimeUnit.DAYS)
             .build(new CacheLoader<String, HadoopUtils>() {
                 @Override
                 public HadoopUtils load(String key) throws Exception {
