@@ -86,7 +86,7 @@
     <select id="queryByDefineId" resultType="org.apache.dolphinscheduler.dao.entity.ProcessDefinition">
         SELECT
             pd.*, u.user_name,
-            p.name AS project_name
+            p.name AS project_name,u.email,u.phone,u.queue
         FROM
             t_ds_process_definition pd,
             t_ds_user u,

@@ -17,13 +17,13 @@
 package org.apache.dolphinscheduler.server.utils;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.gome.hkalarm.sdk.bean.PhoneBean;
+import com.gome.hkalarm.sdk.util.SDK;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.apache.dolphinscheduler.common.enums.AlertType;
-import org.apache.dolphinscheduler.common.enums.CommandType;
-import org.apache.dolphinscheduler.common.enums.Flag;
-import org.apache.dolphinscheduler.common.enums.ShowType;
-import org.apache.dolphinscheduler.common.enums.WarningType;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.dolphinscheduler.common.enums.*;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.AlertDao;
@@ -32,13 +32,18 @@ import org.apache.dolphinscheduler.dao.entity.Alert;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
+import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * alert manager
@@ -54,6 +59,10 @@ public class AlertManager {
      * alert dao
      */
     private AlertDao alertDao = DaoFactory.getDaoInstance(AlertDao.class);
+
+
+    @Autowired
+    private ProcessDefinitionMapper processDefineMapper;
 
 
     public static Cache<Integer,List<Integer>> cache = CacheBuilder.newBuilder()
@@ -293,6 +302,30 @@ public class AlertManager {
 
         alertDao.addAlert(alert);
         logger.info("add alert to db , alert: {}", alert.toString());
+        if (callPhone(taskInstances)){
+            ProcessDefinition definition = processDefineMapper.queryByDefineId(processInstance.getProcessDefinitionId());
+            PhoneBean phoneBean = new PhoneBean();
+            phoneBean.setAppId("dolphinscheduler");
+            phoneBean.setDetailId(definition.getUserName()+"_"+definition.getProjectName()+"_"+definition.getName());
+            phoneBean.setPhoneNumber(definition.getPhone());
+            phoneBean.setTitle("scheduler alarm");
+            phoneBean.setContent(StringUtils.join(taskInstances.stream().map(TaskInstance::getName).collect(Collectors.toList()),",")+" error!");
+            SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+        }
+    }
+
+    private boolean callPhone(List<TaskInstance> taskInstances){
+        if (taskInstances != null && !taskInstances.isEmpty()){
+            for (TaskInstance task : taskInstances){
+                String str = task.getTaskJson();
+                JSONObject json = JSONObject.parseObject(str);
+                boolean phoneAlarmEnable = json.getBooleanValue("phoneAlarmEnable");
+                if (phoneAlarmEnable){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

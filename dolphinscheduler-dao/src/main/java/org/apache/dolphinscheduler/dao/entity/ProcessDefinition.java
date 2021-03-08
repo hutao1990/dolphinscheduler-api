@@ -168,6 +168,48 @@ public class ProcessDefinition {
      */
     private String resourceIds;
 
+    /**
+     * email
+     */
+    @TableField(exist = false)
+    private String email;
+
+    /**
+     * phone
+     */
+    @TableField(exist = false)
+    private String phone;
+
+    /**
+     * queue
+     */
+    @TableField(exist = false)
+    private String queue;
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getQueue() {
+        return queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
 
     public String getName() {
         return name;

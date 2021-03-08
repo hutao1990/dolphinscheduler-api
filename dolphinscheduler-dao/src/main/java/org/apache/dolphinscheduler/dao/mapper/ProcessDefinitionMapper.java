@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Map;
 /**
  * process definition mapper interface
  */
+@Component
 public interface ProcessDefinitionMapper extends BaseMapper<ProcessDefinition> {
 
     /**
