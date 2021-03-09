@@ -22,6 +22,7 @@ import com.gome.hkalarm.sdk.bean.PhoneBean;
 import com.gome.hkalarm.sdk.util.SDK;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dolphinscheduler.common.enums.*;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
@@ -39,10 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -305,14 +303,15 @@ public class AlertManager {
 
         alertDao.addAlert(alert);
         logger.info("add alert to db , alert: {}", alert.toString());
-        if (callPhone(taskInstances)) {
+        List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).collect(Collectors.toList());
+        if (callPhone(collect)) {
             ProcessDefinition definition = processDefineMapper.queryByDefineId(processInstance.getProcessDefinitionId());
             PhoneBean phoneBean = new PhoneBean();
             phoneBean.setAppId("dolphinscheduler");
             phoneBean.setDetailId(definition.getUserName() + "_" + definition.getProjectName() + "_" + definition.getName());
             phoneBean.setPhoneNumber(definition.getPhone());
             phoneBean.setTitle("scheduler alarm");
-            phoneBean.setContent(StringUtils.join(taskInstances.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+            phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
             SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
         }
     }
