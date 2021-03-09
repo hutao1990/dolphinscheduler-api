@@ -30,7 +30,6 @@ import java.util.Map;
 /**
  * process definition mapper interface
  */
-@Component
 public interface ProcessDefinitionMapper extends BaseMapper<ProcessDefinition> {
 
     /**
