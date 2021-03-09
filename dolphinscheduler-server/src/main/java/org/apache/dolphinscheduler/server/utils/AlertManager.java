@@ -30,11 +30,9 @@ import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.AlertDao;
 import org.apache.dolphinscheduler.dao.DaoFactory;
 import org.apache.dolphinscheduler.dao.datasource.ConnectionFactory;
-import org.apache.dolphinscheduler.dao.entity.Alert;
-import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
-import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
-import org.apache.dolphinscheduler.dao.entity.TaskInstance;
+import org.apache.dolphinscheduler.dao.entity.*;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
+import org.apache.dolphinscheduler.dao.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +59,7 @@ public class AlertManager {
     private AlertDao alertDao = DaoFactory.getDaoInstance(AlertDao.class);
 
 
-    private ProcessDefinitionMapper processDefineMapper = ConnectionFactory.getInstance().getMapper(ProcessDefinitionMapper.class);
+    private UserMapper userMapper = ConnectionFactory.getInstance().getMapper(UserMapper.class);
 
 
     public static Cache<Integer, List<Integer>> cache = CacheBuilder.newBuilder()
@@ -305,11 +303,12 @@ public class AlertManager {
         logger.info("add alert to db , alert: {}", alert.toString());
         List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).collect(Collectors.toList());
         if (callPhone(collect)) {
-            ProcessDefinition definition = processDefineMapper.queryByDefineId(processInstance.getProcessDefinitionId());
+            User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
+            logger.info("callPhone "+user.getPhone()+" alarm!");
             PhoneBean phoneBean = new PhoneBean();
             phoneBean.setAppId("dolphinscheduler");
-            phoneBean.setDetailId(definition.getUserName() + "_" + definition.getProjectName() + "_" + definition.getName());
-            phoneBean.setPhoneNumber(definition.getPhone());
+            phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
+            phoneBean.setPhoneNumber(user.getPhone());
             phoneBean.setTitle("scheduler alarm");
             phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
             SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
