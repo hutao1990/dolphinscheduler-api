@@ -249,7 +249,7 @@ public class ResourcesService extends BaseService {
                 continue;
             }
             if (name.contains("/")) {
-                parentPath = name.substring(name.lastIndexOf("/") + 1);
+                parentPath = name.substring(0,name.lastIndexOf("/"));
             }
             ZipMultiPartFile file = new ZipMultiPartFile(name, zipFile.getInputStream(entry));
             files.add(new Pair<>(parentPath, file));
@@ -260,7 +260,7 @@ public class ResourcesService extends BaseService {
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getValue().getOriginalFilename());
-            uploadFile(p.getValue(), result, type, currentDir+"/"+p.getKey(), "", pid, loginUser);
+            uploadFile(p.getValue(), result, type, currentDir+p.getKey(), "", pid, loginUser);
         });
 
     }
