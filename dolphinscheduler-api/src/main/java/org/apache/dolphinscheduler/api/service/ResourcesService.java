@@ -259,7 +259,7 @@ public class ResourcesService extends BaseService {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
             String cd = currentDir + p.getKey();
             createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
-            String fullName = currentDir.equals("/") ? cd + p.getValue() : cd + "/" + p.getValue();
+            String fullName = currentDir.endsWith("/") ? cd + p.getValue() : cd + "/" + p.getValue();
             List<Resource> resources = resourcesMapper.queryResourceList(fullName, loginUser.getId(), 0);
             if (resources != null && resources.size() > 0) {
                 dirIdMap.put(fullName, resources.get(0).getId());
