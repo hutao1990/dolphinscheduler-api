@@ -20,7 +20,7 @@ public class ZipMultiPartFile implements MultipartFile, Serializable {
     private byte[] data;
 
     public ZipMultiPartFile(String originalFilename,byte[] data) {
-        this.originalFilename = originalFilename;
+        this.originalFilename = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
         this.name = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
         this.contentType = name.substring(name.lastIndexOf(".") + 1);
         this.data = data;
