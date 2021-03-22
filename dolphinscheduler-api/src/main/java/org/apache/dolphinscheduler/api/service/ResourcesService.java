@@ -208,7 +208,7 @@ public class ResourcesService extends BaseService {
                     FileUtils.deleteDir(destFilePath);
                     org.apache.commons.io.IOUtils.copy(file.getInputStream(), new FileWriter(destFilePath));
                     ZipFile zipFile = new ZipFile(destFilePath);
-                    uploadZipFile(zipFile,loginUser,type,pid,result);
+                    uploadZipFile(zipFile,loginUser,type,pid,currentDir,result);
                 } catch (IOException e) {
                     e.printStackTrace();
                     // TODO
@@ -221,7 +221,7 @@ public class ResourcesService extends BaseService {
         return result;
     }
 
-    private void uploadZipFile(ZipFile zipFile, User loginUser, ResourceType type, int pid, Result result) throws IOException {
+    private void uploadZipFile(ZipFile zipFile, User loginUser, ResourceType type, int pid,String currentDir, Result result) throws IOException {
         Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
         List<Pair<String, String>> dirs = new ArrayList<>();
         List<Pair<String, MultipartFile>> files = new ArrayList<>();
@@ -247,11 +247,11 @@ public class ResourcesService extends BaseService {
         }
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
-            createDirectory(loginUser, p.getValue(), "", type, pid, p.getKey());
+            createDirectory(loginUser, p.getValue(), "", type, pid, currentDir+"/"+p.getKey());
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getValue().getOriginalFilename());
-            uploadFile(p.getValue(), result, type, p.getKey(), "", pid, loginUser);
+            uploadFile(p.getValue(), result, type, currentDir+"/"+p.getKey(), "", pid, loginUser);
         });
 
     }
