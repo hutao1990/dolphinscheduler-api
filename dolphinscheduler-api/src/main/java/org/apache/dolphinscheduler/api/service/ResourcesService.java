@@ -220,7 +220,8 @@ public class ResourcesService extends BaseService {
                     uploadZipFile(zipFile, loginUser, type, pid, currentDir, result);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    // TODO
+                    putMsg(result,Status.PARSE_UPLOAD_ZIP_FILE_ERROR);
+                    return result;
                 }
             } else {
                 uploadFile(file, result, type, currentDir, desc, pid, loginUser);
