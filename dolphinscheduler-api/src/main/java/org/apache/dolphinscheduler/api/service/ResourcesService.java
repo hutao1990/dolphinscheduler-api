@@ -211,13 +211,13 @@ public class ResourcesService extends BaseService {
                     if (file1.exists()) {
                         if (file1.isDirectory()) {
                             FileUtils.deleteDir(destFilePath);
-                        }else {
+                        } else {
                             FileUtils.deleteFile(destFilePath);
                         }
                     }
                     org.apache.commons.io.IOUtils.copy(file.getInputStream(), new FileOutputStream(destFilePath));
                     ZipFile zipFile = new ZipFile(destFilePath);
-                    uploadZipFile(zipFile,loginUser,type,pid,currentDir,result);
+                    uploadZipFile(zipFile, loginUser, type, pid, currentDir, result);
                 } catch (IOException e) {
                     e.printStackTrace();
                     // TODO
@@ -230,10 +230,11 @@ public class ResourcesService extends BaseService {
         return result;
     }
 
-    private void uploadZipFile(ZipFile zipFile, User loginUser, ResourceType type, int pid,String currentDir, Result result) throws IOException {
+    private void uploadZipFile(ZipFile zipFile, User loginUser, ResourceType type, int pid, String currentDir, Result result) throws IOException {
         Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
         List<Pair<String, String>> dirs = new ArrayList<>();
         List<Pair<String, MultipartFile>> files = new ArrayList<>();
+        Map<String, Integer> dirIdMap = new HashMap<>();
         while (entries.hasMoreElements()) {
             ZipArchiveEntry entry = entries.nextElement();
             String name = entry.getName();
@@ -249,18 +250,24 @@ public class ResourcesService extends BaseService {
                 continue;
             }
             if (name.contains("/")) {
-                parentPath = name.substring(0,name.lastIndexOf("/"));
+                parentPath = name.substring(0, name.lastIndexOf("/"));
             }
             ZipMultiPartFile file = new ZipMultiPartFile(name, zipFile.getInputStream(entry));
             files.add(new Pair<>(parentPath, file));
         }
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
-            createDirectory(loginUser, p.getValue(), "", type, pid, currentDir+p.getKey());
+            String cd = currentDir + p.getKey();
+            createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
+            List<Resource> resources = resourcesMapper.queryResourceList(cd, loginUser.getId(), 0);
+            if (resources != null && resources.size() > 0){
+                dirIdMap.put(cd,resources.get(0).getId());
+            }
         });
         files.forEach(p -> {
-            logger.info("uploading file '{}...'", p.getValue().getOriginalFilename());
-            uploadFile(p.getValue(), result, type, currentDir+p.getKey(), "", pid, loginUser);
+            logger.info("uploading file '{}...'", p.getKey() + "/" + p.getValue().getOriginalFilename());
+            String cd = currentDir + p.getKey();
+            uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
         });
 
     }
