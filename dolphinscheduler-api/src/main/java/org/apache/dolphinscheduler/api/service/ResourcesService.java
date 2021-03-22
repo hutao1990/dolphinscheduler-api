@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -214,7 +215,7 @@ public class ResourcesService extends BaseService {
                             FileUtils.deleteFile(destFilePath);
                         }
                     }
-                    org.apache.commons.io.IOUtils.copy(file.getInputStream(), new FileWriter(destFilePath));
+                    org.apache.commons.io.IOUtils.copy(file.getInputStream(), new FileOutputStream(destFilePath));
                     ZipFile zipFile = new ZipFile(destFilePath);
                     uploadZipFile(zipFile,loginUser,type,pid,currentDir,result);
                 } catch (IOException e) {
