@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -205,7 +206,14 @@ public class ResourcesService extends BaseService {
                     String path = file.getOriginalFilename();
                     String fileName = path.substring(path.lastIndexOf("/") + 1);
                     String destFilePath = "/tmp/" + fileName;
-                    FileUtils.deleteDir(destFilePath);
+                    File file1 = new File(destFilePath);
+                    if (file1.exists()) {
+                        if (file1.isDirectory()) {
+                            FileUtils.deleteDir(destFilePath);
+                        }else {
+                            FileUtils.deleteFile(destFilePath);
+                        }
+                    }
                     org.apache.commons.io.IOUtils.copy(file.getInputStream(), new FileWriter(destFilePath));
                     ZipFile zipFile = new ZipFile(destFilePath);
                     uploadZipFile(zipFile,loginUser,type,pid,currentDir,result);
