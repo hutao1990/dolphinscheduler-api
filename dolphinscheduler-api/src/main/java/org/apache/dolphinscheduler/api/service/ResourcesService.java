@@ -259,9 +259,9 @@ public class ResourcesService extends BaseService {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
             String cd = currentDir + p.getKey();
             createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
-            List<Resource> resources = resourcesMapper.queryResourceList(cd, loginUser.getId(), 0);
-            if (resources != null && resources.size() > 0){
-                dirIdMap.put(cd,resources.get(0).getId());
+            List<Resource> resources = resourcesMapper.queryResourceList(cd + p.getValue(), loginUser.getId(), 0);
+            if (resources != null && resources.size() > 0) {
+                dirIdMap.put(cd, resources.get(0).getId());
             }
         });
         files.forEach(p -> {
