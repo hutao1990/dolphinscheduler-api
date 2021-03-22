@@ -256,7 +256,7 @@ public class ResourcesService extends BaseService {
         }
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
-            createDirectory(loginUser, p.getValue(), "", type, pid, currentDir+"/"+p.getKey());
+            createDirectory(loginUser, p.getValue(), "", type, pid, currentDir+p.getKey());
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getValue().getOriginalFilename());
