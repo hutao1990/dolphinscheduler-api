@@ -258,7 +258,7 @@ public class ResourcesService extends BaseService {
         }
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
-            String cd = currentDir.endsWith("/") ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
+            String cd = currentDir.endsWith("/") || StringUtils.isBlank(p.getKey()) ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
             createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
             String fullName = cd.endsWith("/") ? cd + p.getValue() : cd + "/" + p.getValue();
             List<Resource> resources = resourcesMapper.queryResourceList(fullName, loginUser.getId(), 0);
@@ -268,7 +268,7 @@ public class ResourcesService extends BaseService {
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getKey() + "/" + p.getValue().getOriginalFilename());
-            String cd = currentDir.endsWith("/") ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
+            String cd =  currentDir.endsWith("/") || StringUtils.isBlank(p.getKey()) ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
             uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
         });
 
