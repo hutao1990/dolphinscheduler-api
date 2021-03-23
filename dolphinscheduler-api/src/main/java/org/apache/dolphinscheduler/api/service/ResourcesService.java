@@ -220,7 +220,7 @@ public class ResourcesService extends BaseService {
                     uploadZipFile(zipFile, loginUser, type, pid, currentDir, result);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    putMsg(result,Status.PARSE_UPLOAD_ZIP_FILE_ERROR);
+                    putMsg(result, Status.PARSE_UPLOAD_ZIP_FILE_ERROR);
                     return result;
                 }
             } else {
@@ -258,7 +258,7 @@ public class ResourcesService extends BaseService {
         }
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
-            String cd = currentDir + p.getKey();
+            String cd = currentDir.endsWith("/") ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
             createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
             String fullName = cd.endsWith("/") ? cd + p.getValue() : cd + "/" + p.getValue();
             List<Resource> resources = resourcesMapper.queryResourceList(fullName, loginUser.getId(), 0);
@@ -268,7 +268,7 @@ public class ResourcesService extends BaseService {
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getKey() + "/" + p.getValue().getOriginalFilename());
-            String cd = currentDir + p.getKey();
+            String cd = currentDir.endsWith("/") ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
             uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
         });
 
