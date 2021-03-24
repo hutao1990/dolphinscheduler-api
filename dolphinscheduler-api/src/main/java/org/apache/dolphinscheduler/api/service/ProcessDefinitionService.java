@@ -71,22 +71,14 @@ import org.apache.dolphinscheduler.service.process.ProcessService;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.hadoop.util.hash.Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1390,16 +1382,16 @@ public class ProcessDefinitionService extends BaseDAGService {
         }
 
         Set<String> relations = new HashSet<>();
-        Set<String> end = new HashSet<>();
         Map<String, TreeViewDto> treeMaps = new HashMap<>();
-        parseDAG(parentTreeViewDto.getChildren(),relations,treeMaps,end);
+        parseDAG(parentTreeViewDto.getChildren(),relations,treeMaps);
         HashMultimap<String,String> deps = HashMultimap.create();
         relations.forEach(t ->{
             String[] split = t.split("#");
             deps.put(split[0],split[1]);
         });
+        Collection<String> intersection = org.apache.commons.collections4.CollectionUtils.intersection(deps.keySet(), new HashSet<>(deps.values()));
         List<TreeViewDto> list = new ArrayList<>();
-        end.forEach(n ->{
+        intersection.forEach(n ->{
             list.add(reverseTreeViewDto(n,treeMaps,deps));
         });
         parentTreeViewDto.setChildren(list);
@@ -1409,12 +1401,9 @@ public class ProcessDefinitionService extends BaseDAGService {
         return result;
     }
 
-    private static void parseDAG(List<TreeViewDto> parentTreeViewDtos,Set<String> relations,Map<String, TreeViewDto> treeMaps,Set<String> end){
+    private static void parseDAG(List<TreeViewDto> parentTreeViewDtos,Set<String> relations,Map<String, TreeViewDto> treeMaps){
         List<TreeViewDto> list = new ArrayList<>();
         for (TreeViewDto parentTreeViewDto : parentTreeViewDtos) {
-            if (parentTreeViewDto.getChildren().isEmpty()){
-                end.add(parentTreeViewDto.getName());
-            }
             for (TreeViewDto child : parentTreeViewDto.getChildren()) {
                 relations.add(child.getName()+"#"+parentTreeViewDto.getName());
             }
@@ -1426,7 +1415,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             treeMaps.put(parentTreeViewDto.getName(),parentTreeViewDto);
         }
         if (!list.isEmpty()){
-            parseDAG(list,relations,treeMaps,end);
+            parseDAG(list,relations,treeMaps);
         }
     }
 
