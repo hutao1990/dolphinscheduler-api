@@ -783,7 +783,10 @@ public class ProcessDefinitionService extends BaseDAGService {
         }
 
         for (ProcessMeta processMeta:processMetaList) {
-
+            String s = processMeta.getProcessDefinitionJson();
+            JSONObject json = JSON.parseObject(s);
+            json.put("tenantId",loginUser.getTenantId());
+            processMeta.setProcessDefinitionJson(json.toJSONString());
             if (!checkAndImportProcessDefinition(loginUser, currentProjectName, result, processMeta)) {
                 return result;
             }
