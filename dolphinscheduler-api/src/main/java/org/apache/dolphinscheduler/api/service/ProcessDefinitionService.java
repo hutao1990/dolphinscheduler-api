@@ -1381,20 +1381,20 @@ public class ProcessDefinitionService extends BaseDAGService {
             }
         }
 
-        Set<String> relations = new HashSet<>();
-        Map<String, TreeViewDto> treeMaps = new HashMap<>();
-        parseDAG(parentTreeViewDto.getChildren(),relations,treeMaps);
-        HashMultimap<String,String> deps = HashMultimap.create();
-        relations.forEach(t ->{
-            String[] split = t.split("#");
-            deps.put(split[0],split[1]);
-        });
-        Collection<String> intersection = org.apache.commons.collections4.CollectionUtils.subtract(deps.keySet(), new HashSet<>(deps.values()));
-        List<TreeViewDto> list = new ArrayList<>();
-        intersection.forEach(n ->{
-            list.add(reverseTreeViewDto(n,treeMaps,deps));
-        });
-        parentTreeViewDto.setChildren(list);
+//        Set<String> relations = new HashSet<>();
+//        Map<String, TreeViewDto> treeMaps = new HashMap<>();
+//        parseDAG(parentTreeViewDto.getChildren(),relations,treeMaps);
+//        HashMultimap<String,String> deps = HashMultimap.create();
+//        relations.forEach(t ->{
+//            String[] split = t.split("#");
+//            deps.put(split[0],split[1]);
+//        });
+//        Collection<String> intersection = org.apache.commons.collections4.CollectionUtils.subtract(deps.keySet(), new HashSet<>(deps.values()));
+//        List<TreeViewDto> list = new ArrayList<>();
+//        intersection.forEach(n ->{
+//            list.add(reverseTreeViewDto(n,treeMaps,deps));
+//        });
+//        parentTreeViewDto.setChildren(list);
         result.put(Constants.DATA_LIST, parentTreeViewDto);
         result.put(Constants.STATUS, Status.SUCCESS);
         result.put(Constants.MSG, Status.SUCCESS.getMsg());
