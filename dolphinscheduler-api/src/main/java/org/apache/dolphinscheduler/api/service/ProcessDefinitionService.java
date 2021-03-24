@@ -19,6 +19,8 @@ package org.apache.dolphinscheduler.api.service;
 
 import static org.apache.dolphinscheduler.common.Constants.CMDPARAM_SUB_PROCESS_DEFINE_ID;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import org.apache.dolphinscheduler.api.dto.ProcessMeta;
 import org.apache.dolphinscheduler.api.dto.treeview.Instance;
 import org.apache.dolphinscheduler.api.dto.treeview.TreeViewDto;
@@ -1386,11 +1388,58 @@ public class ProcessDefinitionService extends BaseDAGService {
                 waitingRunningNodeMap.clear();
             }
         }
+
+        Set<String> relations = new HashSet<>();
+        Set<String> end = new HashSet<>();
+        Map<String, TreeViewDto> treeMaps = new HashMap<>();
+        parseDAG(parentTreeViewDto.getChildren(),relations,treeMaps,end);
+        HashMultimap<String,String> deps = HashMultimap.create();
+        relations.forEach(t ->{
+            String[] split = t.split("#");
+            deps.put(split[0],split[1]);
+        });
+        List<TreeViewDto> list = new ArrayList<>();
+        end.forEach(n ->{
+            list.add(reverseTreeViewDto(n,treeMaps,deps));
+        });
+        parentTreeViewDto.setChildren(list);
         result.put(Constants.DATA_LIST, parentTreeViewDto);
         result.put(Constants.STATUS, Status.SUCCESS);
         result.put(Constants.MSG, Status.SUCCESS.getMsg());
         return result;
     }
+
+    private static void parseDAG(List<TreeViewDto> parentTreeViewDtos,Set<String> relations,Map<String, TreeViewDto> treeMaps,Set<String> end){
+        List<TreeViewDto> list = new ArrayList<>();
+        for (TreeViewDto parentTreeViewDto : parentTreeViewDtos) {
+            if (parentTreeViewDto.getChildren().isEmpty()){
+                end.add(parentTreeViewDto.getName());
+            }
+            for (TreeViewDto child : parentTreeViewDto.getChildren()) {
+                relations.add(child.getName()+"#"+parentTreeViewDto.getName());
+            }
+            TreeViewDto dto = new TreeViewDto();
+            dto.setName("DAG");
+            dto.setType("");
+            list.addAll(new ArrayList<>(parentTreeViewDto.getChildren()));
+            parentTreeViewDto.setChildren(new ArrayList<>());
+            treeMaps.put(parentTreeViewDto.getName(),parentTreeViewDto);
+        }
+        if (!list.isEmpty()){
+            parseDAG(list,relations,treeMaps,end);
+        }
+    }
+
+    private static TreeViewDto reverseTreeViewDto(String end,Map<String, TreeViewDto> treeMaps,HashMultimap<String,String> deps){
+        TreeViewDto treeViewDto = treeMaps.get(end);
+        List<TreeViewDto> list = new ArrayList<>();
+        deps.get(end).forEach(node ->{
+            list.add(reverseTreeViewDto(node,treeMaps,deps));
+        });
+        treeViewDto.setChildren(list);
+        return treeViewDto;
+    }
+
 
     /**
      * Generate the DAG Graph based on the process definition id
