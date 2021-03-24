@@ -1389,7 +1389,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             String[] split = t.split("#");
             deps.put(split[0],split[1]);
         });
-        Collection<String> intersection = org.apache.commons.collections4.CollectionUtils.intersection(deps.keySet(), new HashSet<>(deps.values()));
+        Collection<String> intersection = org.apache.commons.collections4.CollectionUtils.subtract(deps.keySet(), new HashSet<>(deps.values()));
         List<TreeViewDto> list = new ArrayList<>();
         intersection.forEach(n ->{
             list.add(reverseTreeViewDto(n,treeMaps,deps));
