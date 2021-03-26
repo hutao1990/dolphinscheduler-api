@@ -784,7 +784,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             return result;
         }
 
-        List<Resource> resourceList = resourceMapper.queryAuthorizedResourceList(loginUser.getId());
+        List<Resource> resourceList = resourceMapper.queryResourceExceptUserId(loginUser.getId());
         Map<String, Resource> collect = resourceList.stream().collect(Collectors.toMap(r -> r.getFileName(), r -> r, (r1, r2) -> r2));
 
         for (ProcessMeta processMeta : processMetaList) {
