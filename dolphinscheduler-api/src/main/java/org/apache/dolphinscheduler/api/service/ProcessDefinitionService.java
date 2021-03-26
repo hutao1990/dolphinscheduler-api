@@ -803,7 +803,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                         if (resource != null){
                             System.out.println(resource);
                             jsonObject.put("id",resource.getId());
-                            jsonObject.put("res",resource.getFullName());
+                            jsonObject.put("res", org.apache.commons.lang3.StringUtils.removeStart(resource.getFullName(),"/"));
                         }
                     }
                 }
