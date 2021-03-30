@@ -96,7 +96,7 @@ public class CheckUtils {
    * @return true if password regex valid, otherwise return false
    */
   public static boolean checkPassword(String password) {
-    return StringUtils.isNotEmpty(password) && password.length() >= 2 && password.length() <= 20;
+    return StringUtils.isNotEmpty(password) && password.length() >= 2 && password.length() <= 100;
   }
 
   /**
