@@ -1,11 +1,9 @@
 package org.apache.dolphinscheduler.api.utils;
 
-import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.Path;
 
 /**
  * @author hutao
@@ -18,16 +16,22 @@ public class ZipMultiPartFile implements MultipartFile, Serializable {
     private String originalFilename;
     private String contentType;
     private byte[] data;
+    private String fullName;
 
     public ZipMultiPartFile(String originalFilename,byte[] data) {
         this.originalFilename = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
         this.name = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
         this.contentType = name.substring(name.lastIndexOf(".") + 1);
         this.data = data;
+        this.fullName = originalFilename;
     }
 
     public ZipMultiPartFile(String originalFilename,InputStream in) throws IOException{
         this(originalFilename,FileCopyUtils.copyToByteArray(in));
+    }
+
+    public String getFullName(){
+        return fullName;
     }
 
     @Override

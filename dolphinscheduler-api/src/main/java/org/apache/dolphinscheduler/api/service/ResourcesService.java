@@ -256,20 +256,32 @@ public class ResourcesService extends BaseService {
             ZipMultiPartFile file = new ZipMultiPartFile(name, zipFile.getInputStream(entry));
             files.add(new Pair<>(parentPath, file));
         }
+        List<Resource> resourceList = resourcesMapper.queryResourceList(null, loginUser.getId(), 0);
+        Map<String, Resource> collect = resourceList.stream().collect(Collectors.toMap(r -> r.getFullName(), r -> r, (r1, r2) -> r2));
         dirs.forEach(p -> {
             logger.info("creating dir: '{}/{}'", p.getKey(), p.getValue());
             String cd = currentDir.endsWith("/") || StringUtils.isBlank(p.getKey()) ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
-            createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
             String fullName = cd.endsWith("/") ? cd + p.getValue() : cd + "/" + p.getValue();
-            List<Resource> resources = resourcesMapper.queryResourceList(fullName, loginUser.getId(), 0);
-            if (resources != null && resources.size() > 0) {
-                dirIdMap.put(fullName, resources.get(0).getId());
+            if (!collect.containsKey(fullName)) {
+                createDirectory(loginUser, p.getValue(), "", type, dirIdMap.getOrDefault(cd, pid), cd);
+                List<Resource> resources = resourcesMapper.queryResourceList(fullName, loginUser.getId(), 0);
+                if (resources != null && resources.size() > 0) {
+                    dirIdMap.put(fullName, resources.get(0).getId());
+                }
+            }else {
+                logger.warn("dir '{}' has exists! skip it.",fullName);
+                dirIdMap.put(fullName,collect.get(fullName).getId());
             }
         });
         files.forEach(p -> {
             logger.info("uploading file '{}...'", p.getKey() + "/" + p.getValue().getOriginalFilename());
             String cd =  currentDir.endsWith("/") || StringUtils.isBlank(p.getKey()) ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
-            uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
+            String fullName = cd.endsWith("/") ? cd + p.getValue().getOriginalFilename() : cd + "/" + p.getValue().getOriginalFilename();
+            if (collect.containsKey(fullName)) {
+                uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
+            }else {
+                logger.warn("file '{}' has exists! skip it.",fullName);
+            }
         });
 
     }
