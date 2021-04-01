@@ -277,7 +277,7 @@ public class ResourcesService extends BaseService {
             logger.info("uploading file '{}...'", p.getKey() + "/" + p.getValue().getOriginalFilename());
             String cd =  currentDir.endsWith("/") || StringUtils.isBlank(p.getKey()) ? currentDir + p.getKey() : currentDir + "/" + p.getKey();
             String fullName = cd.endsWith("/") ? cd + p.getValue().getOriginalFilename() : cd + "/" + p.getValue().getOriginalFilename();
-            if (collect.containsKey(fullName)) {
+            if (!collect.containsKey(fullName)) {
                 uploadFile(p.getValue(), result, type, cd, "", dirIdMap.getOrDefault(cd, pid), loginUser);
             }else {
                 logger.warn("file '{}' has exists! skip it.",fullName);
