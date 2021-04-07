@@ -40,7 +40,19 @@ public class JobTransfer {
 
     public static Map<String, String> globalMap = new LinkedHashMap<>();
 
+    public static void clear(){
+        nodeDepCountMap.clear();
+        nodeContentMap.clear();
+        nodeDepDetailMap.clear();
+        jobs.clear();
+        dags.clear();
+        resourceMap.clear();
+        list.clear();
+        globalMap.clear();
+    }
+
     public static String trans(String path) throws Exception {
+        clear();
         ZipUtils.readZipFile(path, Arrays.asList(".job", ".properties"), ((name, fileName, content) ->
         {
             if (fileName.endsWith(".properties")) {
