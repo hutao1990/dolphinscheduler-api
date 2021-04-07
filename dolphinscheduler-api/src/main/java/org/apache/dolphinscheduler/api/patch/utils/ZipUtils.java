@@ -43,7 +43,7 @@ public class ZipUtils {
                 continue;
             }
             if (StringUtils.endsWithAny(name, suffixs.toArray(new String[]{}))) {
-                opt.operate(name, name.substring(name.lastIndexOf("/") + 1), content);
+                opt.operate(name, name.substring(name.lastIndexOf("/") + 1), StringUtils.replaceChars(content,"\r",""));
             }
         }
     }
