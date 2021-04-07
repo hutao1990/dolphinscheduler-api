@@ -28,6 +28,7 @@ import org.apache.dolphinscheduler.api.dto.ProcessMeta;
 import org.apache.dolphinscheduler.api.dto.treeview.Instance;
 import org.apache.dolphinscheduler.api.dto.treeview.TreeViewDto;
 import org.apache.dolphinscheduler.api.enums.Status;
+import org.apache.dolphinscheduler.api.patch.AzJobTransferUtil;
 import org.apache.dolphinscheduler.api.utils.CheckUtils;
 import org.apache.dolphinscheduler.api.utils.FileUtils;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
@@ -759,7 +760,18 @@ public class ProcessDefinitionService extends BaseDAGService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName) {
         Map<String, Object> result = new HashMap<>(5);
-        String processMetaJson = FileUtils.file2String(file);
+        String processMetaJson = "";
+        if (file.getName().endsWith(".zip")){
+            try {
+                processMetaJson = AzJobTransferUtil.azJob2JsonString(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+                putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR);
+                return result;
+            }
+        }else {
+            processMetaJson = FileUtils.file2String(file);
+        }
         List<ProcessMeta> processMetaList = JSON.parseArray(processMetaJson, ProcessMeta.class);
 
         //check file content

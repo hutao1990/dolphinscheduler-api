@@ -1,0 +1,230 @@
+package org.apache.dolphinscheduler.api.patch;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Maps;
+import javafx.util.Pair;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.dolphinscheduler.api.patch.bean.*;
+import org.apache.dolphinscheduler.api.patch.utils.ZipUtils;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author hutao
+ * @date 2021/3/18 11:11
+ * @description
+ */
+public class JobTransfer {
+
+    public static Map<String, Integer> nodeDepCountMap = new ConcurrentHashMap<>(2048);
+
+    public static Map<String, String> nodeContentMap = new HashMap<>(2048);
+
+    public static HashMultimap<String, String> nodeDepDetailMap = HashMultimap.create();
+
+    public static List<String> jobs = new ArrayList<>(2048);
+
+    public static LinkedHashMultimap<String, Node> dags = LinkedHashMultimap.create();
+
+    public static LinkedHashMultimap<String, String> resourceMap = LinkedHashMultimap.create();
+
+    public static List<Pair<String, String>> list = new ArrayList<>();
+
+    public static Map<String, String> globalMap = new LinkedHashMap<>();
+
+    public static String trans(String path) throws Exception {
+        ZipUtils.readZipFile(path, Arrays.asList(".job", ".properties"), ((name, fileName, content) ->
+        {
+            if (fileName.endsWith(".properties")) {
+                Arrays.asList(StringUtils.split(content, "\n")).forEach(line -> {
+                    if (line.contains("=") && !line.startsWith("#")) {
+                        String[] split = line.split("=");
+                        if (split.length > 1) {
+                            globalMap.put(split[0], split[1]);
+                        }
+                    } else {
+                        System.out.println(name + " --> error param: " + line);
+                    }
+                });
+            } else {
+                String id = StringUtils.split(fileName, ".")[0].trim();
+                nodeDepCountMap.computeIfAbsent(id, k -> 0);
+                jobs.add(id);
+                Arrays.asList(StringUtils.split(content, "\n")).forEach(line -> {
+                    if (StringUtils.containsAny(line, "command=", "command:")) {
+                        nodeContentMap.put(id, StringUtils.replaceEach(line, new String[]{"command=", "command:"}, new String[]{"", ""}));
+                    } else if (line.contains("dependencies=")) {
+                        String[] deps = StringUtils.replace(line, "dependencies=", "").split(",");
+                        Arrays.asList(deps).forEach(dep -> {
+                            nodeDepDetailMap.put(id, dep.trim());
+                            list.add(new Pair<>(id, dep.trim()));
+                            nodeDepCountMap.computeIfPresent(dep.trim(), (k, v) -> v + 1);
+                            nodeDepCountMap.computeIfAbsent(dep.trim(), k -> 1);
+                        });
+                    }
+                });
+            }
+        }));
+
+        Maps.filterValues(nodeDepCountMap, v -> v == 0).keySet().forEach(k -> {
+            System.out.println("job size====" + jobs.size());
+            createDAG(Collections.singletonList(k), k, null, 0);
+            System.out.println("dag: " + k + "  remaining job size:" + jobs.size());
+        });
+        System.out.println(dags);
+
+        List<FlowBean> flowBeans = new ArrayList<>();
+        for (String k : dags.keySet()) {
+            FlowBean flow = createFlow(k, dags.get(k));
+            flowBeans.add(flow);
+        }
+        return JSON.toJSONString(flowBeans);
+    }
+
+    public static void createDAG(List<String> nodeNames, String flowName, Set<String> repeat, int depth) {
+        List<String> nodesList = new ArrayList<>();
+        if (repeat == null) {
+            repeat = new HashSet<>();
+        }
+        List<Node> nodes = new ArrayList<>();
+        for (String name : nodeNames) {
+            if (jobs.contains(name)) {
+                Node node = new Node();
+                node.setName(name);
+                node.setDepth(depth);
+                node.setChildNum(nodeDepCountMap.get(name));
+                node.setContent(nodeContentMap.getOrDefault(name, "echo '" + name + " success'"));
+                ArrayList<String> list = new ArrayList<>(nodeDepDetailMap.get(name));
+                node.setDeps(list);
+                for (String s : list) {
+                    if (!repeat.contains(s)) {
+                        repeat.add(s);
+                        nodesList.add(s);
+                    }
+                }
+                nodes.add(node);
+                jobs.remove(name);
+            } else {
+                System.out.println("job name not in jobList,please check job dependencies!");
+                System.exit(1);
+            }
+        }
+        nodes.sort(Comparator.comparingInt(n -> -(n.getDeps().size() + n.getChildNum())));
+        Collection<String> transform = Collections2.transform(nodes, Node::getName);
+        for (int i = 0; i < nodes.size(); i++) {
+            Node node = nodes.get(i);
+            node.setOrder(i);
+            Collection<String> intersection = CollectionUtils.intersection(node.getDeps(), transform);
+            if (!CollectionUtils.isEmpty(intersection)) {
+                node.setDepth(node.getDepth() - 1);
+            }
+            if (node.getDeps().size() > 25) {
+                node.setDepth(node.getDepth() - 2);
+            }
+            dags.put(flowName, node);
+        }
+        if (!nodesList.isEmpty()) {
+            createDAG(nodesList, flowName, repeat, depth + 3);
+        }
+    }
+
+    public static FlowBean createFlow(String flowEndTaskName, Collection<Node> nodes) {
+        FlowBean flowBean = new FlowBean();
+        flowBean.setProjectName("test");
+        flowBean.setProcessDefinitionName(flowEndTaskName);
+        flowBean.setProcessDefinitionConnects(createConnect(nodes));
+        flowBean.setProcessDefinitionLocations(createLocation(nodes));
+        flowBean.setProcessDefinitionJson(createTaskJson(nodes));
+        return flowBean;
+    }
+
+    public static String createConnect(Collection<Node> nodes) {
+        List<ConnectBean> connects = new ArrayList<>();
+        for (Node node : nodes) {
+            node.getDeps().forEach(dep -> {
+                ConnectBean bean = new ConnectBean();
+                bean.setEndPointSourceId(dep);
+                bean.setEndPointTargetId(node.getName());
+                connects.add(bean);
+            });
+        }
+        return JSON.toJSONString(connects);
+    }
+
+    public static String createLocation(Collection<Node> nodes) {
+        JSONObject json = new JSONObject(true);
+        Optional<Node> max = nodes.stream().max(Comparator.comparingInt(Node::getDepth));
+        int maxDepth = max.get().getDepth();
+        nodes.forEach(node -> {
+            LocationBean bean = new LocationBean();
+            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder());
+            bean.setName(node.getName());
+            bean.setNodenumber(node.getDeps().size() + "");
+            bean.setTargetarr(StringUtils.join(node.getDeps(), ","));
+            bean.setX(pair.getKey());
+            bean.setY(pair.getValue());
+            json.put(bean.getName(), bean);
+        });
+        return json.toJSONString();
+    }
+
+    public static Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count) {
+        int x = maxDepth - depth;
+        int y = count;
+        return new Pair<>(y * 300 + 50, x * 800 + 100);
+    }
+
+    public static String createTaskJson(Collection<Node> nodes) {
+        DefinitionBean definitionBean = new DefinitionBean();
+        List<GlobalParamsBean> params = new ArrayList<>();
+        globalMap.forEach((k, v) -> {
+            GlobalParamsBean build = GlobalParamsBean.builder()
+                    .prop(k.trim())
+                    .direct("IN")
+                    .type("VARCHAR")
+                    .value(v.trim())
+                    .build();
+            params.add(build);
+        });
+        definitionBean.setGlobalParams(params);
+        definitionBean.setTenantId(0);
+        definitionBean.setTimeout(0);
+        List<TaskBean> taskList = new ArrayList<>();
+        nodes.forEach(node -> {
+            TaskBean taskBean = new TaskBean();
+            Set<String> res = resourceMap.get(node.getName());
+            List<ResourceBean> resourceBeans = new ArrayList<>();
+            res.forEach(s -> {
+                resourceBeans.add(ResourceBean.builder().name(s).build());
+            });
+            taskBean.setId(node.getName());
+            taskBean.setName(node.getName());
+            taskBean.setPhoneAlarmEnable(Boolean.parseBoolean(globalMap.getOrDefault("phone", "false")));
+            taskBean.setConditionResult(ConditionResultBean.builder().failedNode(new ArrayList<>()).successNode(new ArrayList<>()).build());
+            taskBean.setDescription("");
+            taskBean.setRunFlag("NORMAL");
+            taskBean.setType("SHELL");
+            taskBean.setTimeout(TimeoutBean.builder().enable(false).strategy("").build());
+            taskBean.setMaxRetryTimes(globalMap.getOrDefault("retries", "1"));
+            taskBean.setTaskInstancePriority("MEDIUM");
+            taskBean.setDependence(new DependenceBean());
+            taskBean.setRetryInterval("1");
+            taskBean.setMailAlarmEnable(Boolean.parseBoolean(globalMap.getOrDefault("mail", "true")));
+            taskBean.setPreTasks(node.getDeps());
+            taskBean.setWorkerGroup("default");
+            taskBean.setParams(ParamsBean.builder().rawScript(node.getContent()).localParams(new ArrayList<>()).resourceList(resourceBeans).build());
+            taskList.add(taskBean);
+        });
+        definitionBean.setTasks(taskList);
+        return JSON.toJSONString(definitionBean);
+    }
+
+}
