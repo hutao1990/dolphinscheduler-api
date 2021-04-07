@@ -772,6 +772,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         }else {
             processMetaJson = FileUtils.file2String(file);
         }
+        file = null;
         List<ProcessMeta> processMetaList = JSON.parseArray(processMetaJson, ProcessMeta.class);
 
         //check file content
