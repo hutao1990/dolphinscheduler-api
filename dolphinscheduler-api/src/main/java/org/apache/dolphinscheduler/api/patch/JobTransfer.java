@@ -126,7 +126,7 @@ public class JobTransfer {
                 jobs.remove(name);
             } else {
                 System.out.println("job name not in jobList,please check job dependencies!");
-                System.exit(1);
+                throw new IllegalStateException("job name not in jobList,please check job dependencies!");
             }
         }
         nodes.sort(Comparator.comparingInt(n -> -(n.getDeps().size() + n.getChildNum())));
