@@ -15,7 +15,7 @@ import java.io.IOException;
 public class AzJobTransferUtil {
 
     public static String azJob2JsonString(MultipartFile file) throws Exception {
-        String name = file.getName();
+        String name = file.getOriginalFilename();
         String fileName = name.substring(name.lastIndexOf("/") + 1);
         String[] split = fileName.split("\\.");
         String path1 = "/tmp/"+split[0]+"-tmp1."+split[1];
