@@ -81,10 +81,8 @@ public class ZipUtils {
 
     public static void transform(String path, String ouptputPath) throws IOException {
         ZipFile zipFile = new ZipFile(path);
-        String fileName = path.substring(StringUtils.lastIndexOfAny(path, "/", "\\") + 1);
-        String fn = StringUtils.split(fileName, ".")[0];
         Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
-        @Cleanup ZipArchiveOutputStream out = new ZipArchiveOutputStream(new File(ouptputPath + "/job-" + fn + ".zip"));
+        @Cleanup ZipArchiveOutputStream out = new ZipArchiveOutputStream(new File(ouptputPath));
         out.setUseZip64(Zip64Mode.AsNeeded);
         while (entries.hasMoreElements()) {
             ZipArchiveEntry entry = entries.nextElement();
