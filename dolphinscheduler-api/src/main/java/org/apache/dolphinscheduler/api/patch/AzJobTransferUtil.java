@@ -23,7 +23,7 @@ public class AzJobTransferUtil {
         String[] split = fileName.split("\\.");
         String path1 = "/tmp/"+split[0]+"-tmp1."+split[1];
         String path2 = "/tmp/"+split[0]+"-tmp2."+split[1];
-         FileOutputStream out = new FileOutputStream(new File(path1));
+        @Cleanup FileOutputStream out = new FileOutputStream(new File(path1));
         IOUtils.copy(file.getInputStream(),out);
         ZipUtils.transform(path1,path2);
         return JobTransfer.trans(path2);
