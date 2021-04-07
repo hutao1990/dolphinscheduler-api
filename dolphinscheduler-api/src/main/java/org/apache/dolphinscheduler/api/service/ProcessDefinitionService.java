@@ -761,7 +761,7 @@ public class ProcessDefinitionService extends BaseDAGService {
     public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName) {
         Map<String, Object> result = new HashMap<>(5);
         String processMetaJson = "";
-        if (file.getOriginalFilename().endsWith(".zip")){
+        if (org.apache.commons.lang3.StringUtils.endsWithAny(file.getOriginalFilename(),".zip",".zipx")){
             try {
                 processMetaJson = AzJobTransferUtil.azJob2JsonString(file);
             } catch (Exception e) {
