@@ -70,7 +70,7 @@ if [ "$command" = "api-server" ]; then
   HEAP_INITIAL_SIZE=1g
   HEAP_MAX_SIZE=1g
   HEAP_NEW_GENERATION__SIZE=500m
-  LOG_FILE="-Dlogging.config=classpath:logback-api.xml -Dspring.profiles.active=api"
+  LOG_FILE="-Dlogging.config=classpath:logback-api.xml -Dspring.profiles.active=api -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1"
   CLASS=org.apache.dolphinscheduler.api.ApiApplicationServer
 elif [ "$command" = "master-server" ]; then
   HEAP_INITIAL_SIZE=4g
