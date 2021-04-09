@@ -67,6 +67,11 @@ public class AlertManager {
             .expireAfterWrite(18, TimeUnit.HOURS)
             .build();
 
+    public static Cache<Integer, List<Integer>> phCache = CacheBuilder.newBuilder()
+            .initialCapacity(128)
+            .expireAfterWrite(18, TimeUnit.HOURS)
+            .build();
+
     /**
      * command type convert chinese
      *
@@ -302,7 +307,7 @@ public class AlertManager {
         alertDao.addAlert(alert);
         logger.info("add alert to db , alert: {}", alert.toString());
         try {
-            List<Integer> list = cache.get(processInstance.getId(), ArrayList::new);
+            List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
             List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
             if (callPhone(collect)) {
                 list.addAll(collect.stream().map(TaskInstance::getId).collect(Collectors.toList()));
