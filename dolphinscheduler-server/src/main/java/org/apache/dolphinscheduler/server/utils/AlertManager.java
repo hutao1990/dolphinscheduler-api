@@ -305,6 +305,7 @@ public class AlertManager {
             List<Integer> list = cache.get(processInstance.getId(), ArrayList::new);
             List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
             if (callPhone(collect)) {
+                list.addAll(collect.stream().map(TaskInstance::getId).collect(Collectors.toList()));
                 User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
                 logger.info("callPhone " + user.getPhone() + " alarm!");
                 PhoneBean phoneBean = new PhoneBean();
