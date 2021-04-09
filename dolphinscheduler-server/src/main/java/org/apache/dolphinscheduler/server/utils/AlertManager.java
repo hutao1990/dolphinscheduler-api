@@ -301,18 +301,25 @@ public class AlertManager {
 
         alertDao.addAlert(alert);
         logger.info("add alert to db , alert: {}", alert.toString());
-        List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).collect(Collectors.toList());
-        if (callPhone(collect)) {
-            User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
-            logger.info("callPhone "+user.getPhone()+" alarm!");
-            PhoneBean phoneBean = new PhoneBean();
-            phoneBean.setAppId("dolphinscheduler");
-            phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
-            phoneBean.setPhoneNumber(user.getPhone());
-            phoneBean.setTitle("scheduler alarm");
-            phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
-            SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+        try {
+            List<Integer> list = cache.get(processInstance.getId(), ArrayList::new);
+            List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
+            if (callPhone(collect)) {
+                User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
+                logger.info("callPhone " + user.getPhone() + " alarm!");
+                PhoneBean phoneBean = new PhoneBean();
+                phoneBean.setAppId("dolphinscheduler");
+                phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
+                phoneBean.setPhoneNumber(user.getPhone());
+                phoneBean.setTitle("scheduler alarm");
+                phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            logger.error("cache get error! phone msg send error! e: {}",e.getMessage());
         }
+
     }
 
     private boolean callPhone(List<TaskInstance> taskInstances) {
