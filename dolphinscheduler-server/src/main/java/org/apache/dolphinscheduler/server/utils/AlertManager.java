@@ -308,7 +308,7 @@ public class AlertManager {
         logger.info("add alert to db , alert: {}", alert.toString());
         try {
             List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
-            List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
+            List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
             if (callPhone(collect)) {
                 list.addAll(collect.stream().map(TaskInstance::getId).collect(Collectors.toList()));
                 User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
