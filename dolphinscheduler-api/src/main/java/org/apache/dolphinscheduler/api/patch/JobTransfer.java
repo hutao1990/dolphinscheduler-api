@@ -123,7 +123,7 @@ public class JobTransfer {
                     }
                 }
                 nodes.add(node);
-                jobs.remove(name);
+//                jobs.remove(name);
             } else {
                 System.out.println("job name not in jobList,please check job dependencies!");
                 throw new IllegalStateException("job name not in jobList,please check job dependencies!");
