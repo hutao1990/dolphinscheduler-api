@@ -326,6 +326,11 @@ public class ExecutorService extends BaseService{
                     checkResult = true;
                 }
                 break;
+            case RECOVER_RUNNING_FAILED_PROCESS:
+                if (executionStatus.typeIsRunningFailed()){
+                    checkResult = true;
+                }
+                break;
             default:
                 break;
         }

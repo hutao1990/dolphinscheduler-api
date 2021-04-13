@@ -106,6 +106,14 @@ public enum ExecutionStatus {
    public boolean typeIsPause(){
        return this == PAUSE;
    }
+
+    /**
+     * status is running failed
+     * @return status
+     */
+   public boolean typeIsRunningFailed(){
+       return this == RUNNING_FAILED;
+   }
     /**
      * status is pause
      * @return status
