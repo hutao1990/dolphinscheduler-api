@@ -70,7 +70,7 @@ public class JobTransfer {
                 String id = StringUtils.split(fileName, ".")[0].trim();
                 nodeDepCountMap.computeIfAbsent(id, k -> 0);
                 jobs.add(id);
-                String str = content.replaceAll("\n[ ]{0,5}\\\\", "");
+                String str = content.replaceAll("\\\\[ ]{0,5}\n", "");
                 Arrays.asList(StringUtils.split(str, "\n")).forEach(line -> {
                     if (StringUtils.containsAny(line, "command=", "command:")) {
                         nodeContentMap.put(id, StringUtils.replaceEach(line, new String[]{"command=", "command:"}, new String[]{"", ""}));
