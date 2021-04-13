@@ -198,6 +198,10 @@ public class AlertManager {
         List<LinkedHashMap<String, String>> toleranceTaskInstanceList = new ArrayList<>();
 
         for (TaskInstance taskInstance : toleranceTaskList) {
+            if (!sendMail(Collections.singletonList(taskInstance))){
+                logger.info("process '{}' task '{}' has close mail alarm， ignore this alarm！",processInstance.getName(),taskInstance.getName());
+                continue;
+            }
             LinkedHashMap<String, String> toleranceWorkerContentMap = new LinkedHashMap();
             toleranceWorkerContentMap.put("process name", processInstance.getName());
             toleranceWorkerContentMap.put("task name", taskInstance.getName());

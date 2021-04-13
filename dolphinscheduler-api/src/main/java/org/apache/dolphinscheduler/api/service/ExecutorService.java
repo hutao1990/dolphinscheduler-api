@@ -257,6 +257,13 @@ public class ExecutorService extends BaseService{
                     result = updateProcessInstancePrepare(processInstance, CommandType.STOP, ExecutionStatus.READY_STOP);
                 }
                 break;
+            case RECOVER_RUNNING_FAILED_PROCESS:
+                if (processInstance.getState() == ExecutionStatus.READY_RECOVER_RUNNING_FAILED){
+                    putMsg(result, Status.PROCESS_INSTANCE_ALREADY_CHANGED, processInstance.getName(), processInstance.getState());
+                }else {
+                    result = updateProcessInstancePrepare(processInstance, CommandType.RECOVER_RUNNING_FAILED, ExecutionStatus.READY_RECOVER_RUNNING_FAILED);
+                }
+                break;
             case PAUSE:
                 if (processInstance.getState() == ExecutionStatus.READY_PAUSE) {
                     putMsg(result, Status.PROCESS_INSTANCE_ALREADY_CHANGED, processInstance.getName(), processInstance.getState());

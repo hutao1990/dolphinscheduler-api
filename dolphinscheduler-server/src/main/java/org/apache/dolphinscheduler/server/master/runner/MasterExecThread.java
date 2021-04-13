@@ -587,7 +587,9 @@ public class MasterExecThread implements Runnable {
     private ExecutionStatus runningState(ExecutionStatus state){
         if(state == ExecutionStatus.READY_STOP ||
                 state == ExecutionStatus.READY_PAUSE ||
-                state == ExecutionStatus.WAITTING_THREAD){
+                state == ExecutionStatus.WAITTING_THREAD ||
+                state == ExecutionStatus.READY_RECOVER_RUNNING_FAILED ||
+                state == ExecutionStatus.RUNNING_FAILED){
             // if the running task is not completed, the state remains unchanged
             return state;
         }else{
@@ -761,6 +763,19 @@ public class MasterExecThread implements Runnable {
      */
     private void updateProcessInstanceState() {
         ExecutionStatus state = getProcessInstanceState();
+        if (state == ExecutionStatus.RUNNING_EXEUTION && hasFailedTask()){
+            state = ExecutionStatus.RUNNING_FAILED;
+        }
+        if (state == ExecutionStatus.READY_RECOVER_RUNNING_FAILED){
+            Map<String, TaskInstance> failedMap = new HashMap<>();
+            failedMap.putAll(this.errorTaskList);
+            failedMap.putAll(this.dependFailedTask);
+            failedMap.forEach((k,v) ->{
+                logger.info("retry pull process '{}' task '{}',task add to wait queue!",processInstance.getName(),v.getName());
+                addTaskToStandByList(v);
+            });
+            state = ExecutionStatus.RUNNING_EXEUTION;
+        }
         if(processInstance.getState() != state){
             logger.info(
                     "work flow process instance [id: {}, name:{}], state change from {} to {}, cmd type: {}",
