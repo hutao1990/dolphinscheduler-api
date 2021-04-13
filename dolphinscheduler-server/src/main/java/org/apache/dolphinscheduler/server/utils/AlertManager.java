@@ -148,9 +148,12 @@ public class AlertManager {
         } else {
 
             List<LinkedHashMap> failedTaskList = new ArrayList<>();
-
             for (TaskInstance task : taskInstances) {
                 if (!task.getState().typeIsFailure()) {
+                    continue;
+                }
+                if (!sendMail(Collections.singletonList(task))){
+                    logger.info("process '{}' task '{}' has close mail alarm， ignore this alarm！",processInstance.getName(),task.getName());
                     continue;
                 }
                 List<Integer> list = new ArrayList<>();
@@ -335,6 +338,19 @@ public class AlertManager {
                 JSONObject json = JSONObject.parseObject(str);
                 boolean phoneAlarmEnable = json.getBooleanValue("phoneAlarmEnable");
                 if (phoneAlarmEnable) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean sendMail(List<TaskInstance> taskInstances) {
+        if (taskInstances != null && !taskInstances.isEmpty()) {
+            for (TaskInstance task : taskInstances) {
+                String str = task.getTaskJson();
+                JSONObject json = JSONObject.parseObject(str);
+                boolean mailAlarmEnable = json.getBooleanValue("mailAlarmEnable");
+                if (mailAlarmEnable) {
                     return true;
                 }
             }
