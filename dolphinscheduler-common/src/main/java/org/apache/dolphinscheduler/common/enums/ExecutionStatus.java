@@ -127,7 +127,7 @@ public enum ExecutionStatus {
      * @return status
      */
    public boolean typeIsRunning(){
-       return this == RUNNING_EXEUTION || this == WAITTING_DEPEND;
+       return this == RUNNING_EXEUTION || this == WAITTING_DEPEND || this == RUNNING_FAILED;
    }
 
     /**
