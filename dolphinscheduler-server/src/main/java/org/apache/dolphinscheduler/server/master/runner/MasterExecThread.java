@@ -770,6 +770,8 @@ public class MasterExecThread implements Runnable {
             Map<String, TaskInstance> failedMap = new HashMap<>();
             failedMap.putAll(this.errorTaskList);
             failedMap.putAll(this.dependFailedTask);
+            this.errorTaskList.clear();
+            this.dependFailedTask.clear();
             failedMap.forEach((k,v) ->{
                 logger.info("retry pull process '{}' task '{}',task add to wait queue!",processInstance.getName(),v.getName());
                 addTaskToStandByList(v);
