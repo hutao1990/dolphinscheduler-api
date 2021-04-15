@@ -241,7 +241,7 @@ public class JobTransfer {
             taskBean.setType("SHELL");
             taskBean.setTimeout(TimeoutBean.builder().enable(false).strategy("").build());
             taskBean.setMaxRetryTimes(getValueByParamOrder("1", local.get("retries"),globalMap.get("retries")));
-            taskBean.setTaskInstancePriority(getValueByParamOrder("MEDIUM",local.get("priority"),globalMap.get("priority")));
+            taskBean.setTaskInstancePriority(getValueByParamOrder("MEDIUM",local.get("priority"),globalMap.get("priority")).toUpperCase());
             taskBean.setDependence(new DependenceBean());
             taskBean.setRetryInterval(parseRetryInterval(getValueByParamOrder("1m",local.get("retry.backoff"),globalMap.get("retry.backoff")))+"");
             taskBean.setMailAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("true",local.get("mail"),globalMap.get("mail"))));
@@ -274,16 +274,16 @@ public class JobTransfer {
                 min = Long.parseLong(data.replace("h","")) * 60;
                 break;
             case "m":
-                min = Long.parseLong(data.replace("h",""));
+                min = Long.parseLong(data.replace("m",""));
                 break;
             case "s":
-                min = Long.parseLong(data.replace("h","")) / 60;
+                min = Long.parseLong(data.replace("s","")) / 60;
                 break;
             default :
-                min = Long.parseLong(data.replace("h","")) / 60 / 1000;
+                min = Long.parseLong(data) / 60 / 1000;
                 break;
         }
-        return min;
+        return Math.max(min,1);
     }
 
 }
