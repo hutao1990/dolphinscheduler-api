@@ -89,7 +89,8 @@ public class LoggerUtils {
             String appId = matcher.group();
             if(!appIds.contains(appId)){
                 logger.info("find app id: {}", appId);
-                appIds.add(appId);
+                //只通过判断执行脚本退出值判断任务成功或失败
+//                appIds.add(appId);
             }
         }
         return appIds;
