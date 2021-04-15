@@ -2,10 +2,7 @@ package org.apache.dolphinscheduler.api.patch;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -40,6 +37,9 @@ public class JobTransfer {
 
     public static Map<String, String> globalMap = new LinkedHashMap<>();
 
+    public static HashBasedTable<String, String,String> jobTables = HashBasedTable.create();
+
+
     public static void clear(){
         nodeDepCountMap.clear();
         nodeContentMap.clear();
@@ -49,6 +49,7 @@ public class JobTransfer {
         resourceMap.clear();
         list.clear();
         globalMap.clear();
+        jobTables.clear();
     }
 
     public static String trans(String path) throws Exception {
@@ -82,6 +83,18 @@ public class JobTransfer {
                             nodeDepCountMap.computeIfPresent(dep.trim(), (k, v) -> v + 1);
                             nodeDepCountMap.computeIfAbsent(dep.trim(), k -> 1);
                         });
+                    }else {
+                        // 解析job文件中的附加属性
+                        if (line.contains("=")) {
+                            String[] split = line.split("=");
+                            if (split.length < 2){
+                                System.out.println("skip param: "+line);
+                            }else {
+                                jobTables.put(id, split[0],split[1]);
+                            }
+                        }else {
+                            System.out.println("error param ==> "+line);
+                        }
                     }
                 });
             }
@@ -218,19 +231,20 @@ public class JobTransfer {
             res.forEach(s -> {
                 resourceBeans.add(ResourceBean.builder().name(s).build());
             });
+            Map<String, String> local = jobTables.row(node.getName());
             taskBean.setId(node.getName());
             taskBean.setName(node.getName());
-            taskBean.setPhoneAlarmEnable(Boolean.parseBoolean(globalMap.getOrDefault("phone", "false")));
+            taskBean.setPhoneAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("false",local.get("phone"),globalMap.get("phone"))));
             taskBean.setConditionResult(ConditionResultBean.builder().failedNode(new ArrayList<>()).successNode(new ArrayList<>()).build());
             taskBean.setDescription("");
             taskBean.setRunFlag("NORMAL");
             taskBean.setType("SHELL");
             taskBean.setTimeout(TimeoutBean.builder().enable(false).strategy("").build());
-            taskBean.setMaxRetryTimes(globalMap.getOrDefault("retries", "1"));
-            taskBean.setTaskInstancePriority("MEDIUM");
+            taskBean.setMaxRetryTimes(getValueByParamOrder("1", local.get("retries"),globalMap.get("retries")));
+            taskBean.setTaskInstancePriority(getValueByParamOrder("MEDIUM",local.get("priority"),globalMap.get("priority")));
             taskBean.setDependence(new DependenceBean());
-            taskBean.setRetryInterval("1");
-            taskBean.setMailAlarmEnable(Boolean.parseBoolean(globalMap.getOrDefault("mail", "true")));
+            taskBean.setRetryInterval(parseRetryInterval(getValueByParamOrder("1m",local.get("retry.backoff"),globalMap.get("retry.backoff")))+"");
+            taskBean.setMailAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("true",local.get("mail"),globalMap.get("mail"))));
             taskBean.setPreTasks(node.getDeps());
             taskBean.setWorkerGroup("default");
             taskBean.setParams(ParamsBean.builder().rawScript(node.getContent()).localParams(new ArrayList<>()).resourceList(resourceBeans).build());
@@ -238,6 +252,36 @@ public class JobTransfer {
         });
         definitionBean.setTasks(taskList);
         return JSON.toJSONString(definitionBean);
+    }
+
+    public static String getValueByParamOrder(String defaultValue, String... params){
+        if (params == null || params.length == 0){
+            return defaultValue;
+        }
+        for (String paramName : params) {
+            if (StringUtils.isNotBlank(paramName)){
+                return paramName;
+            }
+        }
+        return defaultValue;
+    }
+
+    public static long parseRetryInterval(String retryInterval){
+        String data = StringUtils.lowerCase(retryInterval);
+        long min = 1;
+        switch (data.replaceAll("[0-9]*]","").trim()){
+            case "h":
+                min = Long.parseLong(data.replace("h","")) * 60;
+                break;
+            case "m":
+                min = Long.parseLong(data.replace("h",""));
+                break;
+            case "s":
+            default :
+                min = Long.parseLong(data.replace("h","")) / 60;
+                break;
+        }
+        return min;
     }
 
 }
