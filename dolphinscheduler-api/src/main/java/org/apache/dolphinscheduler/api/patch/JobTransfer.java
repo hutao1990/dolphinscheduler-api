@@ -277,8 +277,10 @@ public class JobTransfer {
                 min = Long.parseLong(data.replace("h",""));
                 break;
             case "s":
-            default :
                 min = Long.parseLong(data.replace("h","")) / 60;
+                break;
+            default :
+                min = Long.parseLong(data.replace("h","")) / 60 / 1000;
                 break;
         }
         return min;
