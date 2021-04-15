@@ -269,7 +269,7 @@ public class JobTransfer {
     public static long parseRetryInterval(String retryInterval){
         String data = StringUtils.lowerCase(retryInterval);
         long min = 1;
-        switch (data.replaceAll("[0-9]*]","").trim()){
+        switch (data.replaceAll("\\d*]","").trim()){
             case "h":
                 min = Long.parseLong(data.replace("h","")) * 60;
                 break;
