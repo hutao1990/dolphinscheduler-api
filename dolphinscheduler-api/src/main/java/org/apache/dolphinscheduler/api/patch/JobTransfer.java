@@ -21,26 +21,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class JobTransfer {
 
-    public static Map<String, Integer> nodeDepCountMap = new ConcurrentHashMap<>(2048);
+    public Map<String, Integer> nodeDepCountMap = new ConcurrentHashMap<>(2048);
 
-    public static Map<String, String> nodeContentMap = new HashMap<>(2048);
+    public Map<String, String> nodeContentMap = new HashMap<>(2048);
 
-    public static HashMultimap<String, String> nodeDepDetailMap = HashMultimap.create();
+    public HashMultimap<String, String> nodeDepDetailMap = HashMultimap.create();
 
-    public static List<String> jobs = new ArrayList<>(2048);
+    public List<String> jobs = new ArrayList<>(2048);
 
-    public static LinkedHashMultimap<String, Node> dags = LinkedHashMultimap.create();
+    public LinkedHashMultimap<String, Node> dags = LinkedHashMultimap.create();
 
-    public static LinkedHashMultimap<String, String> resourceMap = LinkedHashMultimap.create();
+    public LinkedHashMultimap<String, String> resourceMap = LinkedHashMultimap.create();
 
-    public static List<Pair<String, String>> list = new ArrayList<>();
+    public List<Pair<String, String>> list = new ArrayList<>();
 
-    public static Map<String, String> globalMap = new LinkedHashMap<>();
+    public Map<String, String> globalMap = new LinkedHashMap<>();
 
-    public static HashBasedTable<String, String,String> jobTables = HashBasedTable.create();
+    public HashBasedTable<String, String,String> jobTables = HashBasedTable.create();
 
 
-    public static void clear(){
+    public void clear(){
         nodeDepCountMap.clear();
         nodeContentMap.clear();
         nodeDepDetailMap.clear();
@@ -52,7 +52,7 @@ public class JobTransfer {
         jobTables.clear();
     }
 
-    public static String trans(String path) throws Exception {
+    public String trans(String path) throws Exception {
         clear();
         ZipUtils.readZipFile(path, Arrays.asList(".job", ".properties"), ((name, fileName, content) ->
         {
@@ -115,7 +115,7 @@ public class JobTransfer {
         return JSON.toJSONString(flowBeans);
     }
 
-    public static void createDAG(List<String> nodeNames, String flowName, Set<String> repeat, int depth) {
+    public void createDAG(List<String> nodeNames, String flowName, Set<String> repeat, int depth) {
         List<String> nodesList = new ArrayList<>();
         if (repeat == null) {
             repeat = new HashSet<>();
@@ -162,7 +162,7 @@ public class JobTransfer {
         }
     }
 
-    public static FlowBean createFlow(String flowEndTaskName, Collection<Node> nodes) {
+    public FlowBean createFlow(String flowEndTaskName, Collection<Node> nodes) {
         FlowBean flowBean = new FlowBean();
         flowBean.setProjectName("test");
         flowBean.setProcessDefinitionName(flowEndTaskName);
@@ -172,7 +172,7 @@ public class JobTransfer {
         return flowBean;
     }
 
-    public static String createConnect(Collection<Node> nodes) {
+    public String createConnect(Collection<Node> nodes) {
         List<ConnectBean> connects = new ArrayList<>();
         for (Node node : nodes) {
             node.getDeps().forEach(dep -> {
@@ -185,7 +185,7 @@ public class JobTransfer {
         return JSON.toJSONString(connects);
     }
 
-    public static String createLocation(Collection<Node> nodes) {
+    public String createLocation(Collection<Node> nodes) {
         JSONObject json = new JSONObject(true);
         Optional<Node> max = nodes.stream().max(Comparator.comparingInt(Node::getDepth));
         int maxDepth = max.get().getDepth();
@@ -202,13 +202,13 @@ public class JobTransfer {
         return json.toJSONString();
     }
 
-    public static Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count) {
+    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count) {
         int x = maxDepth - depth;
         int y = count;
         return new Pair<>(y * 250 + 50, x * 500 + 100);
     }
 
-    public static String createTaskJson(Collection<Node> nodes) {
+    public String createTaskJson(Collection<Node> nodes) {
         DefinitionBean definitionBean = new DefinitionBean();
         List<GlobalParamsBean> params = new ArrayList<>();
         globalMap.forEach((k, v) -> {
@@ -254,7 +254,7 @@ public class JobTransfer {
         return JSON.toJSONString(definitionBean);
     }
 
-    public static String getValueByParamOrder(String defaultValue, String... params){
+    public String getValueByParamOrder(String defaultValue, String... params){
         if (params == null || params.length == 0){
             return defaultValue;
         }
@@ -266,7 +266,7 @@ public class JobTransfer {
         return defaultValue;
     }
 
-    public static long parseRetryInterval(String retryInterval){
+    public long parseRetryInterval(String retryInterval){
         String data = StringUtils.lowerCase(retryInterval);
         long min = 1;
         switch (data.replaceAll("\\d+","").trim()){

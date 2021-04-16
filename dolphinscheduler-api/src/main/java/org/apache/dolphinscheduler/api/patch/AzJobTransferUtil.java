@@ -26,6 +26,6 @@ public class AzJobTransferUtil {
         @Cleanup FileOutputStream out = new FileOutputStream(new File(path1));
         IOUtils.copy(file.getInputStream(),out);
         ZipUtils.transform(path1,path2);
-        return JobTransfer.trans(path2);
+        return new JobTransfer().trans(path2);
     }
 }

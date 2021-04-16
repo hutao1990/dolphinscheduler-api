@@ -29,6 +29,7 @@ import org.apache.dolphinscheduler.api.dto.treeview.Instance;
 import org.apache.dolphinscheduler.api.dto.treeview.TreeViewDto;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.patch.AzJobTransferUtil;
+import org.apache.dolphinscheduler.api.patch.TaskIdToName;
 import org.apache.dolphinscheduler.api.utils.CheckUtils;
 import org.apache.dolphinscheduler.api.utils.FileUtils;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
@@ -143,14 +144,16 @@ public class ProcessDefinitionService extends BaseDAGService {
             return checkProcessJson;
         }
 
+        TaskIdToName taskIdToName = new TaskIdToName(processDefinitionJson);
+
         processDefine.setName(name);
         processDefine.setReleaseState(ReleaseState.OFFLINE);
         processDefine.setProjectId(project.getId());
         processDefine.setUserId(loginUser.getId());
-        processDefine.setProcessDefinitionJson(processDefinitionJson);
+        processDefine.setProcessDefinitionJson(taskIdToName.transfer(processDefinitionJson));
         processDefine.setDescription(desc);
-        processDefine.setLocations(locations);
-        processDefine.setConnects(connects);
+        processDefine.setLocations(taskIdToName.transfer(locations));
+        processDefine.setConnects(taskIdToName.transfer(connects));
         processDefine.setTimeout(processData.getTimeout());
         processDefine.setTenantId(processData.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
@@ -378,14 +381,16 @@ public class ProcessDefinitionService extends BaseDAGService {
 
         Date now = new Date();
 
+        TaskIdToName taskIdToName = new TaskIdToName(processDefinitionJson);
+
         processDefine.setId(id);
         processDefine.setName(name);
         processDefine.setReleaseState(ReleaseState.OFFLINE);
         processDefine.setProjectId(project.getId());
-        processDefine.setProcessDefinitionJson(processDefinitionJson);
+        processDefine.setProcessDefinitionJson(taskIdToName.transfer(processDefinitionJson));
         processDefine.setDescription(desc);
-        processDefine.setLocations(locations);
-        processDefine.setConnects(connects);
+        processDefine.setLocations(taskIdToName.transfer(locations));
+        processDefine.setConnects(taskIdToName.transfer(connects));
         processDefine.setTimeout(processData.getTimeout());
         processDefine.setTenantId(processData.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
