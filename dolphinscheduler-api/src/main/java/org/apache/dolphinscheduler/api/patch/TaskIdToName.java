@@ -30,8 +30,8 @@ public class TaskIdToName {
             String id = task.getString("id");
             String name = task.getString("name");
             if (!id.equals(name)){
-                ids.add(id);
-                names.add(name);
+                ids.add("\""+id+"\"");
+                names.add("\""+name+"\"");
             }
         }
 
