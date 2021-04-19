@@ -157,7 +157,9 @@ public class ShellTask extends AbstractTask {
 
     StringBuilder sb = new StringBuilder();
     paramsMap.forEach((k,v)->{
-      sb.append("export ").append(v.getProp()).append("=").append(v.getValue()).append(";\n");
+      if (!k.contains(".")) {
+        sb.append("export ").append(v.getProp()).append("=").append(v.getValue()).append(";\n");
+      }
     });
     sb.append(script);
 
