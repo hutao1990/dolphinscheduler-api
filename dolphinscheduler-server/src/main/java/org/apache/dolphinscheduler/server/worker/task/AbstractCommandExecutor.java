@@ -226,9 +226,10 @@ public abstract class AbstractCommandExecutor {
             result.setExitStatusCode(process.exitValue());
 
             // if yarn task , yarn state is final state
-            if (process.exitValue() == 0){
-                result.setExitStatusCode(isSuccessOfYarnState(appIds) ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE);
-            }
+            // 跳过判断yarn任务状态
+//            if (process.exitValue() == 0){
+//                result.setExitStatusCode(isSuccessOfYarnState(appIds) ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE);
+//            }
         } else {
             logger.error("process has failure , exitStatusCode : {} , ready to kill ...", result.getExitStatusCode());
             ProcessUtils.kill(taskExecutionContext);
@@ -429,8 +430,7 @@ public abstract class AbstractCommandExecutor {
             String appId = findAppId(log);
             if (StringUtils.isNotEmpty(appId) && !appIds.contains(appId)) {
                 logger.info("find app id: {}", appId);
-                //只通过判断执行脚本退出值判断任务成功或失败
-//                appIds.add(appId);
+                appIds.add(appId);
             }
         }
         return appIds;
