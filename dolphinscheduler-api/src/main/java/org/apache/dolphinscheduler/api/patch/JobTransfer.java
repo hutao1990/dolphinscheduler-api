@@ -126,7 +126,9 @@ public class JobTransfer {
             Map<String, Node> collect = nodes.stream().collect(Collectors.toMap(Node::getName, n -> n, (v1, v2) -> v2));
             calcNodePosition(startNodes, collect, 1);
             dags.removeAll(s);
-            dags.putAll(s, collect.values());
+            List<Node> ns = new ArrayList<>(collect.values());
+            optimizationDepth(ns);
+            dags.putAll(s, ns);
         }
 
         System.out.println(dags);
@@ -137,6 +139,20 @@ public class JobTransfer {
             flowBeans.add(flow);
         }
         return JSON.toJSONString(flowBeans);
+    }
+
+    public void optimizationDepth(Collection<Node> nodes){
+        List<Integer> collect = nodes.stream().map(Node::getDepth).sorted().collect(Collectors.toList());
+        Map<Integer, Integer> depthMapping = new HashMap<>();
+        for (int i = 0; i < collect.size(); i++) {
+            if (i != collect.get(i)){
+                depthMapping.put(collect.get(i), i);
+            }
+        }
+
+        nodes.forEach(n ->{
+            n.setDepth(depthMapping.get(n.getDepth()));
+        });
     }
 
     public void calcNodePosition(List<String> startNodes, Map<String, Node> allNodes, int depth) {
@@ -260,7 +276,7 @@ public class JobTransfer {
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
         int x = depth;
         int y = count;
-        return new Pair<>(x * 250 + 25, y * 500 + 50);
+        return new Pair<>(x * 250 - 200, y * 500 - 400);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
