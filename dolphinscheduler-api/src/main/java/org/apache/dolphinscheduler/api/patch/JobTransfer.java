@@ -166,9 +166,11 @@ public class JobTransfer {
         }
         nodes.sort(Comparator.comparingInt(n -> -(n.getDeps().size() + n.getChildNum())));
         Collection<String> transform = Collections2.transform(nodes, Node::getName);
+        int currDepthNodeCount = nodes.size();
         for (int i = 0; i < nodes.size(); i++) {
             Node node = nodes.get(i);
             node.setOrder(i);
+            node.setCurrDepthNodeCount(currDepthNodeCount);
             Collection<String> intersection = CollectionUtils.intersection(node.getDeps(), transform);
             if (!CollectionUtils.isEmpty(intersection)) {
                 node.setDepth(node.getDepth() - 1);
@@ -215,7 +217,7 @@ public class JobTransfer {
         int maxDepth = max.get().getDepth();
         nodes.forEach(node -> {
             LocationBean bean = new LocationBean();
-            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder());
+            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder(),node.getCurrDepthNodeCount());
             bean.setName(node.getName());
             bean.setNodenumber(node.getDeps().size() + "");
             bean.setTargetarr(StringUtils.join(node.getDeps(), ","));
@@ -226,10 +228,10 @@ public class JobTransfer {
         return json.toJSONString();
     }
 
-    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count) {
+    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count,int currDepthNodeCount) {
         int x = maxDepth - depth;
         int y = count;
-        return new Pair<>(y * 250 + 50, x * 500 + 100);
+        return new Pair<>(x * 250 + 50, y * 500 + 100);
     }
 
     public String createTaskJson(Collection<Node> nodes) {

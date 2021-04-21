@@ -20,4 +20,5 @@ public class Node {
     private List<String> deps;
     private int childNum;
     private String flowName;
+    private int currDepthNodeCount;
 }
