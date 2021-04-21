@@ -19,4 +19,5 @@ public class Node {
     private String content;
     private List<String> deps;
     private int childNum;
+    private String flowName;
 }

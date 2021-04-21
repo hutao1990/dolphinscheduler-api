@@ -87,7 +87,9 @@ public class ZipUtils {
         while (entries.hasMoreElements()) {
             ZipArchiveEntry entry = entries.nextElement();
             String name = entry.getName();
-            if (name.endsWith("flow")) {
+            if (name.endsWith(".flow")) {
+                String fileName = name.substring(name.lastIndexOf("/") + 1);
+                String flowName = StringUtils.split(fileName,".")[0];
                 @Cleanup InputStream in = zipFile.getInputStream(entry);
                 Yaml yaml = new Yaml();
                 Object load = yaml.load(in);
@@ -103,6 +105,7 @@ public class ZipUtils {
                     JSONObject node = nodes.getJSONObject(i);
                     StringBuilder sb = new StringBuilder();
                     String type = node.getString("type");
+                    sb.append("flowName=").append(flowName).append("\n");
                     sb.append("type=").append(type).append("\n");
                     sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(node.getJSONObject("config"))).append("\n");
                     JSONArray dependsOn = node.getJSONArray("dependsOn");

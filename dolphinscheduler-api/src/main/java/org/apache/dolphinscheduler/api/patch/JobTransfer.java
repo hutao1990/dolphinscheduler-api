@@ -13,6 +13,7 @@ import org.apache.dolphinscheduler.api.patch.utils.ZipUtils;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author hutao
@@ -39,6 +40,7 @@ public class JobTransfer {
 
     public HashBasedTable<String, String,String> jobTables = HashBasedTable.create();
 
+    public Map<String, String> flowMergersMapping = Maps.newHashMap();
 
     public void clear(){
         nodeDepCountMap.clear();
@@ -50,6 +52,7 @@ public class JobTransfer {
         list.clear();
         globalMap.clear();
         jobTables.clear();
+        flowMergersMapping.clear();
     }
 
     public String trans(String path) throws Exception {
@@ -105,6 +108,13 @@ public class JobTransfer {
             createDAG(Collections.singletonList(k), k, null, 0);
             System.out.println("dag: " + k + "  remaining job size:" + jobs.size());
         });
+
+        flowMergersMapping.forEach((k,v) ->{
+            Set<Node> nodes = dags.get(k);
+            dags.putAll(v,new HashSet<>(nodes));
+            dags.removeAll(k);
+        });
+
         System.out.println(dags);
 
         List<FlowBean> flowBeans = new ArrayList<>();
@@ -130,6 +140,15 @@ public class JobTransfer {
                 node.setContent(nodeContentMap.getOrDefault(name, "echo '" + name + " success'"));
                 ArrayList<String> list = new ArrayList<>(nodeDepDetailMap.get(name));
                 node.setDeps(list);
+                String fn = jobTables.get(name, "flowName");
+                if (StringUtils.isNotBlank(fn)){
+                    node.setFlowName(fn);
+                    flowMergersMapping.put(flowName,fn);
+                    flowName = fn;
+                }else {
+                    node.setFlowName(flowName);
+                    jobTables.put(name,"flowName", flowName);
+                }
                 for (String s : list) {
                     if (!repeat.contains(s)) {
                         repeat.add(s);
@@ -155,7 +174,10 @@ public class JobTransfer {
             if (node.getDeps().size() > 25) {
                 node.setDepth(node.getDepth() - 2);
             }
-            dags.put(flowName, node);
+            Set<String> set = dags.get(flowName).stream().map(Node::getName).collect(Collectors.toSet());
+            if (!set.contains(node.getName())) {
+                dags.put(flowName, node);
+            }
         }
         if (!nodesList.isEmpty()) {
             createDAG(nodesList, flowName, repeat, depth + 3);
