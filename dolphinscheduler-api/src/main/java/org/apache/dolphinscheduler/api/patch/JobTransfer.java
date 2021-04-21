@@ -159,8 +159,8 @@ public class JobTransfer {
     }
 
     public int calcOrderByDepth(int depth) {
-        Integer order = positionsMapping.get(depth);
-        if (order == null) {
+        int order = positionsMapping.get(depth);
+        if (order == 0) {
             order = 1;
         } else {
             positionsMapping.put(depth, order + 1);
@@ -245,10 +245,9 @@ public class JobTransfer {
     public String createLocation(Collection<Node> nodes) {
         JSONObject json = new JSONObject(true);
         Optional<Node> max = nodes.stream().max(Comparator.comparingInt(Node::getDepth));
-        int maxDepth = max.get().getDepth();
         nodes.forEach(node -> {
             LocationBean bean = new LocationBean();
-            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder(), node.getCurrDepthNodeCount());
+            Pair<Integer, Integer> pair = coordinate(node.getDepth(), node.getOrder(), node.getCurrDepthNodeCount());
             bean.setName(node.getName());
             bean.setNodenumber(node.getDeps().size() + "");
             bean.setTargetarr(StringUtils.join(node.getDeps(), ","));
@@ -259,10 +258,10 @@ public class JobTransfer {
         return json.toJSONString();
     }
 
-    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count, int currDepthNodeCount) {
-        int x = maxDepth - depth;
+    public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
+        int x = depth;
         int y = count;
-        return new Pair<>(x * 250 + 50, y * 500 + 100);
+        return new Pair<>(x * 250 + 150, y * 500 + 300);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
