@@ -143,8 +143,10 @@ public class JobTransfer {
                 String fn = jobTables.get(name, "flowName");
                 if (StringUtils.isNotBlank(fn)){
                     node.setFlowName(fn);
-                    flowMergersMapping.put(flowName,fn);
-                    flowName = fn;
+                    if (! flowName.equals(fn)) {
+                        flowMergersMapping.put(flowName, fn);
+                        flowName = fn;
+                    }
                 }else {
                     node.setFlowName(flowName);
                     jobTables.put(name,"flowName", flowName);
