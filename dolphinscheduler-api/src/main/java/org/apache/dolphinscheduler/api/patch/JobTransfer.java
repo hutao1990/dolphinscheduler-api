@@ -28,6 +28,8 @@ public class JobTransfer {
 
     public HashMultimap<String, String> nodeDepDetailMap = HashMultimap.create();
 
+    public HashMultimap<String, String> nodeDepDetailMapReverse = HashMultimap.create();
+
     public List<String> jobs = new ArrayList<>(2048);
 
     public LinkedHashMultimap<String, Node> dags = LinkedHashMultimap.create();
@@ -38,11 +40,13 @@ public class JobTransfer {
 
     public Map<String, String> globalMap = new LinkedHashMap<>();
 
-    public HashBasedTable<String, String,String> jobTables = HashBasedTable.create();
+    public HashBasedTable<String, String, String> jobTables = HashBasedTable.create();
 
     public Map<String, String> flowMergersMapping = Maps.newHashMap();
 
-    public void clear(){
+    public Map<Integer, Integer> positionsMapping = Maps.newHashMap();
+
+    public void clear() {
         nodeDepCountMap.clear();
         nodeContentMap.clear();
         nodeDepDetailMap.clear();
@@ -82,21 +86,22 @@ public class JobTransfer {
                         String[] deps = StringUtils.replace(line, "dependencies=", "").split(",");
                         Arrays.asList(deps).forEach(dep -> {
                             nodeDepDetailMap.put(id, dep.trim());
+                            nodeDepDetailMapReverse.put(dep.trim(), id);
                             list.add(new Pair<>(id, dep.trim()));
                             nodeDepCountMap.computeIfPresent(dep.trim(), (k, v) -> v + 1);
                             nodeDepCountMap.computeIfAbsent(dep.trim(), k -> 1);
                         });
-                    }else {
+                    } else {
                         // 解析job文件中的附加属性
                         if (line.contains("=")) {
                             String[] split = line.split("=");
-                            if (split.length < 2){
-                                System.out.println("skip param: "+line);
-                            }else {
-                                jobTables.put(id, split[0],split[1]);
+                            if (split.length < 2) {
+                                System.out.println("skip param: " + line);
+                            } else {
+                                jobTables.put(id, split[0], split[1]);
                             }
-                        }else {
-                            System.out.println("error param ==> "+line);
+                        } else {
+                            System.out.println("error param ==> " + line);
                         }
                     }
                 });
@@ -109,11 +114,20 @@ public class JobTransfer {
             System.out.println("dag: " + k + "  remaining job size:" + jobs.size());
         });
 
-        flowMergersMapping.forEach((k,v) ->{
+        flowMergersMapping.forEach((k, v) -> {
             Set<Node> nodes = dags.get(k);
-            dags.putAll(v,new HashSet<>(nodes));
+            dags.putAll(v, new HashSet<>(nodes));
             dags.removeAll(k);
         });
+
+        for (String s : dags.keySet()) {
+            Set<Node> nodes = dags.get(s);
+            List<String> startNodes = nodes.stream().filter(n -> n.getDeps().size() == 0).map(Node::getName).collect(Collectors.toList());
+            Map<String, Node> collect = nodes.stream().collect(Collectors.toMap(Node::getName, n -> n, (v1, v2) -> v2));
+            calcNodePosition(startNodes, collect, 1);
+            dags.removeAll(s);
+            dags.putAll(s, collect.values());
+        }
 
         System.out.println(dags);
 
@@ -123,6 +137,35 @@ public class JobTransfer {
             flowBeans.add(flow);
         }
         return JSON.toJSONString(flowBeans);
+    }
+
+    public void calcNodePosition(List<String> startNodes, Map<String, Node> allNodes, int depth) {
+        List<String> nodes = new ArrayList<>();
+        for (int i = 0; i < startNodes.size(); i++) {
+            String name = startNodes.get(i);
+            Node node = allNodes.get(name);
+            node.setDepth(node.getDepth() + depth);
+            node.setCurrDepthNodeCount(startNodes.size());
+            node.setOrder(calcOrderByDepth(node.getDepth()));
+            node.getChildDeps().forEach( n -> {
+                Node node1 = allNodes.get(n);
+                node1.setDepth(node.getDepth() + 1);
+            });
+            nodes.addAll(node.getChildDeps());
+        }
+        if (!nodes.isEmpty()){
+            calcNodePosition(nodes,allNodes,depth);
+        }
+    }
+
+    public int calcOrderByDepth(int depth) {
+        Integer order = positionsMapping.get(depth);
+        if (order == null) {
+            order = 1;
+        } else {
+            positionsMapping.put(depth, order + 1);
+        }
+        return order;
     }
 
     public void createDAG(List<String> nodeNames, String flowName, Set<String> repeat, int depth) {
@@ -136,20 +179,21 @@ public class JobTransfer {
                 Node node = new Node();
                 node.setName(name);
                 node.setDepth(depth);
-                node.setChildNum(nodeDepCountMap.get(name));
                 node.setContent(nodeContentMap.getOrDefault(name, "echo '" + name + " success'"));
                 ArrayList<String> list = new ArrayList<>(nodeDepDetailMap.get(name));
+                ArrayList<String> listReverse = new ArrayList<>(nodeDepDetailMapReverse.get(name));
                 node.setDeps(list);
+                node.setChildDeps(listReverse);
                 String fn = jobTables.get(name, "flowName");
-                if (StringUtils.isNotBlank(fn)){
+                if (StringUtils.isNotBlank(fn)) {
                     node.setFlowName(fn);
-                    if (! flowName.equals(fn)) {
+                    if (!flowName.equals(fn)) {
                         flowMergersMapping.put(flowName, fn);
                         flowName = fn;
                     }
-                }else {
+                } else {
                     node.setFlowName(flowName);
-                    jobTables.put(name,"flowName", flowName);
+                    jobTables.put(name, "flowName", flowName);
                 }
                 for (String s : list) {
                     if (!repeat.contains(s)) {
@@ -164,20 +208,7 @@ public class JobTransfer {
                 throw new IllegalStateException("job name not in jobList,please check job dependencies!");
             }
         }
-        nodes.sort(Comparator.comparingInt(n -> -(n.getDeps().size() + n.getChildNum())));
-        Collection<String> transform = Collections2.transform(nodes, Node::getName);
-        int currDepthNodeCount = nodes.size();
-        for (int i = 0; i < nodes.size(); i++) {
-            Node node = nodes.get(i);
-            node.setOrder(i);
-            node.setCurrDepthNodeCount(currDepthNodeCount);
-            Collection<String> intersection = CollectionUtils.intersection(node.getDeps(), transform);
-            if (!CollectionUtils.isEmpty(intersection)) {
-                node.setDepth(node.getDepth() - 1);
-            }
-            if (node.getDeps().size() > 25) {
-                node.setDepth(node.getDepth() - 2);
-            }
+        for (Node node : nodes) {
             Set<String> set = dags.get(flowName).stream().map(Node::getName).collect(Collectors.toSet());
             if (!set.contains(node.getName())) {
                 dags.put(flowName, node);
@@ -217,7 +248,7 @@ public class JobTransfer {
         int maxDepth = max.get().getDepth();
         nodes.forEach(node -> {
             LocationBean bean = new LocationBean();
-            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder(),node.getCurrDepthNodeCount());
+            Pair<Integer, Integer> pair = coordinate(maxDepth, node.getDepth(), node.getOrder(), node.getCurrDepthNodeCount());
             bean.setName(node.getName());
             bean.setNodenumber(node.getDeps().size() + "");
             bean.setTargetarr(StringUtils.join(node.getDeps(), ","));
@@ -228,7 +259,7 @@ public class JobTransfer {
         return json.toJSONString();
     }
 
-    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count,int currDepthNodeCount) {
+    public Pair<Integer, Integer> coordinate(int maxDepth, int depth, int count, int currDepthNodeCount) {
         int x = maxDepth - depth;
         int y = count;
         return new Pair<>(x * 250 + 50, y * 500 + 100);
@@ -260,17 +291,17 @@ public class JobTransfer {
             Map<String, String> local = jobTables.row(node.getName());
             taskBean.setId(node.getName());
             taskBean.setName(node.getName());
-            taskBean.setPhoneAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("false",local.get("phone"),globalMap.get("phone"))));
+            taskBean.setPhoneAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("false", local.get("phone"), globalMap.get("phone"))));
             taskBean.setConditionResult(ConditionResultBean.builder().failedNode(new ArrayList<>()).successNode(new ArrayList<>()).build());
             taskBean.setDescription("");
             taskBean.setRunFlag("NORMAL");
             taskBean.setType("SHELL");
             taskBean.setTimeout(TimeoutBean.builder().enable(false).strategy("").build());
-            taskBean.setMaxRetryTimes(getValueByParamOrder("1", local.get("retries"),globalMap.get("retries")));
-            taskBean.setTaskInstancePriority(getValueByParamOrder("MEDIUM",local.get("priority"),globalMap.get("priority")).toUpperCase());
+            taskBean.setMaxRetryTimes(getValueByParamOrder("1", local.get("retries"), globalMap.get("retries")));
+            taskBean.setTaskInstancePriority(getValueByParamOrder("MEDIUM", local.get("priority"), globalMap.get("priority")).toUpperCase());
             taskBean.setDependence(new DependenceBean());
-            taskBean.setRetryInterval(parseRetryInterval(getValueByParamOrder("1m",local.get("retry.backoff"),globalMap.get("retry.backoff")))+"");
-            taskBean.setMailAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("true",local.get("mail"),globalMap.get("mail"))));
+            taskBean.setRetryInterval(parseRetryInterval(getValueByParamOrder("1m", local.get("retry.backoff"), globalMap.get("retry.backoff"))) + "");
+            taskBean.setMailAlarmEnable(Boolean.parseBoolean(getValueByParamOrder("true", local.get("mail"), globalMap.get("mail"))));
             taskBean.setPreTasks(node.getDeps());
             taskBean.setWorkerGroup("default");
             taskBean.setParams(ParamsBean.builder().rawScript(node.getContent()).localParams(new ArrayList<>()).resourceList(resourceBeans).build());
@@ -280,36 +311,36 @@ public class JobTransfer {
         return JSON.toJSONString(definitionBean);
     }
 
-    public String getValueByParamOrder(String defaultValue, String... params){
-        if (params == null || params.length == 0){
+    public String getValueByParamOrder(String defaultValue, String... params) {
+        if (params == null || params.length == 0) {
             return defaultValue;
         }
         for (String paramName : params) {
-            if (StringUtils.isNotBlank(paramName)){
+            if (StringUtils.isNotBlank(paramName)) {
                 return paramName;
             }
         }
         return defaultValue;
     }
 
-    public long parseRetryInterval(String retryInterval){
+    public long parseRetryInterval(String retryInterval) {
         String data = StringUtils.lowerCase(retryInterval);
         long min = 1;
-        switch (data.replaceAll("\\d+","").trim()){
+        switch (data.replaceAll("\\d+", "").trim()) {
             case "h":
-                min = Long.parseLong(data.replace("h","")) * 60;
+                min = Long.parseLong(data.replace("h", "")) * 60;
                 break;
             case "m":
-                min = Long.parseLong(data.replace("m",""));
+                min = Long.parseLong(data.replace("m", ""));
                 break;
             case "s":
-                min = Long.parseLong(data.replace("s","")) / 60;
+                min = Long.parseLong(data.replace("s", "")) / 60;
                 break;
-            default :
+            default:
                 min = Long.parseLong(data) / 60 / 1000;
                 break;
         }
-        return Math.max(min,1);
+        return Math.max(min, 1);
     }
 
 }

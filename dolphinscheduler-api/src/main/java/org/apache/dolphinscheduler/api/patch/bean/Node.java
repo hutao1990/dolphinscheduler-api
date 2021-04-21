@@ -3,6 +3,7 @@ package org.apache.dolphinscheduler.api.patch.bean;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,8 +18,8 @@ public class Node {
     private int order;
     private String name;
     private String content;
-    private List<String> deps;
-    private int childNum;
+    private List<String> deps = new ArrayList<>();
+    private List<String> childDeps = new ArrayList<>();
     private String flowName;
     private int currDepthNodeCount;
 }
