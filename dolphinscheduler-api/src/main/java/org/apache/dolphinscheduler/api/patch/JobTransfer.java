@@ -159,13 +159,11 @@ public class JobTransfer {
     }
 
     public int calcOrderByDepth(int depth) {
-        Integer d = positionsMapping.get(depth);
-        int order = d == null ? 0 : d;
-        if (order == 0) {
+        Integer order = positionsMapping.get(depth);
+        if (order == null) {
             order = 1;
-        } else {
-            positionsMapping.put(depth, order + 1);
         }
+        positionsMapping.put(depth, order + 1);
         return order;
     }
 
@@ -262,7 +260,7 @@ public class JobTransfer {
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
         int x = depth;
         int y = count;
-        return new Pair<>(x * 250 + 150, y * 500 + 300);
+        return new Pair<>(x * 250 + 50, y * 500 + 100);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
