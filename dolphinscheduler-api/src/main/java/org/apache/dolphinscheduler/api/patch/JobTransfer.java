@@ -159,7 +159,8 @@ public class JobTransfer {
     }
 
     public int calcOrderByDepth(int depth) {
-        int order = positionsMapping.get(depth);
+        Integer d = positionsMapping.get(depth);
+        int order = d == null ? 0 : d;
         if (order == 0) {
             order = 1;
         } else {
