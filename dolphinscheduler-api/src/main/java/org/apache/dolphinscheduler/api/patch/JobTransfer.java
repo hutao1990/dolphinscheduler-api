@@ -142,10 +142,10 @@ public class JobTransfer {
     }
 
     public void optimizationDepth(Collection<Node> nodes){
-        List<Integer> collect = nodes.stream().map(Node::getDepth).sorted().collect(Collectors.toList());
+        List<Integer> dps = nodes.stream().map(Node::getDepth).distinct().sorted().collect(Collectors.toList());
         Map<Integer, Integer> depthMapping = new HashMap<>();
-        for (int i = 0; i < collect.size(); i++) {
-            depthMapping.put(collect.get(i), i + 1);
+        for (int i = 0; i < dps.size(); i++) {
+            depthMapping.put(dps.get(i), i + 1);
         }
 
         System.out.println("====> depthMapping :"+depthMapping);
