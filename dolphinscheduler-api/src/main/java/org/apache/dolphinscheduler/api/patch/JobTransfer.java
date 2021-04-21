@@ -162,7 +162,9 @@ public class JobTransfer {
             Node node = allNodes.get(name);
             node.setDepth(node.getDepth() + depth);
             node.setCurrDepthNodeCount(startNodes.size());
-            node.setOrder(calcOrderByDepth(node.getDepth(),node.getName(),allNodes));
+            if (node.getOrder() <= 1) {
+                node.setOrder(calcOrderByDepth(node.getDepth(), node.getName(), allNodes));
+            }
             node.getChildDeps().forEach( n -> {
                 Node node1 = allNodes.get(n);
                 node1.setDepth(node.getDepth() + 1);
