@@ -145,9 +145,7 @@ public class JobTransfer {
         List<Integer> collect = nodes.stream().map(Node::getDepth).sorted().collect(Collectors.toList());
         Map<Integer, Integer> depthMapping = new HashMap<>();
         for (int i = 0; i < collect.size(); i++) {
-            if (i != collect.get(i)){
-                depthMapping.put(collect.get(i), i);
-            }
+            depthMapping.put(collect.get(i), i);
         }
 
         nodes.forEach(n ->{
@@ -276,7 +274,7 @@ public class JobTransfer {
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
         int x = depth;
         int y = count;
-        return new Pair<>(x * 250 - 200, y * 500 - 400);
+        return new Pair<>(x * 250 + 50, y * 500 - 400);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
