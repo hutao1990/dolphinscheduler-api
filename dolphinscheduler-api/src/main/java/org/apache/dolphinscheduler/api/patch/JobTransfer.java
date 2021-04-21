@@ -260,7 +260,7 @@ public class JobTransfer {
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
         int x = depth;
         int y = count;
-        return new Pair<>(x * 250 + 50, y * 500 + 100);
+        return new Pair<>(x * 250 + 25, y * 500 + 50);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
