@@ -145,8 +145,10 @@ public class JobTransfer {
         List<Integer> collect = nodes.stream().map(Node::getDepth).sorted().collect(Collectors.toList());
         Map<Integer, Integer> depthMapping = new HashMap<>();
         for (int i = 0; i < collect.size(); i++) {
-            depthMapping.put(collect.get(i), i);
+            depthMapping.put(collect.get(i), i + 1);
         }
+
+        System.out.println("====> depthMapping :"+depthMapping);
 
         nodes.forEach(n ->{
             n.setDepth(depthMapping.get(n.getDepth()));
@@ -266,6 +268,7 @@ public class JobTransfer {
             bean.setTargetarr(StringUtils.join(node.getDeps(), ","));
             bean.setX(pair.getKey());
             bean.setY(pair.getValue());
+            System.out.println("----> task: "+ node.getName()+"  x: "+ pair.getKey()+"  y: "+pair.getValue());
             json.put(bean.getName(), bean);
         });
         return json.toJSONString();
