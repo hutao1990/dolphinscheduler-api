@@ -162,7 +162,7 @@ public class JobTransfer {
             Node node = allNodes.get(name);
             node.setDepth(node.getDepth() + depth);
             node.setCurrDepthNodeCount(startNodes.size());
-            node.setOrder(calcOrderByDepth(node.getDepth()));
+            node.setOrder(calcOrderByDepth(node.getDepth(),node.getName(),allNodes));
             node.getChildDeps().forEach( n -> {
                 Node node1 = allNodes.get(n);
                 node1.setDepth(node.getDepth() + 1);
@@ -174,11 +174,15 @@ public class JobTransfer {
         }
     }
 
-    public int calcOrderByDepth(int depth) {
+    public int calcOrderByDepth(int depth, String name, Map<String, Node> allNodes) {
         Integer order = positionsMapping.get(depth);
         if (order == null) {
             order = 1;
         }
+        Node node = allNodes.get(name);
+        Optional<Integer> min = node.getDeps().stream().map(n -> allNodes.get(n).getOrder()).min(Integer::compareTo);
+        int parentMinOrder = min.orElse(1);
+        order = Math.max(parentMinOrder, order);
         positionsMapping.put(depth, order + 1);
         return order;
     }
@@ -193,7 +197,6 @@ public class JobTransfer {
             if (jobs.contains(name)) {
                 Node node = new Node();
                 node.setName(name);
-                node.setDepth(depth);
                 node.setContent(nodeContentMap.getOrDefault(name, "echo '" + name + " success'"));
                 ArrayList<String> list = new ArrayList<>(nodeDepDetailMap.get(name));
                 ArrayList<String> listReverse = new ArrayList<>(nodeDepDetailMapReverse.get(name));
@@ -275,9 +278,9 @@ public class JobTransfer {
     }
 
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
-        int x = depth;
-        int y = count;
-        return new Pair<>(x * 250 - 200, y * 500 - 400);
+        int x = depth * 450 - 400;
+        int y = count * 350 - 250;
+        return new Pair<>(x, y);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
