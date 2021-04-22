@@ -123,6 +123,7 @@ public class HadoopUtils implements Closeable {
                     UserGroupInformation.setConfiguration(configuration);
                     UserGroupInformation.loginUserFromKeytab(PropertyUtils.getString(Constants.LOGIN_USER_KEY_TAB_USERNAME),
                             PropertyUtils.getString(Constants.LOGIN_USER_KEY_TAB_PATH));
+                    logger.info("kerberos ticket has refresh!");
                 }
 
                 String defaultFS = configuration.get(Constants.FS_DEFAULTFS);

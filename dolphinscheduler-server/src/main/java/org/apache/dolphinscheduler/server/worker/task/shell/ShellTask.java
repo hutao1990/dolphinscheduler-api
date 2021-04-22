@@ -155,7 +155,15 @@ public class ShellTask extends AbstractTask {
     }
     script = ParameterUtils.convertParameterPlaceholders(script, ParamUtils.convert(paramsMap));
 
-    shellParameters.setRawScript(script);
+    StringBuilder sb = new StringBuilder();
+    paramsMap.forEach((k,v)->{
+      if (!k.contains(".")) {
+        sb.append("export ").append(v.getProp()).append("=").append(v.getValue()).append(";\n");
+      }
+    });
+    sb.append(script);
+
+    shellParameters.setRawScript(sb.toString());
 
     logger.info("raw script : {}", shellParameters.getRawScript());
     logger.info("task execute path : {}", taskExecutionContext.getExecutePath());

@@ -51,7 +51,9 @@ public enum ExecutionStatus {
     NEED_FAULT_TOLERANCE(8, "need fault tolerance"),
     KILL(9, "kill"),
     WAITTING_THREAD(10, "waiting thread"),
-    WAITTING_DEPEND(11, "waiting depend node complete");
+    WAITTING_DEPEND(11, "waiting depend node complete"),
+    READY_RECOVER_RUNNING_FAILED(12,"ready recover running failed"),
+    RUNNING_FAILED(13, "flow running and task has error");
 
     ExecutionStatus(int code, String descp){
         this.code = code;
@@ -104,6 +106,14 @@ public enum ExecutionStatus {
    public boolean typeIsPause(){
        return this == PAUSE;
    }
+
+    /**
+     * status is running failed
+     * @return status
+     */
+   public boolean typeIsRunningFailed(){
+       return this == RUNNING_FAILED;
+   }
     /**
      * status is pause
      * @return status
@@ -117,7 +127,7 @@ public enum ExecutionStatus {
      * @return status
      */
    public boolean typeIsRunning(){
-       return this == RUNNING_EXEUTION || this == WAITTING_DEPEND;
+       return this == RUNNING_EXEUTION || this == WAITTING_DEPEND || this == RUNNING_FAILED;
    }
 
     /**

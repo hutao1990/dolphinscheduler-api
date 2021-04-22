@@ -166,6 +166,26 @@ public class UsersController extends BaseController {
     }
 
     /**
+     * 更新电话
+     * @param loginUser
+     * @param phone
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "phone", value = "PHONE", dataType = "Int", example = "100"),
+            @ApiImplicitParam(name = "userName", value = "USER_NAME", type = "String")
+    })
+    @ApiOperation(value = "updatePhone")
+    @PostMapping("/updatePhone")
+    @ApiException(UPDATE_USER_ERROR)
+    public Result updatePhone(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                              @RequestParam(value = "userName") String userName,
+                              @RequestParam(value = "phone") String phone){
+        Map<String, Object> result = usersService.updatePhone(loginUser, userName, phone);
+        return returnDataList(result);
+    }
+
+    /**
      * delete user by id
      *
      * @param loginUser login user

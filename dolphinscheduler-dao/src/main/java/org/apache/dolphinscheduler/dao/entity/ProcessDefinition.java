@@ -168,7 +168,6 @@ public class ProcessDefinition {
      */
     private String resourceIds;
 
-
     public String getName() {
         return name;
     }

@@ -17,28 +17,31 @@
 package org.apache.dolphinscheduler.server.utils;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.gome.hkalarm.sdk.bean.PhoneBean;
+import com.gome.hkalarm.sdk.util.SDK;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.apache.dolphinscheduler.common.enums.AlertType;
-import org.apache.dolphinscheduler.common.enums.CommandType;
-import org.apache.dolphinscheduler.common.enums.Flag;
-import org.apache.dolphinscheduler.common.enums.ShowType;
-import org.apache.dolphinscheduler.common.enums.WarningType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.dolphinscheduler.common.enums.*;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.AlertDao;
 import org.apache.dolphinscheduler.dao.DaoFactory;
-import org.apache.dolphinscheduler.dao.entity.Alert;
-import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
-import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
-import org.apache.dolphinscheduler.dao.entity.TaskInstance;
+import org.apache.dolphinscheduler.dao.datasource.ConnectionFactory;
+import org.apache.dolphinscheduler.dao.entity.*;
+import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
+import org.apache.dolphinscheduler.dao.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * alert manager
@@ -56,7 +59,15 @@ public class AlertManager {
     private AlertDao alertDao = DaoFactory.getDaoInstance(AlertDao.class);
 
 
-    public static Cache<Integer,List<Integer>> cache = CacheBuilder.newBuilder()
+    private UserMapper userMapper = ConnectionFactory.getInstance().getMapper(UserMapper.class);
+
+
+    public static Cache<Integer, List<Integer>> cache = CacheBuilder.newBuilder()
+            .initialCapacity(128)
+            .expireAfterWrite(18, TimeUnit.HOURS)
+            .build();
+
+    public static Cache<Integer, List<Integer>> phCache = CacheBuilder.newBuilder()
             .initialCapacity(128)
             .expireAfterWrite(18, TimeUnit.HOURS)
             .build();
@@ -99,27 +110,28 @@ public class AlertManager {
      */
     private static final String PROCESS_INSTANCE_FORMAT =
             "\"id:%d\"," +
-            "\"name:%s\"," +
-            "\"job type: %s\"," +
-            "\"state: %s\"," +
-            "\"recovery:%s\"," +
-            "\"run time: %d\"," +
-            "\"start time: %s\"," +
-            "\"end time: %s\"," +
-            "\"host: %s\"" ;
+                    "\"name:%s\"," +
+                    "\"job type: %s\"," +
+                    "\"state: %s\"," +
+                    "\"recovery:%s\"," +
+                    "\"run time: %d\"," +
+                    "\"start time: %s\"," +
+                    "\"end time: %s\"," +
+                    "\"host: %s\"";
 
     /**
      * get process instance content
-     * @param processInstance   process instance
-     * @param taskInstances     task instance list
+     *
+     * @param processInstance process instance
+     * @param taskInstances   task instance list
      * @return process instance format content
      */
     public String getContentProcessInstance(ProcessInstance processInstance,
-                                            List<TaskInstance> taskInstances){
+                                            List<TaskInstance> taskInstances) {
 
         String res = "";
-        logger.info("====> task instance num: {}",taskInstances.size());
-        if(processInstance.getState().typeIsSuccess() || taskInstances.size() == 0){
+        logger.info("====> task instance num: {}", taskInstances.size());
+        if (processInstance.getState().typeIsSuccess() || taskInstances.size() == 0) {
             res = String.format(PROCESS_INSTANCE_FORMAT,
                     processInstance.getId(),
                     processInstance.getName(),
@@ -133,12 +145,15 @@ public class AlertManager {
 
             );
             res = "[" + res + "]";
-        }else{
+        } else {
 
             List<LinkedHashMap> failedTaskList = new ArrayList<>();
-
-            for(TaskInstance task : taskInstances){
-                if(!task.getState().typeIsFailure()){
+            for (TaskInstance task : taskInstances) {
+                if (!task.getState().typeIsFailure()) {
+                    continue;
+                }
+                if (!sendMail(Collections.singletonList(task))){
+                    logger.info("process '{}' task '{}' has close mail alarm， ignore this alarm！",processInstance.getName(),task.getName());
                     continue;
                 }
                 List<Integer> list = new ArrayList<>();
@@ -147,11 +162,11 @@ public class AlertManager {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
-                if (!list.isEmpty() && list.contains(task.getId())){
+                if (!list.isEmpty() && list.contains(task.getId())) {
                     continue;
                 }
                 list.add(task.getId());
-                cache.put(task.getProcessInstanceId(),list);
+                cache.put(task.getProcessInstanceId(), list);
                 LinkedHashMap<String, String> failedTaskMap = new LinkedHashMap();
                 failedTaskMap.put("process instance id", String.valueOf(processInstance.getId()));
                 failedTaskMap.put("process instance name", processInstance.getName());
@@ -160,7 +175,7 @@ public class AlertManager {
                 failedTaskMap.put("task type", task.getTaskType());
                 failedTaskMap.put("task state", task.getState().toString());
                 failedTaskMap.put("task start time", DateUtils.dateToString(task.getStartTime()));
-                failedTaskMap.put("task end time", task.getEndTime()!= null?DateUtils.dateToString(task.getEndTime()):"");
+                failedTaskMap.put("task end time", task.getEndTime() != null ? DateUtils.dateToString(task.getEndTime()) : "");
                 failedTaskMap.put("host", task.getHost());
                 failedTaskMap.put("log path", task.getLogPath());
                 failedTaskList.add(failedTaskMap);
@@ -178,11 +193,15 @@ public class AlertManager {
      * @param toleranceTaskList tolerance task list
      * @return worker tolerance content
      */
-    private String getWorkerToleranceContent(ProcessInstance processInstance, List<TaskInstance> toleranceTaskList){
+    private String getWorkerToleranceContent(ProcessInstance processInstance, List<TaskInstance> toleranceTaskList) {
 
-        List<LinkedHashMap<String, String>> toleranceTaskInstanceList =  new ArrayList<>();
+        List<LinkedHashMap<String, String>> toleranceTaskInstanceList = new ArrayList<>();
 
-        for(TaskInstance taskInstance: toleranceTaskList){
+        for (TaskInstance taskInstance : toleranceTaskList) {
+            if (!sendMail(Collections.singletonList(taskInstance))){
+                logger.info("process '{}' task '{}' has close mail alarm， ignore this alarm！",processInstance.getName(),taskInstance.getName());
+                continue;
+            }
             LinkedHashMap<String, String> toleranceWorkerContentMap = new LinkedHashMap();
             toleranceWorkerContentMap.put("process name", processInstance.getName());
             toleranceWorkerContentMap.put("task name", taskInstance.getName());
@@ -199,26 +218,26 @@ public class AlertManager {
      * @param processInstance   process instance
      * @param toleranceTaskList tolerance task list
      */
-    public void sendAlertWorkerToleranceFault(ProcessInstance processInstance, List<TaskInstance> toleranceTaskList){
-        try{
+    public void sendAlertWorkerToleranceFault(ProcessInstance processInstance, List<TaskInstance> toleranceTaskList) {
+        try {
             Alert alert = new Alert();
             alert.setTitle("worker fault tolerance");
             alert.setShowType(ShowType.TABLE);
             String content = getWorkerToleranceContent(processInstance, toleranceTaskList);
-            if (content == null || content.trim().length() < 8){
+            if (content == null || content.trim().length() < 8) {
                 logger.info("ignore blank alert...");
                 return;
             }
             alert.setContent(content);
             alert.setAlertType(AlertType.EMAIL);
             alert.setCreateTime(new Date());
-            alert.setAlertGroupId(processInstance.getWarningGroupId() == null ? 1:processInstance.getWarningGroupId());
+            alert.setAlertGroupId(processInstance.getWarningGroupId() == null ? 1 : processInstance.getWarningGroupId());
             alert.setReceivers(processInstance.getProcessDefinition().getReceivers());
             alert.setReceiversCc(processInstance.getProcessDefinition().getReceiversCc());
             alertDao.addAlert(alert);
             logger.info("add alert to db , alert : {}", alert.toString());
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("send alert failed:{} ", e.getMessage());
         }
 
@@ -226,61 +245,62 @@ public class AlertManager {
 
     /**
      * send process instance alert
-     * @param processInstance   process instance
-     * @param taskInstances     task instance list
+     *
+     * @param processInstance process instance
+     * @param taskInstances   task instance list
      */
     public void sendAlertProcessInstance(ProcessInstance processInstance,
-                                         List<TaskInstance> taskInstances){
-        if(Flag.YES == processInstance.getIsSubProcess()){
+                                         List<TaskInstance> taskInstances) {
+        if (Flag.YES == processInstance.getIsSubProcess()) {
             return;
         }
 
         boolean sendWarnning = false;
         WarningType warningType = processInstance.getWarningType();
-        switch (warningType){
+        switch (warningType) {
             case ALL:
-                if(processInstance.getState().typeIsFinished()){
+                if (processInstance.getState().typeIsFinished()) {
                     sendWarnning = true;
                 }
                 break;
             case SUCCESS:
-                if(processInstance.getState().typeIsSuccess()){
+                if (processInstance.getState().typeIsSuccess()) {
                     sendWarnning = true;
                 }
                 break;
             case FAILURE:
-                if(processInstance.getState().typeIsFailure()){
+                if (processInstance.getState().typeIsFailure()) {
                     sendWarnning = true;
                 }
                 break;
-                default:
+            default:
         }
         // 未完成的process中task error送错误信息
-        if (!processInstance.getState().typeIsFinished()){
-            for (TaskInstance task: taskInstances){
-                if (task.getState().typeIsFailure()){
+        if (!processInstance.getState().typeIsFinished()) {
+            for (TaskInstance task : taskInstances) {
+                if (task.getState().typeIsFailure()) {
                     logger.error(" ----> send mail notice!");
                     sendWarnning = true;
                     break;
                 }
             }
         }
-        if(!sendWarnning){
+        if (!sendWarnning) {
             return;
         }
         Alert alert = new Alert();
 
 
         String cmdName = getCommandCnName(processInstance.getCommandType());
-        String success = processInstance.getState().typeIsSuccess() ? "success" :"failed";
+        String success = processInstance.getState().typeIsSuccess() ? "success" : "failed";
         alert.setTitle(cmdName + " " + success);
         ShowType showType = processInstance.getState().typeIsSuccess() ? ShowType.TEXT : ShowType.TABLE;
-        if (processInstance.getState().typeIsFailure() && taskInstances.isEmpty()){
+        if (processInstance.getState().typeIsFailure() && taskInstances.isEmpty()) {
             showType = ShowType.TEXT;
         }
         alert.setShowType(showType);
         String content = getContentProcessInstance(processInstance, taskInstances);
-        if (content == null || content.trim().length() < 8){
+        if (content == null || content.trim().length() < 8) {
             logger.info("ignore blank alert...");
             return;
         }
@@ -293,6 +313,53 @@ public class AlertManager {
 
         alertDao.addAlert(alert);
         logger.info("add alert to db , alert: {}", alert.toString());
+        try {
+            List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
+            List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
+            if (callPhone(collect)) {
+                list.addAll(collect.stream().map(TaskInstance::getId).collect(Collectors.toList()));
+                User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
+                logger.info("callPhone " + user.getPhone() + " alarm!");
+                PhoneBean phoneBean = new PhoneBean();
+                phoneBean.setAppId("dolphinscheduler");
+                phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
+                phoneBean.setPhoneNumber(user.getPhone());
+                phoneBean.setTitle("scheduler alarm");
+                phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            logger.error("cache get error! phone msg send error! e: {}",e.getMessage());
+        }
+
+    }
+
+    private boolean callPhone(List<TaskInstance> taskInstances) {
+        if (taskInstances != null && !taskInstances.isEmpty()) {
+            for (TaskInstance task : taskInstances) {
+                String str = task.getTaskJson();
+                JSONObject json = JSONObject.parseObject(str);
+                boolean phoneAlarmEnable = json.getBooleanValue("phoneAlarmEnable");
+                if (phoneAlarmEnable) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean sendMail(List<TaskInstance> taskInstances) {
+        if (taskInstances != null && !taskInstances.isEmpty()) {
+            for (TaskInstance task : taskInstances) {
+                String str = task.getTaskJson();
+                JSONObject json = JSONObject.parseObject(str);
+                boolean mailAlarmEnable = json.getBooleanValue("mailAlarmEnable");
+                if (mailAlarmEnable) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

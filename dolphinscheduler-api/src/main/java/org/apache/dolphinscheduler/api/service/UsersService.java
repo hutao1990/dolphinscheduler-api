@@ -437,6 +437,20 @@ public class UsersService extends BaseService {
         return result;
     }
 
+    public Map<String, Object> updatePhone(User loginUser,String userName,String phone){
+        Map<String, Object> result = new HashMap<>(5);
+        User user = userMapper.queryByUserNameAccurately(userName);
+        result.put(Constants.STATUS, false);
+
+        if (check(result, !hasPerm(loginUser, user.getId()), Status.USER_NO_OPERATION_PERM)) {
+            return result;
+        }
+        user.setPhone(phone);
+        userMapper.updateById(user);
+        putMsg(result, Status.SUCCESS);
+        return result;
+    }
+
     /**
      * delete user
      *
