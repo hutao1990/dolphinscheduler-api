@@ -81,7 +81,7 @@ public class JobTransfer {
                 String str = content.replaceAll("\\\\[ ]{0,5}\n", "");
                 List<String> contents = new ArrayList<>();
                 Arrays.asList(StringUtils.split(str, "\n")).forEach(line -> {
-                    if (StringUtils.contains(line, "command")) {
+                    if (StringUtils.startsWith(line.trim(), "command")) {
                         String m = StringUtils.replace(line, ":", "=");
                         String replace = StringUtils.replace(m, "command=", "command.999=");
                         contents.add(replace);
@@ -108,15 +108,17 @@ public class JobTransfer {
                         }
                     }
                 });
-                String command = contents.stream().map(c -> {
-                    String[] cmd = c.split("=");
-                    String index = StringUtils.split(cmd[0], ".")[1];
-                    if (index.equals("999")){
-                        index = "-1";
-                    }
-                    return new Pair<>(Integer.parseInt(index), cmd[1]);
-                }).sorted(Comparator.comparingInt(Pair::getKey)).map(Pair::getValue).collect(Collectors.joining("\n"));
-                nodeContentMap.put(id,command);
+                if (!contents.isEmpty()) {
+                    String command = contents.stream().map(c -> {
+                        String[] cmd = c.split("=");
+                        String index = StringUtils.split(cmd[0], ".")[1];
+                        if (index.equals("999")) {
+                            index = "-1";
+                        }
+                        return new Pair<>(Integer.parseInt(index), cmd[1]);
+                    }).sorted(Comparator.comparingInt(Pair::getKey)).map(Pair::getValue).collect(Collectors.joining("\n"));
+                    nodeContentMap.put(id, command);
+                }
 
             }
         }));
