@@ -111,7 +111,10 @@ public class ZipUtils {
                     String type = node.getString("type");
                     sb.append("flowName=").append(flowName).append("\n");
                     sb.append("type=").append(type).append("\n");
-                    sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(node.getJSONObject("config"))).append("\n");
+                    JSONObject cfg = node.getJSONObject("config");
+                    if (cfg != null) {
+                        sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(cfg)).append("\n");
+                    }
                     JSONArray dependsOn = node.getJSONArray("dependsOn");
                     if (dependsOn!= null && dependsOn.size() > 0) {
                         sb.append("dependencies=").append(StringUtils.join(dependsOn, ","));
