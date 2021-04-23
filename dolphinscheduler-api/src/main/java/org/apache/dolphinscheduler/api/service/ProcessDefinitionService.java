@@ -838,6 +838,12 @@ public class ProcessDefinitionService extends BaseDAGService {
         String processDefinitionName = processMeta.getProcessDefinitionName();
         //use currentProjectName to query
         Project targetProject = projectMapper.queryByName(currentProjectName);
+        if (false){
+            // 工作流覆盖
+            if (overwriteProcessResult(loginUser,targetProject,processMeta)){
+                return true;
+            }
+        }
         if (null != targetProject) {
             processDefinitionName = recursionProcessDefinitionName(targetProject.getId(),
                     processDefinitionName, 1);
@@ -878,6 +884,29 @@ public class ProcessDefinitionService extends BaseDAGService {
                 processDefinitionName,
                 processDefinitionId);
 
+    }
+
+    private boolean overwriteProcessResult(User loginUser,Project project,ProcessMeta processMeta){
+        ProcessDefinition processDefinition = processDefineMapper.queryByDefineName(project.getId(), processMeta.getProcessDefinitionName());
+        if (processDefinition == null){
+            logger.warn("import process not exist of project {}！ create new process '{}'.",project.getName(),processMeta.getProcessDefinitionName());
+            return false;
+        }
+        processDefinition.setProcessDefinitionJson(processMeta.getProcessDefinitionJson());
+        processDefinition.setConnects(processMeta.getProcessDefinitionConnects());
+        processDefinition.setLocations(processMeta.getProcessDefinitionLocations());
+
+        ProcessData processData = JSONUtils.parseObject(processMeta.getProcessDefinitionJson(), ProcessData.class);
+        //custom global params
+        List<Property> globalParamsList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(processData.getGlobalParams())) {
+            Set<Property> userDefParamsSet = new HashSet<>(processData.getGlobalParams());
+            globalParamsList = new ArrayList<>(userDefParamsSet);
+        }
+        processDefinition.setGlobalParamList(globalParamsList);
+        processDefinition.setUpdateTime(new Date());
+        processDefinition.setFlag(Flag.YES);
+        return processDefineMapper.updateById(processDefinition) > 0;
     }
 
     /**
