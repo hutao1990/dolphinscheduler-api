@@ -79,7 +79,7 @@ public class ZipUtils {
         });
     }
 
-    public static void transform(String path, String ouptputPath) throws IOException {
+    public static void transform(String path, String ouptputPath) throws Exception {
         ZipFile zipFile = new ZipFile(path);
         Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
         @Cleanup ZipArchiveOutputStream out = new ZipArchiveOutputStream(new File(ouptputPath));
@@ -103,11 +103,18 @@ public class ZipUtils {
                 JSONArray nodes = json.getJSONArray("nodes");
                 for (int i = 0; i < nodes.size(); i++) {
                     JSONObject node = nodes.getJSONObject(i);
+                    JSONArray nodes1 = node.getJSONArray("nodes");
+                    if (nodes1!= null && !nodes1.isEmpty()){
+                        throw new IllegalArgumentException("不支持azkaban子流程格式！");
+                    }
                     StringBuilder sb = new StringBuilder();
                     String type = node.getString("type");
                     sb.append("flowName=").append(flowName).append("\n");
                     sb.append("type=").append(type).append("\n");
-                    sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(node.getJSONObject("config"))).append("\n");
+                    JSONObject cfg = node.getJSONObject("config");
+                    if (cfg != null) {
+                        sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(cfg)).append("\n");
+                    }
                     JSONArray dependsOn = node.getJSONArray("dependsOn");
                     if (dependsOn!= null && dependsOn.size() > 0) {
                         sb.append("dependencies=").append(StringUtils.join(dependsOn, ","));

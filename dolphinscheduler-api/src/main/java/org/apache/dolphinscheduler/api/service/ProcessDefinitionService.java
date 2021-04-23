@@ -771,7 +771,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                 processMetaJson = AzJobTransferUtil.azJob2JsonString(file);
             } catch (Exception e) {
                 e.printStackTrace();
-                putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR);
+                putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR,e.getMessage());
                 return result;
             }
         }else {

@@ -258,7 +258,7 @@ public enum Status {
     TEAM_CODE_NOT_MATCH(100003,"huking team code not match tenant code", "虎鲸团队账号[{0}]与系统租户[{1}]不匹配"),
     ADMIN_LOGIN_AS_TOKEN_ERROR(100003,"admin login as token error， plaese use user/password login", "admin帐号S使用token登录错误，请使用用户名密码登录"),
     PARSE_UPLOAD_ZIP_FILE_ERROR(100004,"parse upload zipx file error, plaese check zipx file", "解析上传的zipx文件异常，请检查文件是否损坏！"),
-    AZ_JOB_FILE_PARSE_ERROR(100005,"parse azkaban zip file error!", "解析上传azkaban的zip包错误，请检查job的依赖关系！")
+    AZ_JOB_FILE_PARSE_ERROR(100005,"parse azkaban zip file error!", "解析上传azkaban的zip包错误，[{0}]！")
     ;
 
     private final int code;
