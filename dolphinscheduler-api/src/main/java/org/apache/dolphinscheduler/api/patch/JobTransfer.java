@@ -82,9 +82,13 @@ public class JobTransfer {
                 List<String> contents = new ArrayList<>();
                 Arrays.asList(StringUtils.split(str, "\n")).forEach(line -> {
                     if (StringUtils.startsWith(line.trim(), "command")) {
-                        String m = StringUtils.replace(line, ":", "=");
-                        String replace = StringUtils.replace(m, "command=", "command.999=");
-                        contents.add(replace);
+                        String trim = line.trim();
+                        int idx = trim.indexOf(":");
+                        if (idx <= 15) {
+                            trim = StringUtils.replace(trim, ":", "=");
+                        }
+                        trim = StringUtils.replace(trim, "command=", "command.999=");
+                        contents.add(trim);
                     } else if (line.contains("dependencies=")) {
                         String[] deps = StringUtils.replace(line, "dependencies=", "").split(",");
                         Arrays.asList(deps).forEach(dep -> {
@@ -97,11 +101,11 @@ public class JobTransfer {
                     } else {
                         // 解析job文件中的附加属性
                         if (line.contains("=")) {
-                            String[] split = line.split("=");
-                            if (split.length < 2) {
+                            int i = line.indexOf("=");
+                            if (i == line.length() - 1 || i == 0) {
                                 System.out.println("skip param: " + line);
                             } else {
-                                jobTables.put(id, split[0], split[1]);
+                                jobTables.put(id, line.substring(0,i), line.substring(i + 1));
                             }
                         } else {
                             System.out.println("error param ==> " + line);
@@ -110,12 +114,12 @@ public class JobTransfer {
                 });
                 if (!contents.isEmpty()) {
                     String command = contents.stream().map(c -> {
-                        String[] cmd = c.split("=");
-                        String index = StringUtils.split(cmd[0], ".")[1];
+                        int i = c.indexOf("=");
+                        String index = StringUtils.split(c.substring(0, i), ".")[1];
                         if (index.equals("999")) {
                             index = "-1";
                         }
-                        return new Pair<>(Integer.parseInt(index), cmd[1]);
+                        return new Pair<>(Integer.parseInt(index), c.substring(i + 1));
                     }).sorted(Comparator.comparingInt(Pair::getKey)).map(Pair::getValue).collect(Collectors.joining("\n"));
                     nodeContentMap.put(id, command);
                 }
