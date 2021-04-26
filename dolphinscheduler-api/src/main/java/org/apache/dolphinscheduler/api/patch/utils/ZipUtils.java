@@ -95,11 +95,14 @@ public class ZipUtils {
                 Object load = yaml.load(in);
                 JSONObject json = JSON.parseObject(JSON.toJSONString(load));
 //                System.out.println(JSON.toJSONString(json, true));
-                String config = Joiner.on("\n").withKeyValueSeparator("=").join(json.getJSONObject("config"));
-                ZipArchiveEntry archiveEntry = new ZipArchiveEntry("config.properties");
-                out.putArchiveEntry(archiveEntry);
-                out.write(config.getBytes(StandardCharsets.UTF_8));
-                out.closeArchiveEntry();
+                JSONObject conf = json.getJSONObject("config");
+                if (conf != null && conf.size() > 0){
+                    String config = Joiner.on("\n").withKeyValueSeparator("=").join(conf);
+                    ZipArchiveEntry archiveEntry = new ZipArchiveEntry("config.properties");
+                    out.putArchiveEntry(archiveEntry);
+                    out.write(config.getBytes(StandardCharsets.UTF_8));
+                    out.closeArchiveEntry();
+                }
                 JSONArray nodes = json.getJSONArray("nodes");
                 for (int i = 0; i < nodes.size(); i++) {
                     JSONObject node = nodes.getJSONObject(i);
@@ -112,7 +115,7 @@ public class ZipUtils {
                     sb.append("flowName=").append(flowName).append("\n");
                     sb.append("type=").append(type).append("\n");
                     JSONObject cfg = node.getJSONObject("config");
-                    if (cfg != null) {
+                    if (cfg != null && cfg.size() > 0) {
                         sb.append(Joiner.on("\n").withKeyValueSeparator("=").join(cfg)).append("\n");
                     }
                     JSONArray dependsOn = node.getJSONArray("dependsOn");
