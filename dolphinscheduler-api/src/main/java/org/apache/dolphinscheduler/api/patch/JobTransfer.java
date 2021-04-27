@@ -295,8 +295,8 @@ public class JobTransfer {
     }
 
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
-        int x = depth * 200 - 100;
-        int y = count * 100 - 50;
+        int x = depth * 250 - 100;
+        int y = count * 150 - 50;
         return new Pair<>(y, x);
     }
 
