@@ -295,9 +295,9 @@ public class JobTransfer {
     }
 
     public Pair<Integer, Integer> coordinate(int depth, int count, int currDepthNodeCount) {
-        int x = depth * 450 - 400;
-        int y = count * 350 - 250;
-        return new Pair<>(x, y);
+        int x = depth * 200 - 100;
+        int y = count * 100 - 50;
+        return new Pair<>(y, x);
     }
 
     public String createTaskJson(Collection<Node> nodes) {
