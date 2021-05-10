@@ -37,6 +37,7 @@
         (SELECT COUNT(*) FROM t_ds_process_definition def, t_ds_process_instance inst WHERE def.id = inst.process_definition_id AND def.project_id = p.id AND inst.state=1 ) as inst_running_count
         from t_ds_project p
         join t_ds_user u on u.id=p.user_id
+        join t_ds_process_definition pd on pd.project_id = p.id
         where 1=1
         <if test="userId != 0">
             and p.id in
@@ -45,7 +46,7 @@
             )
         </if>
         <if test="searchName!=null and searchName != ''">
-            and p.name like concat('%', #{searchName}, '%')
+            and ( p.name like concat('%', #{searchName}, '%') or pd.name like concat('%', #{searchName}, '%') or u.user_name like concat('%', #{searchName}, '%') or p.description like concat('%', #{searchName}, '%'))
         </if>
         order by p.create_time desc
     </select>
