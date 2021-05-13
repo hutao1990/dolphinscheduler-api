@@ -863,6 +863,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             // 工作流覆盖
             if (overwriteProcessResult(loginUser, targetProject, processMeta)) {
                 logger.info("overwrite process definition name='{}' success!", processDefinitionName);
+                putMsg(result, Status.SUCCESS);
                 return true;
             }
             logger.info("overwrite process definition name='{}' failed! process definition still add.", processDefinitionName);
