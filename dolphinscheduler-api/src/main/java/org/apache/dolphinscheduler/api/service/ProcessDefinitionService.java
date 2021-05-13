@@ -781,15 +781,17 @@ public class ProcessDefinitionService extends BaseDAGService {
                 return result;
             } finally {
                 String fullFileName = loginUser.getUserName() + "_az_file";
-                List<Resource> resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
+                List<Resource> resources = resourceMapper.queryResourceList("/"+fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
                 if (resources == null || resources.isEmpty()) {
                     resourcesService.createDirectory(loginUser, fullFileName, "azkaban的job文件备份", ResourceType.FILE, -1, "/");
-                    resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
+                    resources = resourceMapper.queryResourceList("/"+fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
                 }
-                Resource resource = resources.get(0);
                 try {
-                    ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".", DateUtils.getCurrentTime() + "."), file.getInputStream());
-                    resourcesService.createResource(loginUser, "", "", ResourceType.FILE, new MultipartFile[]{zipMultiPartFile}, resource.getId(), resource.getFullName());
+                    if (!resources.isEmpty()) {
+                        Resource resource = resources.get(0);
+                        ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".", DateUtils.getCurrentTime() + "."), file.getInputStream());
+                        resourcesService.createResource(loginUser, "", "", ResourceType.FILE, new MultipartFile[]{zipMultiPartFile}, resource.getId(), resource.getFullName());
+                    }
                 } catch (IOException e) {
                     logger.error("azkaban job文件 '{}' 上传失败！", file.getOriginalFilename());
                 }
