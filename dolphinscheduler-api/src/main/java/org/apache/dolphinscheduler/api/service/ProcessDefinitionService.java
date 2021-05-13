@@ -33,6 +33,7 @@ import org.apache.dolphinscheduler.api.patch.TaskIdToName;
 import org.apache.dolphinscheduler.api.utils.CheckUtils;
 import org.apache.dolphinscheduler.api.utils.FileUtils;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
+import org.apache.dolphinscheduler.api.utils.ZipMultiPartFile;
 import org.apache.dolphinscheduler.api.utils.exportprocess.ProcessAddTaskParam;
 import org.apache.dolphinscheduler.api.utils.exportprocess.TaskNodeParamFactory;
 import org.apache.dolphinscheduler.common.Constants;
@@ -104,6 +105,9 @@ public class ProcessDefinitionService extends BaseDAGService {
 
     @Autowired
     private ResourceMapper resourceMapper;
+
+    @Autowired
+    private ResourcesService resourcesService;
 
     /**
      * create process definition
@@ -773,11 +777,24 @@ public class ProcessDefinitionService extends BaseDAGService {
                 e.printStackTrace();
                 putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR,e.getMessage());
                 return result;
+            }finally {
+                String fullFileName = loginUser.getUserName()+"_az_file";
+                List<Resource> resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
+                if (resources == null || resources.isEmpty()) {
+                    resourcesService.createDirectory(loginUser,fullFileName,"azkaban的job文件备份",ResourceType.FILE,-1,"/");
+                    resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
+                }
+                Resource resource = resources.get(0);
+                try {
+                    ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".",DateUtils.getCurrentTime()+"."), file.getInputStream());
+                    resourcesService.createResource(loginUser, "", "", ResourceType.FILE, new MultipartFile[]{zipMultiPartFile}, resource.getId(), resource.getFullName());
+                }catch (IOException e){
+                    logger.error("azkaban job文件 '{}' 上传失败！",file.getOriginalFilename());
+                }
             }
         }else {
             processMetaJson = FileUtils.file2String(file);
         }
-        file = null;
         List<ProcessMeta> processMetaList = JSON.parseArray(processMetaJson, ProcessMeta.class);
 
         //check file content
