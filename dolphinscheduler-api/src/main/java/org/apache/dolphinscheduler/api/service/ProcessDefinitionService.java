@@ -789,7 +789,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                 try {
                     if (!resources.isEmpty()) {
                         Resource resource = resources.get(0);
-                        ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".", DateUtils.getCurrentTime() + "."), file.getInputStream());
+                        ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getOriginalFilename().replace(".", DateUtils.getCurrentTime() + "."), file.getInputStream());
                         resourcesService.createResource(loginUser, "", "", ResourceType.FILE, new MultipartFile[]{zipMultiPartFile}, resource.getId(), resource.getFullName());
                     }
                 } catch (IOException e) {
