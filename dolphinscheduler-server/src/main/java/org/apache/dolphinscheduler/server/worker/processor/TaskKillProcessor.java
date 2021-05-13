@@ -115,17 +115,18 @@ public class TaskKillProcessor implements NettyRequestProcessor {
                 return Pair.of(true, appIds);
             }
 
-            String cmd = String.format("sudo kill -9 %s", ProcessUtils.getPidsStr(taskExecutionContext.getProcessId()));
-
-            logger.info("process id:{}, cmd:{}", taskExecutionContext.getProcessId(), cmd);
-
-            OSUtils.exeCmd(cmd);
-
             // find log and kill yarn job
             appIds = killYarnJob(Host.of(taskExecutionContext.getHost()).getIp(),
                     taskExecutionContext.getLogPath(),
                     taskExecutionContext.getExecutePath(),
                     taskExecutionContext.getTenantCode());
+
+            // 先kill yarn任务，再kill脚本
+            String cmd = String.format("sudo kill -9 %s", ProcessUtils.getPidsStr(taskExecutionContext.getProcessId()));
+
+            logger.info("process id:{}, cmd:{}", taskExecutionContext.getProcessId(), cmd);
+
+            OSUtils.exeCmd(cmd);
 
             return Pair.of(true, appIds);
         } catch (Exception e) {
