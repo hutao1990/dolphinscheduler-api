@@ -128,7 +128,8 @@ public class ProcessDefinitionService extends BaseDAGService {
                                                        String processDefinitionJson,
                                                        String desc,
                                                        String locations,
-                                                       String connects) throws JsonProcessingException {
+                                                       String connects,
+                                                       String releaseState) throws JsonProcessingException {
 
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
@@ -151,7 +152,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         TaskIdToName taskIdToName = new TaskIdToName(processDefinitionJson);
 
         processDefine.setName(name);
-        processDefine.setReleaseState(ReleaseState.OFFLINE);
+        processDefine.setReleaseState(ReleaseState.getEnum(releaseState.toUpperCase().equals("ONLINE") ? 1 : 0));
         processDefine.setProjectId(project.getId());
         processDefine.setUserId(loginUser.getId());
         processDefine.setProcessDefinitionJson(taskIdToName.transfer(processDefinitionJson));
@@ -327,7 +328,8 @@ public class ProcessDefinitionService extends BaseDAGService {
                     processDefinition.getProcessDefinitionJson(),
                     processDefinition.getDescription(),
                     processDefinition.getLocations(),
-                    processDefinition.getConnects());
+                    processDefinition.getConnects(),
+                    ReleaseState.OFFLINE.getDescp());
         }
     }
 
@@ -346,7 +348,7 @@ public class ProcessDefinitionService extends BaseDAGService {
      */
     public Map<String, Object> updateProcessDefinition(User loginUser, String projectName, int id, String name,
                                                        String processDefinitionJson, String desc,
-                                                       String locations, String connects) {
+                                                       String locations, String connects, String releaseState) {
         Map<String, Object> result = new HashMap<>(5);
 
         Project project = projectMapper.queryByName(projectName);
@@ -389,7 +391,7 @@ public class ProcessDefinitionService extends BaseDAGService {
 
         processDefine.setId(id);
         processDefine.setName(name);
-        processDefine.setReleaseState(ReleaseState.OFFLINE);
+        processDefine.setReleaseState(ReleaseState.getEnum(releaseState.toUpperCase().equals("ONLINE") ? 1 : 0));
         processDefine.setProjectId(project.getId());
         processDefine.setProcessDefinitionJson(taskIdToName.transfer(processDefinitionJson));
         processDefine.setDescription(desc);
@@ -767,32 +769,32 @@ public class ProcessDefinitionService extends BaseDAGService {
      * @return import process
      */
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName,int overwrite) {
+    public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName, int overwrite) {
         Map<String, Object> result = new HashMap<>(5);
         String processMetaJson = "";
-        if (org.apache.commons.lang3.StringUtils.endsWithAny(file.getOriginalFilename(),".zip",".zipx")){
+        if (org.apache.commons.lang3.StringUtils.endsWithAny(file.getOriginalFilename(), ".zip", ".zipx")) {
             try {
                 processMetaJson = AzJobTransferUtil.azJob2JsonString(file);
             } catch (Exception e) {
                 e.printStackTrace();
-                putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR,e.getMessage());
+                putMsg(result, Status.AZ_JOB_FILE_PARSE_ERROR, e.getMessage());
                 return result;
-            }finally {
-                String fullFileName = loginUser.getUserName()+"_az_file";
+            } finally {
+                String fullFileName = loginUser.getUserName() + "_az_file";
                 List<Resource> resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
                 if (resources == null || resources.isEmpty()) {
-                    resourcesService.createDirectory(loginUser,fullFileName,"azkaban的job文件备份",ResourceType.FILE,-1,"/");
+                    resourcesService.createDirectory(loginUser, fullFileName, "azkaban的job文件备份", ResourceType.FILE, -1, "/");
                     resources = resourceMapper.queryResourceList(fullFileName, loginUser.getId(), ResourceType.FILE.getCode());
                 }
                 Resource resource = resources.get(0);
                 try {
-                    ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".",DateUtils.getCurrentTime()+"."), file.getInputStream());
+                    ZipMultiPartFile zipMultiPartFile = new ZipMultiPartFile(file.getName().replace(".", DateUtils.getCurrentTime() + "."), file.getInputStream());
                     resourcesService.createResource(loginUser, "", "", ResourceType.FILE, new MultipartFile[]{zipMultiPartFile}, resource.getId(), resource.getFullName());
-                }catch (IOException e){
-                    logger.error("azkaban job文件 '{}' 上传失败！",file.getOriginalFilename());
+                } catch (IOException e) {
+                    logger.error("azkaban job文件 '{}' 上传失败！", file.getOriginalFilename());
                 }
             }
-        }else {
+        } else {
             processMetaJson = FileUtils.file2String(file);
         }
         List<ProcessMeta> processMetaList = JSON.parseArray(processMetaJson, ProcessMeta.class);
@@ -803,7 +805,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             return result;
         }
 
-        List<Resource> resourceList = resourceMapper.queryResourceList(null,loginUser.getId(),0);
+        List<Resource> resourceList = resourceMapper.queryResourceList(null, loginUser.getId(), 0);
         Map<String, Resource> collect = resourceList.stream().collect(Collectors.toMap(r -> r.getFileName(), r -> r, (r1, r2) -> r2));
 
         for (ProcessMeta processMeta : processMetaList) {
@@ -819,16 +821,16 @@ public class ProcessDefinitionService extends BaseDAGService {
                         String name = jsonObject.getString("name");
                         logger.info("resource name: {}", name);
                         Resource resource = collect.get(name);
-                        if (resource != null){
+                        if (resource != null) {
                             System.out.println(resource);
-                            jsonObject.put("id",resource.getId());
-                            jsonObject.put("res", org.apache.commons.lang3.StringUtils.removeStart(resource.getFullName(),"/"));
+                            jsonObject.put("id", resource.getId());
+                            jsonObject.put("res", org.apache.commons.lang3.StringUtils.removeStart(resource.getFullName(), "/"));
                         }
                     }
                 }
             }
             processMeta.setProcessDefinitionJson(json.toJSONString());
-            if (!checkAndImportProcessDefinition(loginUser, currentProjectName, result, processMeta,overwrite)) {
+            if (!checkAndImportProcessDefinition(loginUser, currentProjectName, result, processMeta, overwrite)) {
                 return result;
             }
         }
@@ -845,7 +847,7 @@ public class ProcessDefinitionService extends BaseDAGService {
      * @param processMeta
      * @return
      */
-    private boolean checkAndImportProcessDefinition(User loginUser, String currentProjectName, Map<String, Object> result, ProcessMeta processMeta,int overwrite) {
+    private boolean checkAndImportProcessDefinition(User loginUser, String currentProjectName, Map<String, Object> result, ProcessMeta processMeta, int overwrite) {
 
         if (!checkImportanceParams(processMeta, result)) {
             return false;
@@ -855,13 +857,13 @@ public class ProcessDefinitionService extends BaseDAGService {
         String processDefinitionName = processMeta.getProcessDefinitionName();
         //use currentProjectName to query
         Project targetProject = projectMapper.queryByName(currentProjectName);
-        if (overwrite == 1){
+        if (overwrite == 1) {
             // 工作流覆盖
-            if (overwriteProcessResult(loginUser,targetProject,processMeta)){
-                logger.info("overwrite process definition name='{}' success!",processDefinitionName);
+            if (overwriteProcessResult(loginUser, targetProject, processMeta)) {
+                logger.info("overwrite process definition name='{}' success!", processDefinitionName);
                 return true;
             }
-            logger.info("overwrite process definition name='{}' failed! process definition still add.",processDefinitionName);
+            logger.info("overwrite process definition name='{}' failed! process definition still add.", processDefinitionName);
         }
         if (null != targetProject) {
             processDefinitionName = recursionProcessDefinitionName(targetProject.getId(),
@@ -905,10 +907,10 @@ public class ProcessDefinitionService extends BaseDAGService {
 
     }
 
-    private boolean overwriteProcessResult(User loginUser,Project project,ProcessMeta processMeta){
+    private boolean overwriteProcessResult(User loginUser, Project project, ProcessMeta processMeta) {
         ProcessDefinition processDefinition = processDefineMapper.queryByDefineName(project.getId(), processMeta.getProcessDefinitionName());
-        if (processDefinition == null){
-            logger.warn("import process not exist of project {}！ create new process '{}'.",project.getName(),processMeta.getProcessDefinitionName());
+        if (processDefinition == null) {
+            logger.warn("import process not exist of project {}！ create new process '{}'.", project.getName(), processMeta.getProcessDefinitionName());
             return false;
         }
         processDefinition.setProcessDefinitionJson(processMeta.getProcessDefinitionJson());
@@ -953,7 +955,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                     importProcessParam,
                     processMeta.getProcessDefinitionDescription(),
                     processMeta.getProcessDefinitionLocations(),
-                    processMeta.getProcessDefinitionConnects());
+                    processMeta.getProcessDefinitionConnects(), ReleaseState.OFFLINE.getDescp());
             putMsg(result, Status.SUCCESS);
         } catch (JsonProcessingException e) {
             logger.error("import process meta json data: {}", e.getMessage(), e);
