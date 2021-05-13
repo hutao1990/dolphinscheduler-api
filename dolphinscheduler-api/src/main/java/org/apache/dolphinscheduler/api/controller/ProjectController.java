@@ -248,7 +248,7 @@ public class ProjectController extends BaseController {
                                           @RequestParam("overwrite") int overwrite) {
         logger.info("import process definition by id, login user:{}, project: {}",
                 loginUser.getUserName(), projectName);
-        Map<String, Object> result = processDefinitionService.importProcessDefinition(loginUser, file, projectName);
+        Map<String, Object> result = processDefinitionService.importProcessDefinition(loginUser, file, projectName,overwrite);
         return returnDataList(result);
     }
 

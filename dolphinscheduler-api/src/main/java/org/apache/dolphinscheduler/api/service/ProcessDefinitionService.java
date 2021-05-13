@@ -763,7 +763,7 @@ public class ProcessDefinitionService extends BaseDAGService {
      * @return import process
      */
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName) {
+    public Map<String, Object> importProcessDefinition(User loginUser, MultipartFile file, String currentProjectName,int overwrite) {
         Map<String, Object> result = new HashMap<>(5);
         String processMetaJson = "";
         if (org.apache.commons.lang3.StringUtils.endsWithAny(file.getOriginalFilename(),".zip",".zipx")){
@@ -811,7 +811,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                 }
             }
             processMeta.setProcessDefinitionJson(json.toJSONString());
-            if (!checkAndImportProcessDefinition(loginUser, currentProjectName, result, processMeta)) {
+            if (!checkAndImportProcessDefinition(loginUser, currentProjectName, result, processMeta,overwrite)) {
                 return result;
             }
         }
@@ -828,7 +828,7 @@ public class ProcessDefinitionService extends BaseDAGService {
      * @param processMeta
      * @return
      */
-    private boolean checkAndImportProcessDefinition(User loginUser, String currentProjectName, Map<String, Object> result, ProcessMeta processMeta) {
+    private boolean checkAndImportProcessDefinition(User loginUser, String currentProjectName, Map<String, Object> result, ProcessMeta processMeta,int overwrite) {
 
         if (!checkImportanceParams(processMeta, result)) {
             return false;
@@ -838,11 +838,13 @@ public class ProcessDefinitionService extends BaseDAGService {
         String processDefinitionName = processMeta.getProcessDefinitionName();
         //use currentProjectName to query
         Project targetProject = projectMapper.queryByName(currentProjectName);
-        if (false){
+        if (overwrite == 1){
             // 工作流覆盖
             if (overwriteProcessResult(loginUser,targetProject,processMeta)){
+                logger.info("overwrite process definition name='{}' success!",processDefinitionName);
                 return true;
             }
+            logger.info("overwrite process definition name='{}' failed! process definition still add.",processDefinitionName);
         }
         if (null != targetProject) {
             processDefinitionName = recursionProcessDefinitionName(targetProject.getId(),

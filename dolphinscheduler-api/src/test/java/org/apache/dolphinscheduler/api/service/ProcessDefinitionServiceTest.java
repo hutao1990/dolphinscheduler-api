@@ -747,7 +747,7 @@ public class ProcessDefinitionServiceTest {
         MultipartFile multiFileEmpty = new MockMultipartFile(fileEmpty.getName(), fileEmpty.getName(),
                 ContentType.APPLICATION_OCTET_STREAM.toString(), fileEmptyInputStream);
 
-        Map<String, Object> resEmptyProcess = processDefinitionService.importProcessDefinition(loginUser, multiFileEmpty, currentProjectName);
+        Map<String, Object> resEmptyProcess = processDefinitionService.importProcessDefinition(loginUser, multiFileEmpty, currentProjectName,0);
 
         Assert.assertEquals(Status.DATA_IS_NULL, resEmptyProcess.get(Constants.STATUS));
 
