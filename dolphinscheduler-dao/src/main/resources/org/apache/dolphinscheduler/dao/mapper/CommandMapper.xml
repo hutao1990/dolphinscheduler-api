@@ -40,4 +40,8 @@
         </if>
         group by cmd.command_type
     </select>
+
+    <select id="commandCount" resultType="java.lang.Integer">
+        select count(1) from t_ds_command
+    </select>
 </mapper>

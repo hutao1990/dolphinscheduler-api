@@ -19,6 +19,7 @@ package org.apache.dolphinscheduler.service.process;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cronutils.model.Cron;
+import com.google.common.primitives.Ints;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.enums.*;
@@ -115,6 +116,20 @@ public class ProcessService {
             logger.error("scan command, command parameter is error: {}", command);
             moveToErrorCommand(command, "process instance is null");
             return null;
+        }
+        // 调度的任务开启串行执行模式
+        if (command.getCommandType().getCode() == 6){
+            logger.info("");
+            ProcessInstance process = processInstanceMapper.queryLastSchedulerProcess(command.getProcessDefinitionId(), null, null);
+            if (process.getEndTime() == null){
+                int count = commandMapper.commandCount();
+                if (count == 1){
+                    return null;
+                }
+                delCommandByid(command.getId());
+                commandMapper.insert(command);
+                return null;
+            }
         }
         if(!checkThreadNum(command, validThreadNum)){
             logger.info("there is not enough thread for this command: {}", command);

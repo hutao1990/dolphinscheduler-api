@@ -51,5 +51,10 @@ public interface CommandMapper extends BaseMapper<Command> {
             @Param("projectIdArray") Integer[] projectIdArray);
 
 
+    /**
+     * get command count
+     * @return command count
+     */
+    Integer commandCount();
 
 }
