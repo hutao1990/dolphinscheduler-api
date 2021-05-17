@@ -155,6 +155,13 @@
         </if>
         order by end_time desc limit 1
     </select>
+    <select id="queryLastSchedulerRunningProcess" resultType="org.apache.dolphinscheduler.dao.entity.ProcessInstance">
+        select *
+        from t_ds_process_instance
+        where process_definition_id=#{processDefinitionId}
+        and end_time is null
+        order by end_time desc limit 1
+    </select>
     <select id="queryLastRunningProcess" resultType="org.apache.dolphinscheduler.dao.entity.ProcessInstance">
         select *
         from t_ds_process_instance

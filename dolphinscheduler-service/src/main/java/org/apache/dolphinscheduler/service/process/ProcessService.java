@@ -120,7 +120,7 @@ public class ProcessService {
         // 调度的任务开启串行执行模式
         if (command.getCommandType().getCode() == 6){
             logger.info("");
-            ProcessInstance process = processInstanceMapper.queryLastSchedulerProcess(command.getProcessDefinitionId(), null, null);
+            ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
             if (process.getEndTime() == null){
                 int count = commandMapper.commandCount();
                 if (count == 1){
