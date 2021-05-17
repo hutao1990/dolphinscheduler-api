@@ -127,6 +127,7 @@ public class ProcessService {
                     return null;
                 }
                 delCommandByid(command.getId());
+                command.setUpdateTime(DateUtils.getCurrentDate());
                 commandMapper.insert(command);
                 return null;
             }
