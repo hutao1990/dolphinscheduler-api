@@ -119,9 +119,9 @@ public class ProcessService {
         }
         // 调度的任务开启串行执行模式
         if (command.getCommandType().getCode() == 6){
-            logger.info("");
+            logger.info("判断process'{}'是否在运行.",processInstance.getName());
             ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
-            if (process.getEndTime() == null){
+            if (process != null && process.getEndTime() == null){
                 int count = commandMapper.commandCount();
                 if (count == 1){
                     return null;
