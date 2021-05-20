@@ -118,7 +118,6 @@ public class ProcessService {
             return null;
         }
         // 调度的任务开启串行执行模式
-        //TODO 暂时关闭
         ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(command.getProcessDefinitionId());
         String flag = processDefinition.getSerialization();
         if (flag != null && flag.equals("1") && command.getCommandType().getCode() == 6){
