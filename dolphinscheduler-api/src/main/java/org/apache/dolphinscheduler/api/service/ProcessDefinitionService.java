@@ -145,10 +145,6 @@ public class ProcessDefinitionService extends BaseDAGService {
         Date now = new Date();
 
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
-        if (processData != null) {
-            processData.setSerialization(serialization);
-            processDefinitionJson = JSON.toJSONString(processData);
-        }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if (checkProcessJson.get(Constants.STATUS) != Status.SUCCESS) {
             return checkProcessJson;
@@ -168,6 +164,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         processDefine.setTenantId(processData.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
         processDefine.setResourceIds(getResourceIds(processData));
+        processDefine.setSerialization(serialization);
 
         //custom global params
         List<Property> globalParamsList = processData.getGlobalParams();
@@ -296,8 +293,6 @@ public class ProcessDefinitionService extends BaseDAGService {
         if (processDefinition == null) {
             putMsg(result, Status.PROCESS_INSTANCE_NOT_EXIST, processId);
         } else {
-            JSONObject json = JSON.parseObject(processDefinition.getProcessDefinitionJson());
-            processDefinition.setSerialization(json.getOrDefault("serialization","0").toString());
             result.put(Constants.DATA_LIST, processDefinition);
             putMsg(result, Status.SUCCESS);
         }
@@ -337,7 +332,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                     processDefinition.getLocations(),
                     processDefinition.getConnects(),
                     ReleaseState.OFFLINE.getDescp(),
-                    JSON.parseObject(processDefinition.getProcessDefinitionJson(),ProcessData.class).getSerialization());
+                    processDefinition.getSerialization());
         }
     }
 
@@ -367,10 +362,6 @@ public class ProcessDefinitionService extends BaseDAGService {
         }
 
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
-        if (processData != null){
-            processData.setSerialization(serialization);
-            processDefinitionJson = JSON.toJSONString(processData);
-        }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if ((checkProcessJson.get(Constants.STATUS) != Status.SUCCESS)) {
             return checkProcessJson;
@@ -413,6 +404,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         processDefine.setTenantId(processData.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
         processDefine.setResourceIds(getResourceIds(processData));
+        processDefine.setSerialization(serialization);
 
         //custom global params
         List<Property> globalParamsList = new ArrayList<>();
@@ -972,7 +964,7 @@ public class ProcessDefinitionService extends BaseDAGService {
                     processMeta.getProcessDefinitionLocations(),
                     processMeta.getProcessDefinitionConnects(),
                     ReleaseState.OFFLINE.getDescp(),
-                    JSON.parseObject(processMeta.getProcessDefinitionJson(),ProcessData.class).getSerialization());
+                    processMeta.getSerialization());
             putMsg(result, Status.SUCCESS);
         } catch (JsonProcessingException e) {
             logger.error("import process meta json data: {}", e.getMessage(), e);

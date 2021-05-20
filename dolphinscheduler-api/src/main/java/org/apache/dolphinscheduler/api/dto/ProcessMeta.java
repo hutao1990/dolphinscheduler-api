@@ -101,6 +101,16 @@ public class ProcessMeta {
      */
     private String scheduleWorkerGroupName;
 
+    public String getSerialization() {
+        return serialization;
+    }
+
+    public void setSerialization(String serialization) {
+        this.serialization = serialization;
+    }
+
+    private String serialization;
+
     public String getProjectName() {
         return projectName;
     }

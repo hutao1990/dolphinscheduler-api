@@ -171,7 +171,6 @@ public class ProcessDefinition {
     /**
      * serialization enable
      */
-    @TableField(exist = false)
     private String serialization;
 
     public void setSerialization(String serialization){

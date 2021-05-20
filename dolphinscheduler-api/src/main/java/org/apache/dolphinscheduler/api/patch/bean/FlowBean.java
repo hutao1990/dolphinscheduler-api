@@ -14,4 +14,5 @@ public class FlowBean {
     private String processDefinitionLocations;
     private String processDefinitionJson;
     private String processDefinitionConnects;
+    private String serialization;
 }

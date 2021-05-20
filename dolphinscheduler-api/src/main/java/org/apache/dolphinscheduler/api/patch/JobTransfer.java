@@ -261,6 +261,7 @@ public class JobTransfer {
         flowBean.setProcessDefinitionConnects(createConnect(nodes));
         flowBean.setProcessDefinitionLocations(createLocation(nodes));
         flowBean.setProcessDefinitionJson(createTaskJson(nodes));
+        flowBean.setSerialization(globalMap.getOrDefault("serialization", "0"));
         return flowBean;
     }
 
