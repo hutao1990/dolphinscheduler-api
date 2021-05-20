@@ -147,6 +147,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
         if (processData != null) {
             processData.setSerialization(serialization);
+            processDefinitionJson = JSON.toJSONString(processData);
         }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if (checkProcessJson.get(Constants.STATUS) != Status.SUCCESS) {
@@ -368,6 +369,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
         if (processData != null){
             processData.setSerialization(serialization);
+            processDefinitionJson = JSON.toJSONString(processData);
         }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if ((checkProcessJson.get(Constants.STATUS) != Status.SUCCESS)) {
