@@ -178,6 +178,10 @@ public class ProcessDefinition {
         this.serialization = serialization;
     }
 
+    public String getSerialization(){
+        return serialization;
+    }
+
     public String getName() {
         return name;
     }
