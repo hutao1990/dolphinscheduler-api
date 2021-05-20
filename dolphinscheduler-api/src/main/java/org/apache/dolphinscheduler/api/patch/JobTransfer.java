@@ -144,10 +144,9 @@ public class JobTransfer {
             List<String> startNodes = nodes.stream().filter(n -> n.getDeps().size() == 0).map(Node::getName).collect(Collectors.toList());
             Map<String, Node> collect = nodes.stream().collect(Collectors.toMap(Node::getName, n -> n, (v1, v2) -> v2));
             calcNodePosition(startNodes, collect, 1);
-            dags.removeAll(s);
             List<Node> ns = new ArrayList<>(collect.values());
             optimizationDepth(ns);
-            dags.putAll(s, ns);
+            dags.replaceValues(s, ns);
         }
 
         System.out.println(dags);
