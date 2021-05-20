@@ -75,6 +75,7 @@ public class ProcessDefinitionController extends BaseController {
             @ApiImplicitParam(name = "connects", value = "PROCESS_DEFINITION_CONNECTS", required = true, type = "String"),
             @ApiImplicitParam(name = "description", value = "PROCESS_DEFINITION_DESC", required = false, type = "String"),
             @ApiImplicitParam(name = "releaseState", value = "PROCESS_DEFINITION_CONNECTS", required = true, dataType = "String", example = "100"),
+            @ApiImplicitParam(name = "serialization", value = "PROCESS_DEFINITION_CONNECTS", required = false, dataType = "String", example = "100"),
     })
     @PostMapping(value = "/save")
     @ResponseStatus(HttpStatus.CREATED)
@@ -86,13 +87,14 @@ public class ProcessDefinitionController extends BaseController {
                                           @RequestParam(value = "locations", required = true) String locations,
                                           @RequestParam(value = "connects", required = true) String connects,
                                           @RequestParam(value = "description", required = false) String description,
-                                          @RequestParam(value = "releaseState", required = true) String releaseState) throws JsonProcessingException {
+                                          @RequestParam(value = "releaseState", required = true) String releaseState,
+                                          @RequestParam(value = "serialization", required = false) String serialization) throws JsonProcessingException {
 
         logger.info("login user {}, create  process definition, project name: {}, process definition name: {}, " +
                         "process_definition_json: {}, desc: {} locations:{}, connects:{}",
                 loginUser.getUserName(), projectName, name, json, description, locations, connects);
         Map<String, Object> result = processDefinitionService.createProcessDefinition(loginUser, projectName, name, json,
-                description, locations, connects,releaseState);
+                description, locations, connects,releaseState,serialization);
         return returnDataList(result);
     }
 
@@ -167,6 +169,7 @@ public class ProcessDefinitionController extends BaseController {
             @ApiImplicitParam(name = "connects", value = "PROCESS_DEFINITION_CONNECTS", required = true, type = "String"),
             @ApiImplicitParam(name = "description", value = "PROCESS_DEFINITION_DESC", required = false, type = "String"),
             @ApiImplicitParam(name = "releaseState", value = "PROCESS_DEFINITION_CONNECTS", required = true, dataType = "String", example = "100"),
+            @ApiImplicitParam(name = "serialization", value = "PROCESS_DEFINITION_CONNECTS", required = false, dataType = "String", example = "0"),
     })
     @PostMapping(value = "/update")
     @ResponseStatus(HttpStatus.OK)
@@ -179,13 +182,14 @@ public class ProcessDefinitionController extends BaseController {
                                            @RequestParam(value = "locations", required = false) String locations,
                                            @RequestParam(value = "connects", required = false) String connects,
                                            @RequestParam(value = "description", required = false) String description,
-                                           @RequestParam(value = "releaseState", required = true) String releaseState) {
+                                           @RequestParam(value = "releaseState", required = true) String releaseState,
+                                           @RequestParam(value = "serialization", required = false) String serialization) {
 
         logger.info("login user {}, update process define, project name: {}, process define name: {}, " +
                         "process_definition_json: {}, desc: {}, locations:{}, connects:{}",
                 loginUser.getUserName(), projectName, name, processDefinitionJson, description, locations, connects);
         Map<String, Object> result = processDefinitionService.updateProcessDefinition(loginUser, projectName, id, name,
-                processDefinitionJson, description, locations, connects, releaseState);
+                processDefinitionJson, description, locations, connects, releaseState,serialization);
         return returnDataList(result);
     }
 

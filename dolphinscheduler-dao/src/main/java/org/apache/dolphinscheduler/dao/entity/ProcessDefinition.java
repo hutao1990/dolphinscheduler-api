@@ -168,6 +168,16 @@ public class ProcessDefinition {
      */
     private String resourceIds;
 
+    /**
+     * serialization enable
+     */
+    @TableField(exist = false)
+    private String serialization;
+
+    public void setSerialization(String serialization){
+        this.serialization = serialization;
+    }
+
     public String getName() {
         return name;
     }

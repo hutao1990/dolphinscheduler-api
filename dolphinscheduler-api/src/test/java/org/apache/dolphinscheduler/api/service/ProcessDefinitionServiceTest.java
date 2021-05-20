@@ -253,7 +253,8 @@ public class ProcessDefinitionServiceTest {
                 definition.getDescription(),
                 definition.getLocations(),
                 definition.getConnects(),
-                ReleaseState.OFFLINE.getDescp())).thenReturn(createProcessResult);
+                ReleaseState.OFFLINE.getDescp(),
+                "1")).thenReturn(createProcessResult);
 
         Map<String, Object> successRes = processDefinitionService.copyProcessDefinition(loginUser,
                 "project_test1", 46);
@@ -774,7 +775,7 @@ public class ProcessDefinitionServiceTest {
         Mockito.when(processService.findProcessDefineById(1)).thenReturn(getProcessDefinition());
 
         Map<String, Object> updateResult = processDefinitionService.updateProcessDefinition(loginUser, projectName, 1, "test",
-                sqlDependentJson, "", "", "",ReleaseState.OFFLINE.getDescp());
+                sqlDependentJson, "", "", "",ReleaseState.OFFLINE.getDescp(),"0");
 
         Assert.assertEquals(Status.UPDATE_PROCESS_DEFINITION_ERROR, updateResult.get(Constants.STATUS));
     }

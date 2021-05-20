@@ -129,7 +129,8 @@ public class ProcessDefinitionService extends BaseDAGService {
                                                        String desc,
                                                        String locations,
                                                        String connects,
-                                                       String releaseState) throws JsonProcessingException {
+                                                       String releaseState,
+                                                       String serialization) throws JsonProcessingException {
 
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
@@ -144,6 +145,9 @@ public class ProcessDefinitionService extends BaseDAGService {
         Date now = new Date();
 
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
+        if (processData != null) {
+            processData.setSerialization(serialization);
+        }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if (checkProcessJson.get(Constants.STATUS) != Status.SUCCESS) {
             return checkProcessJson;
@@ -291,6 +295,8 @@ public class ProcessDefinitionService extends BaseDAGService {
         if (processDefinition == null) {
             putMsg(result, Status.PROCESS_INSTANCE_NOT_EXIST, processId);
         } else {
+            JSONObject json = JSON.parseObject(processDefinition.getProcessDefinitionJson());
+            processDefinition.setSerialization(json.getOrDefault("serialization","0").toString());
             result.put(Constants.DATA_LIST, processDefinition);
             putMsg(result, Status.SUCCESS);
         }
@@ -329,7 +335,8 @@ public class ProcessDefinitionService extends BaseDAGService {
                     processDefinition.getDescription(),
                     processDefinition.getLocations(),
                     processDefinition.getConnects(),
-                    ReleaseState.OFFLINE.getDescp());
+                    ReleaseState.OFFLINE.getDescp(),
+                    JSON.parseObject(processDefinition.getProcessDefinitionJson(),ProcessData.class).getSerialization());
         }
     }
 
@@ -348,7 +355,7 @@ public class ProcessDefinitionService extends BaseDAGService {
      */
     public Map<String, Object> updateProcessDefinition(User loginUser, String projectName, int id, String name,
                                                        String processDefinitionJson, String desc,
-                                                       String locations, String connects, String releaseState) {
+                                                       String locations, String connects, String releaseState, String serialization) {
         Map<String, Object> result = new HashMap<>(5);
 
         Project project = projectMapper.queryByName(projectName);
@@ -359,6 +366,9 @@ public class ProcessDefinitionService extends BaseDAGService {
         }
 
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
+        if (processData != null){
+            processData.setSerialization(serialization);
+        }
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if ((checkProcessJson.get(Constants.STATUS) != Status.SUCCESS)) {
             return checkProcessJson;
@@ -958,7 +968,9 @@ public class ProcessDefinitionService extends BaseDAGService {
                     importProcessParam,
                     processMeta.getProcessDefinitionDescription(),
                     processMeta.getProcessDefinitionLocations(),
-                    processMeta.getProcessDefinitionConnects(), ReleaseState.OFFLINE.getDescp());
+                    processMeta.getProcessDefinitionConnects(),
+                    ReleaseState.OFFLINE.getDescp(),
+                    JSON.parseObject(processMeta.getProcessDefinitionJson(),ProcessData.class).getSerialization());
             putMsg(result, Status.SUCCESS);
         } catch (JsonProcessingException e) {
             logger.error("import process meta json data: {}", e.getMessage(), e);

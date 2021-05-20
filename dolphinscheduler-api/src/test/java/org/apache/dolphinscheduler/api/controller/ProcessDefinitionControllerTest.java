@@ -94,10 +94,10 @@ public class ProcessDefinitionControllerTest {
         result.put("processDefinitionId",1);
 
         Mockito.when(processDefinitionService.createProcessDefinition(user, projectName, name, json,
-                description, locations, connects,ReleaseState.OFFLINE.getDescp())).thenReturn(result);
+                description, locations, connects,ReleaseState.OFFLINE.getDescp(),"1")).thenReturn(result);
 
         Result response = processDefinitionController.createProcessDefinition(user, projectName, name, json,
-                locations, connects, description,ReleaseState.OFFLINE.getDescp());
+                locations, connects, description,ReleaseState.OFFLINE.getDescp(),"1");
         Assert.assertEquals(Status.SUCCESS.getCode(),response.getCode().intValue());
     }
 
@@ -146,10 +146,10 @@ public class ProcessDefinitionControllerTest {
         result.put("processDefinitionId",1);
 
         Mockito.when(processDefinitionService.updateProcessDefinition(user, projectName, id,name, json,
-                description, locations, connects,ReleaseState.OFFLINE.getDescp())).thenReturn(result);
+                description, locations, connects,ReleaseState.OFFLINE.getDescp(),"0")).thenReturn(result);
 
         Result response = processDefinitionController.updateProcessDefinition(user, projectName, name,id, json,
-                locations, connects, description,ReleaseState.OFFLINE.getDescp());
+                locations, connects, description,ReleaseState.OFFLINE.getDescp(),"0");
         Assert.assertEquals(Status.SUCCESS.getCode(),response.getCode().intValue());
     }
 

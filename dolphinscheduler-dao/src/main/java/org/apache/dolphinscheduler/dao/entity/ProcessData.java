@@ -41,6 +41,8 @@ public class ProcessData {
 
   private int tenantId;
 
+  private String serialization;
+
 
   public ProcessData() {
   }
@@ -103,6 +105,12 @@ public class ProcessData {
     this.tenantId = tenantId;
   }
 
+  public void setSerialization(String serialization) {
+    this.serialization = serialization;
+  }
+  public String getSerialization() {
+    return serialization;
+  }
   @Override
   public String toString() {
     return "ProcessData{" +

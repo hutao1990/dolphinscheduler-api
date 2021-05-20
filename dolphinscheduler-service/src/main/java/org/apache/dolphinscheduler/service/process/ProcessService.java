@@ -119,7 +119,10 @@ public class ProcessService {
         }
         // 调度的任务开启串行执行模式
         //TODO 暂时关闭
-        if (false && command.getCommandType().getCode() == 6){
+        ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(command.getProcessDefinitionId());
+        JSONObject json = JSON.parseObject(processDefinition.getProcessDefinitionJson());
+        String flag = json.getString("serialization");
+        if (flag != null && flag.equals("1") && command.getCommandType().getCode() == 6){
             logger.info("判断process'{}'是否在运行.",processInstance.getName());
             ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
             if (process != null && process.getEndTime() == null){
