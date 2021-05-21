@@ -124,7 +124,13 @@ public abstract class AbstractTask {
         if (logs.contains(FINALIZE_SESSION_MARKER.toString())) {
             logger.info(FINALIZE_SESSION_MARKER, FINALIZE_SESSION_MARKER.toString());
         } else {
-            logger.info(" -> {}", String.join("\n\t", logs));
+//            logger.info(" -> {}", String.join("\n\t", logs));
+            for (String log:logs){
+                StringBuilder sb = new StringBuilder(" ");
+                sb.append(taskExecutionContext.getTaskName()).append(" - ").append(log);
+
+                logger.info(sb.toString());
+            }
         }
     }
 
