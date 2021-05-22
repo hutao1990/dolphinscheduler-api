@@ -27,4 +27,5 @@ public class TaskBean {
     private List<String> preTasks;
     private String id;
     private String workerGroup;
+    private String phoneStrategy;
 }

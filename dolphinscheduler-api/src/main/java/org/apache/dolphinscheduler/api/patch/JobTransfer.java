@@ -340,6 +340,7 @@ public class JobTransfer {
             taskBean.setPreTasks(node.getDeps());
             taskBean.setWorkerGroup("default");
             taskBean.setParams(ParamsBean.builder().rawScript(node.getContent()).localParams(new ArrayList<>()).resourceList(resourceBeans).build());
+            taskBean.setPhoneStrategy(getValueByParamOrder("default",local.get("phoneStrategy"),globalMap.get("phoneStrategy")));
             taskList.add(taskBean);
         });
         definitionBean.setTasks(taskList);
