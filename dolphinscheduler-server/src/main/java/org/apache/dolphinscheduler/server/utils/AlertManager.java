@@ -346,14 +346,15 @@ public class AlertManager {
                     switch (phoneStrategy){
                         case "last_retry":
                             if (task.getRetryTimes() == task.getMaxRetryTimes()){
-                                logger.info("task '{}({})' retry times is {}/{}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes());
+                                logger.info("task '{}({})' retry times is {}/{} strategy {}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
                                 return true;
                             }else {
-                                logger.info("task '{}({})' retry times is {}/{}, skip call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes());
+                                logger.info("task '{}({})' retry times is {}/{} strategy {}, skip call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
                                 return false;
                             }
                         case "default":
                         default:
+                            logger.info("task '{}({})' retry times is {}/{} strategy {}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
                             return true;
                     }
                 }
