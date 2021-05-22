@@ -139,6 +139,11 @@ public class TaskNode {
    */
   private boolean phoneAlarmEnable;
 
+  /**
+   * phone strategy
+   */
+  private String phoneStrategy;
+
 
   /**
    * task time out
@@ -147,6 +152,13 @@ public class TaskNode {
   @JsonSerialize(using = JSONUtils.JsonDataSerializer.class)
   private String timeout;
 
+  public String getPhoneStrategy() {
+    return phoneStrategy;
+  }
+
+  public void setPhoneStrategy(String phoneStrategy) {
+    this.phoneStrategy = phoneStrategy;
+  }
 
   public boolean isMailAlarmEnable() {
     return mailAlarmEnable;
