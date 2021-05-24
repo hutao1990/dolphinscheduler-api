@@ -353,8 +353,8 @@ public class AlertManager {
                                 return false;
                             }
                         case "default":
-                        default:
                             logger.info("task '{}({})' retry times is {}/{} strategy {}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
+                        default:
                             return true;
                     }
                 }
