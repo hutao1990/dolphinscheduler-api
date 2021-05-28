@@ -233,7 +233,7 @@ public class JobTransfer {
                     jobTables.put(name, "flowName", flowName);
                 }
                 for (String s : list) {
-                    if (!repeat.contains(s)) {
+                    if (!repeat.contains(s) && StringUtils.isNotBlank(s)) {
                         repeat.add(s);
                         nodesList.add(s);
                     }
