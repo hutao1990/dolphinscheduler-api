@@ -128,9 +128,11 @@ public class JobTransfer {
         }));
 
         Maps.filterValues(nodeDepCountMap, v -> v == 0).keySet().forEach(k -> {
-            System.out.println("job size====" + jobs.size());
-            createDAG(Collections.singletonList(k), k, null, 0);
-            System.out.println("dag: " + k + "  remaining job size:" + jobs.size());
+            if (StringUtils.isNotBlank(k)) {
+                System.out.println("job size====" + jobs.size());
+                createDAG(Collections.singletonList(k), k, null, 0);
+                System.out.println("dag: " + k + "  remaining job size:" + jobs.size());
+            }
         });
 
         flowMergersMapping.forEach((k, v) -> {
@@ -239,8 +241,8 @@ public class JobTransfer {
                 nodes.add(node);
 //                jobs.remove(name);
             } else {
-                System.out.println("job name not in jobList,please check job dependencies!");
-                throw new IllegalStateException("job name not in jobList,please check job dependencies!");
+                System.out.println("job name '"+name+"' not in jobList,please check job dependencies!");
+                throw new IllegalStateException("job name '"+name+"' not in jobList,please check job dependencies!");
             }
         }
         for (Node node : nodes) {
