@@ -42,6 +42,10 @@ public class ZipUtils {
             if (entry.isDirectory()) {
                 continue;
             }
+            // 过滤此目录
+            if (name.contains("__MACOSX")){
+                continue;
+            }
             if (StringUtils.endsWithAny(name, suffixs.toArray(new String[]{}))) {
                 opt.operate(name, name.substring(name.lastIndexOf("/") + 1), StringUtils.replaceChars(content,"\r",""));
             }
