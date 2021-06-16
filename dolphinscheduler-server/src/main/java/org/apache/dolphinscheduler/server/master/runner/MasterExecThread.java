@@ -775,7 +775,7 @@ public class MasterExecThread implements Runnable {
             List<String> taskSet = new ArrayList<>();
             failedMap.forEach((k,v) ->{
                 if (!taskSet.contains(v.getName()+"_"+v.getProcessInstanceId())) {
-                    if (v.getRetryTimes() == v.getMaxRetryTimes()) {
+                    if (v.getRetryTimes() >= v.getMaxRetryTimes()) {
                         logger.info("retry pull process '{}' task '{}',task add to wait queue!", processInstance.getName(), v.getName());
                         addTaskToStandByList(v);
                     } else {
