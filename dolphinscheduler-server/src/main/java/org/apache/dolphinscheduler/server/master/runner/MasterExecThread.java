@@ -779,7 +779,7 @@ public class MasterExecThread implements Runnable {
                         logger.info("retry pull process '{}' task '{}',task add to wait queue!", processInstance.getName(), v.getName());
                         addTaskToStandByList(v);
                     } else {
-                        logger.info("wait task retry times end! task '{}' current retry is {}/{}", v.getName(), v.getRetryTimes(), v.getMaxRetryTimes());
+                        logger.info("wait task retry times end! task '{}' current retry is {}/{}(current retry/max retry)", v.getName(), v.getRetryTimes(), v.getMaxRetryTimes());
                     }
                 }else {
                     logger.info("filter similar task of process instance!");
