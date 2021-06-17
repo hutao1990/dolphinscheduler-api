@@ -49,9 +49,9 @@
         </mailingList>
     </mailingLists>
     <parent>
-        <groupId>org.apache</groupId>
-        <artifactId>apache</artifactId>
-        <version>21</version>
+        <groupId>com.data.dp</groupId>
+        <artifactId>dp-huking-2.0-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
