@@ -28,10 +28,6 @@
     <name>${project.artifactId}</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <spring-cloud-alibaba.version>2.3.3.RELEASE</spring-cloud-alibaba.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.dolphinscheduler</groupId>
