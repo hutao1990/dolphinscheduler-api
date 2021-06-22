@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: dp-alarm-service
+
+---
+
+spring:
+  profiles: dev
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 10.115.80.185:8858
+    nacos:
+      config:
+        file-extension: yml
+        server-addr: 10.112.6.146:80
+        namespace: cf7d3761-513f-4f6f-959a-c152f22d5cc9
+        group: DEFAULT_GROUP
+      discovery:
+        server-addr: 10.112.6.146:80
+        namespace: cf7d3761-513f-4f6f-959a-c152f22d5cc9
+        group: DEFAULT_GROUP
+
+---
+
+spring:
+  profiles: pre
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 10.115.80.185:8858
+    nacos:
+      config:
+        file-extension: yml
+        server-addr: 10.112.6.146:80
+        namespace: 2d52dce1-8e82-4c44-91ea-e7652053bc01
+        group: DEFAULT_GROUP
+      discovery:
+        server-addr: 10.112.6.146:80
+        namespace: 2d52dce1-8e82-4c44-91ea-e7652053bc01
+        group: DEFAULT_GROUP
+
+---
+
+spring:
+  profiles: pro
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 10.115.80.185:8858
+    nacos:
+      config:
+        file-extension: yml
+        server-addr: 10.112.6.146:80
+        namespace: 4916d109-83c8-4c49-8d0c-eb06bbc156b5
+        group: DEFAULT_GROUP
+      discovery:
+        server-addr: 10.112.6.146:80
+        namespace: 4916d109-83c8-4c49-8d0c-eb06bbc156b5
+        group: DEFAULT_GROUP
