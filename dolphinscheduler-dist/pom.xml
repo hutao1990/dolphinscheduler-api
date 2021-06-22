@@ -63,6 +63,7 @@
                                         <descriptor>src/main/assembly/dolphinscheduler-binary.xml</descriptor>
                                     </descriptors>
                                     <appendAssemblyId>true</appendAssemblyId>
+                                    <tarLongFileMode>gnu</tarLongFileMode>
                                 </configuration>
                             </execution>
 
