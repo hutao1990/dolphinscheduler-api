@@ -20,3 +20,28 @@ spring:
         multipart:
             max-file-size: 1024MB
             max-request-size: 1024MB
+    mvc:
+        throw-exception-if-no-handler-found: true
+        resources:
+            add-mappings: false
+        cloud:
+            sentinel:
+                servlet:
+                    block-page: /error
+    profiles:
+        active: dev
+    devtools:
+        restart:
+            enabled: true
+
+management:
+    server:
+        port: 18082
+    endpoints:
+        web:
+            exposure:
+                exclude: env
+                include: "*"
+    endpoint:
+        health:
+            show-details: always
