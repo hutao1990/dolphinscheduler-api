@@ -68,20 +68,20 @@ fi
 
 if [ "$command" = "api-server" ]; then
   HEAP_INITIAL_SIZE=1g
-  HEAP_MAX_SIZE=1g
+  HEAP_MAX_SIZE=2g
   HEAP_NEW_GENERATION__SIZE=500m
   LOG_FILE="-Dlogging.config=classpath:logback-api.xml -Dspring.profiles.active=api -Dserver.jetty.max-http-form-post-size=10MB"
   CLASS=org.apache.dolphinscheduler.api.ApiApplicationServer
 elif [ "$command" = "master-server" ]; then
   HEAP_INITIAL_SIZE=4g
-  HEAP_MAX_SIZE=4g
-  HEAP_NEW_GENERATION__SIZE=2g
+  HEAP_MAX_SIZE=6g
+  HEAP_NEW_GENERATION__SIZE=3g
   LOG_FILE="-Dlogging.config=classpath:logback-master.xml -Ddruid.mysql.usePingMethod=false"
   CLASS=org.apache.dolphinscheduler.server.master.MasterServer
 elif [ "$command" = "worker-server" ]; then
-  HEAP_INITIAL_SIZE=2g
-  HEAP_MAX_SIZE=2g
-  HEAP_NEW_GENERATION__SIZE=1g
+  HEAP_INITIAL_SIZE=4g
+  HEAP_MAX_SIZE=8g
+  HEAP_NEW_GENERATION__SIZE=4g
   LOG_FILE="-Dlogging.config=classpath:logback-worker.xml -Ddruid.mysql.usePingMethod=false"
   CLASS=org.apache.dolphinscheduler.server.worker.WorkerServer
 elif [ "$command" = "alert-server" ]; then
