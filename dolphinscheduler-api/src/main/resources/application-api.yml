@@ -2,16 +2,18 @@ security:
     authentication:
         type: PASSWORD
 server:
-    jetty:
-        max-http-form-post-size: 10MB
-        max-http-header-size: 10MB
     port: 12345
     servlet:
         context-path: /dolphinscheduler/
         session:
             timeout: 7200
+    jetty:
+        max-http-form-post-size: 10MB
+        max-http-header-size: 10MB
     tomcat:
         max-http-form-post-size: 10MB
+
+
 spring:
     messages:
         basename: i18n/messages
@@ -32,7 +34,7 @@ spring:
         active: dev
     devtools:
         restart:
-            enabled: true
+            enable: true
 
 management:
     server:
