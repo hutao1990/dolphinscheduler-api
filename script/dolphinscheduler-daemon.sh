@@ -66,6 +66,15 @@ if [ "$debug" = "debug" ];then
   DEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=${waiting:-n},address=5010"
 fi
 
+# maste and worker exclude spring-cloud jar
+arr=(`find $DOLPHINSCHEDULER_HOME/lib/  -type f -name "*.jar"|grep -v "spring-cloud"`)
+line=""
+for j in ${arr[@]}
+do
+ line="${line}:${j}"
+done
+#echo line=$line
+
 if [ "$command" = "api-server" ]; then
   HEAP_INITIAL_SIZE=1g
   HEAP_MAX_SIZE=2g
@@ -78,12 +87,14 @@ elif [ "$command" = "master-server" ]; then
   HEAP_NEW_GENERATION__SIZE=3g
   LOG_FILE="-Dlogging.config=classpath:logback-master.xml -Ddruid.mysql.usePingMethod=false"
   CLASS=org.apache.dolphinscheduler.server.master.MasterServer
+  export DOLPHINSCHEDULER_LIB_JARS=$line
 elif [ "$command" = "worker-server" ]; then
   HEAP_INITIAL_SIZE=4g
   HEAP_MAX_SIZE=8g
   HEAP_NEW_GENERATION__SIZE=4g
   LOG_FILE="-Dlogging.config=classpath:logback-worker.xml -Ddruid.mysql.usePingMethod=false"
   CLASS=org.apache.dolphinscheduler.server.worker.WorkerServer
+  export DOLPHINSCHEDULER_LIB_JARS=$line
 elif [ "$command" = "alert-server" ]; then
   HEAP_INITIAL_SIZE=1g
   HEAP_MAX_SIZE=1g
