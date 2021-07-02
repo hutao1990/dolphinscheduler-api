@@ -923,6 +923,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         processDefinition.setProcessDefinitionJson(processMeta.getProcessDefinitionJson());
         processDefinition.setConnects(processMeta.getProcessDefinitionConnects());
         processDefinition.setLocations(processMeta.getProcessDefinitionLocations());
+        processDefinition.setSerialization(processMeta.getSerialization());
 
         ProcessData processData = JSONUtils.parseObject(processMeta.getProcessDefinitionJson(), ProcessData.class);
         //custom global params
