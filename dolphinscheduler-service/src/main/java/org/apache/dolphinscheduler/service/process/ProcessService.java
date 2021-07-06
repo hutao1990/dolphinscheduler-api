@@ -89,8 +89,6 @@ public class ProcessService {
     @Autowired
     private ResourceMapper resourceMapper;
 
-
-
     @Autowired
     private ErrorCommandMapper errorCommandMapper;
 
@@ -117,23 +115,7 @@ public class ProcessService {
             moveToErrorCommand(command, "process instance is null");
             return null;
         }
-        // 调度的任务开启串行执行模式
-        ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(command.getProcessDefinitionId());
-        String flag = processDefinition.getSerialization();
-        if (flag != null && flag.equals("1") && command.getCommandType().getCode() == 6){
-            logger.info("判断process'{}'是否在运行.",processInstance.getName());
-            ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
-            if (process != null && process.getEndTime() == null){
-                int count = commandMapper.commandCount();
-                if (count == 1){
-                    return null;
-                }
-                delCommandByid(command.getId());
-                command.setUpdateTime(DateUtils.getCurrentDate());
-                commandMapper.insert(command);
-                return null;
-            }
-        }
+
         if(!checkThreadNum(command, validThreadNum)){
             logger.info("there is not enough thread for this command: {}", command);
             return setWaitingThreadProcess(command, processInstance);
@@ -143,6 +125,18 @@ public class ProcessService {
         saveProcessInstance(processInstance);
         this.setSubProcessParam(processInstance);
         delCommandByid(command.getId());
+        // 调度的任务开启串行执行模式
+        ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(command.getProcessDefinitionId());
+        String flag = processDefinition.getSerialization();
+        if (flag != null && flag.equals("1") && command.getCommandType().getCode() == 6){
+            logger.info("判断process'{}'是否在运行.",processInstance.getName());
+            ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
+            if (process != null && process.getEndTime() == null){
+                logger.warn("process instance '{}/{}' is running, current schedule set failed! state set kill.",process.getName(),process.getId());
+                processInstance.setState(ExecutionStatus.KILL);
+                processInstance.setEndTime(DateUtils.getCurrentDate());
+            }
+        }
         return processInstance;
     }
 

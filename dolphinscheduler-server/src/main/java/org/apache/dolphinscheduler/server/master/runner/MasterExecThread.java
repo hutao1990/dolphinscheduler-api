@@ -172,6 +172,14 @@ public class MasterExecThread implements Runnable {
             logger.info("process instance is done : {}",processInstance.getId());
             return;
         }
+
+        if (processInstance.getState() == ExecutionStatus.KILL){
+            processService.updateProcessInstance(processInstance);
+            logger.info("process id:'{}' name:'{}' state is kill, send alarm info!",processInstance.getId(),processInstance.getName());
+            alertManager.sendAlertProcessInstance(processInstance,new ArrayList<>());
+            return;
+        }
+
         try {
             if (processInstance.isComplementData() &&  Flag.NO == processInstance.getIsSubProcess()){
                 // sub process complement data
