@@ -300,19 +300,20 @@ public class AlertManager {
         }
         alert.setShowType(showType);
         String content = getContentProcessInstance(processInstance, taskInstances);
-        if (content == null || content.trim().length() < 8) {
-            logger.info("ignore blank alert...");
-            return;
-        }
-        alert.setContent(content);
-        alert.setAlertType(AlertType.EMAIL);
-        alert.setAlertGroupId(processInstance.getWarningGroupId());
-        alert.setCreateTime(new Date());
-        alert.setReceivers(processInstance.getProcessDefinition().getReceivers());
-        alert.setReceiversCc(processInstance.getProcessDefinition().getReceiversCc());
+        if (content != null && content.trim().length() >= 8) {
+            alert.setContent(content);
+            alert.setAlertType(AlertType.EMAIL);
+            alert.setAlertGroupId(processInstance.getWarningGroupId());
+            alert.setCreateTime(new Date());
+            alert.setReceivers(processInstance.getProcessDefinition().getReceivers());
+            alert.setReceiversCc(processInstance.getProcessDefinition().getReceiversCc());
 
-        alertDao.addAlert(alert);
-        logger.info("add alert to db , alert: {}", alert.toString());
+            alertDao.addAlert(alert);
+            logger.info("add alert to db , alert: {}", alert.toString());
+        }else {
+            logger.info("content is blank, ignore mail alert!");
+        }
+
         try {
             List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
             List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
