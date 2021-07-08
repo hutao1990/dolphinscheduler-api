@@ -120,11 +120,6 @@ public class ProcessService {
             logger.info("there is not enough thread for this command: {}", command);
             return setWaitingThreadProcess(command, processInstance);
         }
-        processInstance.setCommandType(command.getCommandType());
-        processInstance.addHistoryCmd(command.getCommandType());
-        saveProcessInstance(processInstance);
-        this.setSubProcessParam(processInstance);
-        delCommandByid(command.getId());
         // 调度的任务开启串行执行模式
         ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(command.getProcessDefinitionId());
         String flag = processDefinition.getSerialization();
@@ -138,6 +133,13 @@ public class ProcessService {
                 processInstance.setEndTime(DateUtils.getCurrentDate());
             }
         }
+
+        processInstance.setCommandType(command.getCommandType());
+        processInstance.addHistoryCmd(command.getCommandType());
+        saveProcessInstance(processInstance);
+        this.setSubProcessParam(processInstance);
+        delCommandByid(command.getId());
+
         return processInstance;
     }
 
