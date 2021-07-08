@@ -173,7 +173,7 @@ public class MasterExecThread implements Runnable {
             return;
         }
 
-        if (processInstance.getState() == ExecutionStatus.KILL){
+        if (processInstance.getCommandType() == CommandType.STOP){
             processService.updateProcessInstance(processInstance);
             logger.info("process id:'{}' name:'{}' state is kill, send alarm info!",processInstance.getId(),processInstance.getName());
             alertManager.sendAlertProcessInstance(processInstance,new ArrayList<>());
