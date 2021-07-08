@@ -133,7 +133,7 @@ public class ProcessService {
             ProcessInstance process = processInstanceMapper.queryLastSchedulerRunningProcess(command.getProcessDefinitionId());
             if (process != null && process.getEndTime() == null){
                 logger.warn("process instance '{}/{}' is running, current schedule set failed! state set kill.",process.getName(),process.getId());
-                processInstance.setState(ExecutionStatus.KILL);
+                processInstance.setState(ExecutionStatus.READY_STOP);
                 processInstance.setCommandType(CommandType.STOP);
                 processInstance.setEndTime(DateUtils.getCurrentDate());
             }
