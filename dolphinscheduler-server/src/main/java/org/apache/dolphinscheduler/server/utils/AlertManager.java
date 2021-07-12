@@ -295,7 +295,7 @@ public class AlertManager {
         String success = processInstance.getState().typeIsSuccess() ? "success" : "failed";
         alert.setTitle(cmdName + " " + success);
         ShowType showType = processInstance.getState().typeIsSuccess() ? ShowType.TEXT : ShowType.TABLE;
-        if (processInstance.getState().typeIsFailure() && taskInstances.isEmpty()) {
+        if (taskInstances.isEmpty()) {
             showType = ShowType.TEXT;
         }
         alert.setShowType(showType);
