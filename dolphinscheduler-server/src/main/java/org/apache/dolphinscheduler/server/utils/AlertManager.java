@@ -117,6 +117,7 @@ public class AlertManager {
                     "\"run time: %d\"," +
                     "\"start time: %s\"," +
                     "\"end time: %s\"," +
+                    "\"serialization: %s\"," +
                     "\"host: %s\"";
 
     /**
@@ -141,6 +142,7 @@ public class AlertManager {
                     processInstance.getRunTimes(),
                     DateUtils.dateToString(processInstance.getStartTime()),
                     DateUtils.dateToString(processInstance.getEndTime()),
+                    processInstance.getProcessDefinition().getSerialization(),
                     processInstance.getHost()
 
             );
