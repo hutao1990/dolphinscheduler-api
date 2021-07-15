@@ -79,6 +79,10 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
                 String usercode = request.getHeader("usercode");
                 String teamcode = request.getHeader("teamcode");
                 String accesstoken = request.getHeader("accesstoken");
+                if (accesstoken == null){
+                    logger.error("huking login token is null!");
+                    return false;
+                }
                 String[] split = accesstoken.split("\\.");
                 if (split.length != 3) {
                     return false;
