@@ -428,6 +428,55 @@ public class ProcessDefinition {
         this.modifyBy = modifyBy;
     }
 
+    public String getScheduleCrontab() {
+        return scheduleCrontab;
+    }
+
+    public void setScheduleCrontab(String scheduleCrontab) {
+        this.scheduleCrontab = scheduleCrontab;
+    }
+
+    public FailureStrategy getScheduleFailureStrategy() {
+        return scheduleFailureStrategy;
+    }
+
+    public void setScheduleFailureStrategy(FailureStrategy scheduleFailureStrategy) {
+        this.scheduleFailureStrategy = scheduleFailureStrategy;
+    }
+
+    public Date getScheduleCreateTime() {
+        return scheduleCreateTime;
+    }
+
+    public void setScheduleCreateTime(Date scheduleCreateTime) {
+        this.scheduleCreateTime = scheduleCreateTime;
+    }
+
+    public Date getScheduleUpdateTime() {
+        return scheduleUpdateTime;
+    }
+
+    public void setScheduleUpdateTime(Date scheduleUpdateTime) {
+        this.scheduleUpdateTime = scheduleUpdateTime;
+    }
+
+    public Date getScheduleStartTime() {
+        return scheduleStartTime;
+    }
+
+    public void setScheduleStartTime(Date scheduleStartTime) {
+        this.scheduleStartTime = scheduleStartTime;
+    }
+
+    public Date getScheduleEndTime() {
+        return scheduleEndTime;
+    }
+
+    public void setScheduleEndTime(Date scheduleEndTime) {
+        this.scheduleEndTime = scheduleEndTime;
+    }
+
+
     @Override
     public String toString() {
         return "ProcessDefinition{" +
