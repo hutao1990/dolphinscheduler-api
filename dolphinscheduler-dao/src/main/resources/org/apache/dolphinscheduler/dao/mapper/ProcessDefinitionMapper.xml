@@ -37,10 +37,12 @@
     <select id="queryDefineListPaging" resultType="org.apache.dolphinscheduler.dao.entity.ProcessDefinition">
         SELECT td.id, td.name, td.version, td.release_state, td.project_id, td.user_id, td.description, td.global_params,
                td.flag, td.receivers, td.receivers_cc, td.timeout, td.tenant_id, td.modify_by, td.update_time, td.create_time,
-               sc.schedule_release_state, tu.user_name
+               tu.user_name,s.release_state as schedule_release_state,s.crontab as schedule_crontab,
+               s.failure_strategy as schedule_failure_strategy,s.start_time as schedule_start_time,s.end_time as schedule_end_time,
+               s.create_time as schedule_create_time,s.update_time as schedule_update_time
         FROM t_ds_process_definition td
-        left join (select process_definition_id,release_state as schedule_release_state from t_ds_schedules group by process_definition_id,release_state) sc on sc.process_definition_id = td.id
         left join t_ds_user tu on  td.user_id = tu.id
+        left join t_ds_schedules s on s.process_definition_id = td.id
         where td.project_id = #{projectId}
         <if test=" searchVal != null and searchVal != ''">
             and td.name like concat('%', #{searchVal}, '%')

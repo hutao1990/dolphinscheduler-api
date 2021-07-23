@@ -17,6 +17,7 @@
 package org.apache.dolphinscheduler.dao.entity;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.dolphinscheduler.common.enums.FailureStrategy;
 import org.apache.dolphinscheduler.common.enums.Flag;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
 import org.apache.dolphinscheduler.common.process.Property;
@@ -147,6 +148,42 @@ public class ProcessDefinition {
      */
     @TableField(exist=false)
     private ReleaseState scheduleReleaseState;
+
+    /**
+     * crontab expression
+     */
+    @TableField(exist = false)
+    private String scheduleCrontab;
+
+    /**
+     * failure strategy
+     */
+    @TableField(exist = false)
+    private FailureStrategy scheduleFailureStrategy;
+
+    /**
+     * create time
+     */
+    @TableField(exist = false)
+    private Date scheduleCreateTime;
+
+    /**
+     * update time
+     */
+    @TableField(exist = false)
+    private Date scheduleUpdateTime;
+
+    /**
+     * schedule start time
+     */
+    @TableField(exist = false)
+    private Date scheduleStartTime;
+
+    /**
+     * schedule end time
+     */
+    @TableField(exist = false)
+    private Date scheduleEndTime;
 
     /**
      * process warning time out. unit: minute
