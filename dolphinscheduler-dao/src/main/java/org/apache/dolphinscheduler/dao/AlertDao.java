@@ -100,7 +100,7 @@ public class AlertDao extends AbstractBaseDao {
         Alert alert = new Alert();
         String b1="<b style=\"color: red\">";
         String b2="</b>";
-        String content = String.format("[{'type':'"+b1+"%s"+b2+"','host':'"+b1+"%s"+b2+"','event':'"+b1+"server down+"+b2+"','warning level':'"+b1+"serious"+b2+"'}]",
+        String content = String.format("[{'type':'"+b1+"%s"+b2+"','host':'"+b1+"%s"+b2+"','event':'"+b1+"server down"+b2+"','warning level':'"+b1+"serious"+b2+"'}]",
                 serverType, host);
         alert.setTitle("Fault tolerance warning");
         saveTaskTimeoutAlert(alert, content, alertgroupId, null, null);
