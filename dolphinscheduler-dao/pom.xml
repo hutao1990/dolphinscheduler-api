@@ -156,5 +156,11 @@
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.gome.hkalarm</groupId>
+            <artifactId>hk-alarm-sdk</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

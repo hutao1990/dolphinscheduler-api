@@ -17,6 +17,8 @@
 package org.apache.dolphinscheduler.dao;
 
 
+import com.gome.hkalarm.sdk.bean.PhoneBean;
+import com.gome.hkalarm.sdk.util.SDK;
 import org.apache.dolphinscheduler.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -96,10 +98,19 @@ public class AlertDao extends AbstractBaseDao {
      */
     public void sendServerStopedAlert(int alertgroupId,String host,String serverType){
         Alert alert = new Alert();
-        String content = String.format("[{'type':'%s','host':'%s','event':'server down','warning level':'serious'}]",
+        String b1="<b style=\"color: red\">";
+        String b2="</b>";
+        String content = String.format("[{'type':'"+b1+"%s"+b2+"','host':'"+b1+"%s"+b2+"','event':'"+b1+"server down+"+b2+"','warning level':'"+b1+"serious"+b2+"'}]",
                 serverType, host);
         alert.setTitle("Fault tolerance warning");
         saveTaskTimeoutAlert(alert, content, alertgroupId, null, null);
+        PhoneBean phoneBean = new PhoneBean();
+        phoneBean.setPhoneNumber("18201327967");
+        phoneBean.setAppId("dolphinscheduler");
+        phoneBean.setDetailId("server alarm");
+        phoneBean.setTitle(serverType+" server down");
+        phoneBean.setContent(host);
+        SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
     }
 
     /**
