@@ -44,6 +44,7 @@
         left join t_ds_user tu on  td.user_id = tu.id
         left join t_ds_schedules s on s.process_definition_id = td.id
         where td.project_id = #{projectId}
+        and tp.simple = #{simple}
         <if test=" searchVal != null and searchVal != ''">
             and td.name like concat('%', #{searchVal}, '%')
         </if>

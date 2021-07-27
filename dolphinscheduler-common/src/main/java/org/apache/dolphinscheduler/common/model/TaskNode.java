@@ -140,6 +140,11 @@ public class TaskNode {
   private boolean phoneAlarmEnable;
 
   /**
+   * phone number
+   */
+  private String phoneNumber;
+
+  /**
    * phone strategy
    */
   private String phoneStrategy;
@@ -392,5 +397,13 @@ public class TaskNode {
 
   public void setWorkerGroupId(Integer workerGroupId) {
     this.workerGroupId = workerGroupId;
+  }
+
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
   }
 }

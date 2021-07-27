@@ -186,6 +186,12 @@ public class ProcessDefinition {
     private Date scheduleEndTime;
 
     /**
+     * shell param
+     */
+    @TableField(exist = false)
+    private String shellParams;
+
+    /**
      * process warning time out. unit: minute
      */
     private int timeout;
@@ -474,6 +480,16 @@ public class ProcessDefinition {
 
     public void setScheduleEndTime(Date scheduleEndTime) {
         this.scheduleEndTime = scheduleEndTime;
+    }
+
+
+
+    public String getShellParams() {
+        return shellParams;
+    }
+
+    public void setShellParams(String shellParams) {
+        this.shellParams = shellParams;
     }
 
 

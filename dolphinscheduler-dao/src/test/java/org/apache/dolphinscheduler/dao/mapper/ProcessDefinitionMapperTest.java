@@ -172,7 +172,7 @@ public class ProcessDefinitionMapperTest {
     public void testQueryDefineListPaging() {
         ProcessDefinition processDefinition = insertOne();
         Page<ProcessDefinition> page = new Page(1,3);
-        IPage<ProcessDefinition> processDefinitionIPage =  processDefinitionMapper.queryDefineListPaging(page, "def", 101, 1010,true);
+        IPage<ProcessDefinition> processDefinitionIPage =  processDefinitionMapper.queryDefineListPaging(page, "def", 101, 1010,true, 0);
         Assert.assertNotEquals(processDefinitionIPage.getTotal(), 0);
     }
 
