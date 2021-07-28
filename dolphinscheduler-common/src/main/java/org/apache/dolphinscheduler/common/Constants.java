@@ -994,4 +994,6 @@ public final class Constants {
      */
     public static final String PSTREE = "pstree";
 
+    public static final String SIMPLE_TASK_NAME="task_simple";
+
 }

@@ -216,6 +216,11 @@ public class ProcessDefinition {
      */
     private String serialization;
 
+    /**
+     * 简单任务标记 1：简单任务  0：非简单任务
+     */
+    private int simple;
+
     public void setSerialization(String serialization){
         this.serialization = serialization;
     }
@@ -490,6 +495,14 @@ public class ProcessDefinition {
 
     public void setShellParams(String shellParams) {
         this.shellParams = shellParams;
+    }
+
+    public int getSimple() {
+        return simple;
+    }
+
+    public void setSimple(int simple) {
+        this.simple = simple;
     }
 
 
