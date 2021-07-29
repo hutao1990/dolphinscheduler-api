@@ -69,6 +69,10 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
+        String requestURI = request.getRequestURI();
+        if (requestURI.contains("swagger-ui.html")){
+            return true;
+        }
         // get token
         String token = request.getHeader("token");
         User user = null;
