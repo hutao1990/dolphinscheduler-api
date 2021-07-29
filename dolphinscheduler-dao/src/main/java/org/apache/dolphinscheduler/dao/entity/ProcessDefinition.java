@@ -144,6 +144,12 @@ public class ProcessDefinition {
     private String receiversCc;
 
     /**
+     * schedule id
+     */
+    @TableField(exist=false)
+    private int scheduleId;
+
+    /**
      * schedule release state : online/offline
      */
     @TableField(exist=false)
@@ -505,6 +511,13 @@ public class ProcessDefinition {
         this.simple = simple;
     }
 
+    public int getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
+    }
 
     @Override
     public String toString() {
