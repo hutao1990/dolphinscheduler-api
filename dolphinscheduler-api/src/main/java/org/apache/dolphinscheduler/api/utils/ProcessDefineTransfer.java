@@ -70,7 +70,7 @@ public abstract class ProcessDefineTransfer {
      * @param userId
      * @return
      */
-    public static ProcessDefinition toProcessDefinition(SimpleProcessDefinition definition, int userId){
+    public static ProcessDefinition toProcessDefinition(SimpleProcessDefinition definition, int userId,String opt){
         ProcessDefinition process = new ProcessDefinition();
 
         JSONObject jsonObject = new JSONObject(true);
@@ -105,6 +105,7 @@ public abstract class ProcessDefineTransfer {
         processData.setTimeout(definition.getTimeout());
         processData.setTenantId(userId);
         processData.setTasks(Collections.singletonList(taskNode));
+
         process.setName(definition.getName());
         process.setReleaseState(ReleaseState.getEnum(definition.getStatus()));
         process.setProjectId(definition.getProjectId());
@@ -120,7 +121,11 @@ public abstract class ProcessDefineTransfer {
         process.setSerialization(definition.getSerialization()+"");
 
         Date now = DateUtils.getCurrentDate();
-        process.setCreateTime(now);
+        if ("create".equals(opt)) {
+            process.setCreateTime(now);
+        }else {
+            process.setId(definition.getId());
+        }
         process.setUpdateTime(now);
         process.setFlag(Flag.YES);
         process.setSimple(1);
