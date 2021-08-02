@@ -7,21 +7,37 @@ package org.apache.dolphinscheduler.dao.entity;
  */
 public class SimpleProcessDefinition {
 
+    //工作流id
     private int id;
+    //项目id
     private int projectId;
+    //工作流名称
     private String name;
+    //调度表达式
     private String cron;
+    //参数
     private String params;
+    //串行化开关
     private int serialization;
+    //最大重试次数
     private int maxRetries;
+    //告警邮箱，多个以逗号分给
     private String mail;
+    //告警电话，多个以逗号分隔
     private String phone;
+    //启用超时
     private int enableTimeout;
+    //超时时间 分
     private int timeout;
+    //状态
     private int status;
+    //脚本内容
     private String content;
+    //创建时间
     private String createTime;
+    //更新时间
     private String updateTime;
+    //修改用户
     private String modifyBy;
 
 
