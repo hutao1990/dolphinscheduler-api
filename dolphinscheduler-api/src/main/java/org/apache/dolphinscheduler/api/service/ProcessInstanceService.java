@@ -388,7 +388,7 @@ public class ProcessInstanceService extends BaseDAGService {
                     processInstance.getCmdTypeIfComplement(), schedule);
             timeout = processData.getTimeout();
             processInstance.setTimeout(timeout);
-            Tenant tenant = processService.getTenantForProcess(processData.getTenantId(),
+            Tenant tenant = processService.getTenantForProcess(loginUser.getTenantId(),
                     processDefinition.getUserId());
             if(tenant != null){
                 processInstance.setTenantCode(tenant.getTenantCode());

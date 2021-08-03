@@ -161,7 +161,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         processDefine.setLocations(taskIdToName.transfer(locations));
         processDefine.setConnects(taskIdToName.transfer(connects));
         processDefine.setTimeout(processData.getTimeout());
-        processDefine.setTenantId(processData.getTenantId());
+        processDefine.setTenantId(loginUser.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
         processDefine.setResourceIds(getResourceIds(processData));
         processDefine.setSerialization(serialization);
@@ -401,7 +401,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         processDefine.setLocations(taskIdToName.transfer(locations));
         processDefine.setConnects(taskIdToName.transfer(connects));
         processDefine.setTimeout(processData.getTimeout());
-        processDefine.setTenantId(processData.getTenantId());
+        processDefine.setTenantId(loginUser.getTenantId());
         processDefine.setModifyBy(loginUser.getUserName());
         processDefine.setResourceIds(getResourceIds(processData));
         processDefine.setSerialization(serialization);
