@@ -1231,24 +1231,28 @@ public class ProcessDefinitionService extends BaseDAGService {
                 putMsg(result, Status.DATA_IS_NULL, processDefinitionJson);
                 return result;
             }
+            if (taskNodes.size() != 0) {
 
-            // check has cycle
-            if (graphHasCycle(taskNodes)) {
-                logger.error("process DAG has cycle");
-                putMsg(result, Status.PROCESS_NODE_HAS_CYCLE);
-                return result;
-            }
-
-            // check whether the process definition json is normal
-            for (TaskNode taskNode : taskNodes) {
-                if (!CheckUtils.checkTaskNodeParameters(taskNode.getParams(), taskNode.getType())) {
-                    logger.error("task node {} parameter invalid", taskNode.getName());
-                    putMsg(result, Status.PROCESS_NODE_S_PARAMETER_INVALID, taskNode.getName());
+                // check has cycle
+                if (graphHasCycle(taskNodes)) {
+                    logger.error("process DAG has cycle");
+                    putMsg(result, Status.PROCESS_NODE_HAS_CYCLE);
                     return result;
                 }
 
-                // check extra params
-                CheckUtils.checkOtherParams(taskNode.getExtras());
+                // check whether the process definition json is normal
+                for (TaskNode taskNode : taskNodes) {
+                    if (!CheckUtils.checkTaskNodeParameters(taskNode.getParams(), taskNode.getType())) {
+                        logger.error("task node {} parameter invalid", taskNode.getName());
+                        putMsg(result, Status.PROCESS_NODE_S_PARAMETER_INVALID, taskNode.getName());
+                        return result;
+                    }
+
+                    // check extra params
+                    CheckUtils.checkOtherParams(taskNode.getExtras());
+                }
+            }else {
+                logger.info("creating empty process! json:"+processDefinitionJson);
             }
             putMsg(result, Status.SUCCESS);
         } catch (Exception e) {
