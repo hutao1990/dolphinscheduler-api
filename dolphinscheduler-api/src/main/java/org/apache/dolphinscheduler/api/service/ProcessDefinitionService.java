@@ -366,6 +366,10 @@ public class ProcessDefinitionService extends BaseDAGService {
         if ((checkProcessJson.get(Constants.STATUS) != Status.SUCCESS)) {
             return checkProcessJson;
         }
+        if(processData.getTasks().size() == 0 && "ONLINE".equals(releaseState.toUpperCase())){
+            putMsg(result, Status.PROCESS_DEFINE_ONLINE_ERROR, name);
+            return result;
+        }
         ProcessDefinition processDefine = processService.findProcessDefineById(id);
         // check process definition exists
         if (processDefine == null) {
@@ -561,7 +565,12 @@ public class ProcessDefinitionService extends BaseDAGService {
                         return result;
                     }
                 }
-
+                ProcessData processData = JSON.parseObject(processDefinition.getProcessDefinitionJson(), ProcessData.class);
+                List<TaskNode> tasks = processData.getTasks();
+                if(null == tasks|| tasks.isEmpty()){
+                    putMsg(result,Status.PROCESS_DEFINE_ONLINE_ERROR,processDefinition.getName());
+                    return result;
+                }
                 processDefinition.setReleaseState(state);
                 processDefineMapper.updateById(processDefinition);
                 break;
