@@ -84,8 +84,8 @@ public class ProcessDefinitionController extends BaseController {
                                           @ApiParam(name = "projectName", value = "PROJECT_NAME", required = true) @PathVariable String projectName,
                                           @RequestParam(value = "name", required = true) String name,
                                           @RequestParam(value = "processDefinitionJson", required = true) String json,
-                                          @RequestParam(value = "locations", required = true) String locations,
-                                          @RequestParam(value = "connects", required = true) String connects,
+                                          @RequestParam(value = "locations", required = false) String locations,
+                                          @RequestParam(value = "connects", required = false) String connects,
                                           @RequestParam(value = "description", required = false) String description,
                                           @RequestParam(value = "releaseState", required = true) String releaseState,
                                           @RequestParam(value = "serialization", required = false) String serialization) throws JsonProcessingException {
