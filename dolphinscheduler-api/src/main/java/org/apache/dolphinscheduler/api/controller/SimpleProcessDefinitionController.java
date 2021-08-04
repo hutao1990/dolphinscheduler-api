@@ -298,7 +298,7 @@ public class SimpleProcessDefinitionController extends BaseController {
      * @param id          工作流id
      * @return
      */
-    @ApiOperation(value = "editSimpleProcessDefineContent", notes = "EDIT_SIMPLE_PROCESS_DEFINE_CONTENT")
+    @ApiOperation(value = "startSimpleProcess", notes = "START_SIMPLE_PROCESS")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "ID", required = true, dataType = "Int", example = ""),
             @ApiImplicitParam(name = "params", value = "PARAMS", required = false, dataType = "String", example = "")
