@@ -517,20 +517,6 @@ public class ProcessService {
         processInstance.setShellParams(shellParams);
 
 
-
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(command.getCommandParam())){
-            Map<String, String> ps = JSONUtils.toMap(command.getCommandParam());
-            if (ps != null) {
-                if (ps.containsKey(CMDPARAM_PARAMS)) {
-                    processInstance.setExecParams(cmdParam.get(CMDPARAM_PARAMS));
-                }
-                if (ps.containsKey(CMDPARAM_SIMPLE_PARAMS)) {
-                    processInstance.setExecParams(cmdParam.get(CMDPARAM_SIMPLE_PARAMS));
-                }
-            }
-        }
-
-
         //copy process define json to process instance
         processInstance.setProcessInstanceJson(processDefinition.getProcessDefinitionJson());
         // set process instance priority
@@ -740,6 +726,17 @@ public class ProcessService {
         }
         processInstance.setState(runStatus);
         processInstance.setSimple(processDefinition.getSimple());
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(command.getCommandParam())){
+            Map<String, String> ps = JSONUtils.toMap(command.getCommandParam());
+            if (ps != null) {
+                if (ps.containsKey(CMDPARAM_PARAMS) && processInstance.getSimple() == 0) {
+                    processInstance.setExecParams(cmdParam.get(CMDPARAM_PARAMS));
+                }
+                if (ps.containsKey(CMDPARAM_SIMPLE_PARAMS) && processInstance.getSimple() == 1) {
+                    processInstance.setExecParams(cmdParam.get(CMDPARAM_SIMPLE_PARAMS));
+                }
+            }
+        }
         return processInstance;
     }
 

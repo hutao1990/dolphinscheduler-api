@@ -3,6 +3,7 @@ package org.apache.dolphinscheduler.api.controller;
 import io.swagger.annotations.*;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.exceptions.ApiException;
+import org.apache.dolphinscheduler.api.service.ExecutorService;
 import org.apache.dolphinscheduler.api.service.SimpleProcessDefinitionService;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
@@ -35,6 +36,9 @@ public class SimpleProcessDefinitionController extends BaseController {
 
     @Autowired
     private SimpleProcessDefinitionService simpleProcessDefinitionService;
+
+    @Autowired
+    private ExecutorService executorService;
 
     /**
      * query process definition list paging
@@ -282,6 +286,32 @@ public class SimpleProcessDefinitionController extends BaseController {
                               @RequestParam(value = "content", required = true) String content
     ) {
         Map<String, Object> result = simpleProcessDefinitionService.updateContentById(loginUser, projectName, id, content);
+        return returnDataList(result);
+    }
+
+
+    /**
+     * 简单工作流执行
+     *
+     * @param loginUser   登录用户
+     * @param projectName 项目名称
+     * @param id          工作流id
+     * @return
+     */
+    @ApiOperation(value = "editSimpleProcessDefineContent", notes = "EDIT_SIMPLE_PROCESS_DEFINE_CONTENT")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "ID", required = true, dataType = "Int", example = ""),
+            @ApiImplicitParam(name = "params", value = "PARAMS", required = false, dataType = "String", example = "")
+    })
+    @PostMapping(value = "/start-simple-process")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(DELETE_PROCESS_DEFINE_BY_ID_ERROR)
+    public Result startImpleProcess(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                              @ApiParam(name = "projectName", value = "PROJECT_NAME", required = true) @PathVariable String projectName,
+                              @RequestParam(value = "id", required = true) int id,
+                              @RequestParam(value = "params", required = false) String params
+    ) {
+        Map<String, Object> result = executorService.executeSimpleProcess(loginUser, projectName, id, params);
         return returnDataList(result);
     }
 

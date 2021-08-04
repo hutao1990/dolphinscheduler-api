@@ -17,6 +17,7 @@
 package org.apache.dolphinscheduler.api.service;
 
 
+import lombok.SneakyThrows;
 import org.apache.dolphinscheduler.api.enums.ExecuteType;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.common.Constants;
@@ -147,6 +148,18 @@ public class ExecutorService extends BaseService{
         } else {
             putMsg(result, Status.START_PROCESS_INSTANCE_ERROR);
         }
+        return result;
+    }
+
+    @SneakyThrows
+    public Map<String, Object> executeSimpleProcess(User loginUser, String projectName, int processDefineId, String params){
+        ProcessDefinition processDefinition = processDefinitionMapper.queryByDefineId(processDefineId);
+
+        Map<String, Object> result = execProcessInstance(loginUser,projectName,processDefineId,null,null,FailureStrategy.CONTINUE,
+                null,TaskDependType.TASK_ONLY,WarningType.FAILURE,0,processDefinition.getReceivers(),
+                processDefinition.getReceiversCc(),RunMode.RUN_MODE_PARALLEL,Priority.MEDIUM,null,processDefinition.getTimeout(),params);
+
+
         return result;
     }
 
@@ -524,6 +537,7 @@ public class ExecutorService extends BaseService{
 
         if (org.apache.commons.lang3.StringUtils.isNotBlank(params)){
             cmdParam.put(CMDPARAM_PARAMS,params);
+            cmdParam.put(CMDPARAM_SIMPLE_PARAMS,params);
         }
         command.setCommandParam(JSONUtils.toJson(cmdParam));
         command.setExecutorId(executorId);
