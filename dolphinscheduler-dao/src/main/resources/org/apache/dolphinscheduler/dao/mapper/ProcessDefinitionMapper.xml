@@ -39,7 +39,7 @@
                td.flag, td.receivers, td.receivers_cc, td.timeout, td.tenant_id, td.modify_by, td.update_time, td.create_time,
                tu.user_name,s.release_state as schedule_release_state,s.crontab as schedule_crontab,
                s.failure_strategy as schedule_failure_strategy,s.start_time as schedule_start_time,s.end_time as schedule_end_time,
-               s.create_time as schedule_create_time,s.update_time as schedule_update_time,s.id as schedule_id
+               s.create_time as schedule_create_time,s.update_time as schedule_update_time,s.id as schedule_id,td.shell_params
         FROM t_ds_process_definition td
         left join t_ds_user tu on  td.user_id = tu.id
         left join t_ds_schedules s on s.process_definition_id = td.id

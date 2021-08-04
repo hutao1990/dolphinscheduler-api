@@ -221,6 +221,21 @@ public class ProcessInstance {
     @TableField(exist = false)
     private String receiversCc;
 
+    /**
+     * shell 参数
+     */
+    private String shellParams;
+
+    /**
+     * 执行参数
+     */
+    private String execParams;
+
+    /**
+     * 简单任务标记 1：简单任务  0：非简单任务
+     */
+    private int simple;
+
     public ProcessInstance(){
 
     }
@@ -574,6 +589,30 @@ public class ProcessInstance {
 
     public void setReceiversCc(String receiversCc) {
         this.receiversCc = receiversCc;
+    }
+
+    public String getShellParams() {
+        return shellParams;
+    }
+
+    public void setShellParams(String shellParams) {
+        this.shellParams = shellParams;
+    }
+
+    public String getExecParams() {
+        return execParams;
+    }
+
+    public void setExecParams(String execParams) {
+        this.execParams = execParams;
+    }
+
+    public int getSimple() {
+        return simple;
+    }
+
+    public void setSimple(int simple) {
+        this.simple = simple;
     }
 
     @Override

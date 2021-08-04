@@ -168,8 +168,8 @@ public class ProcessDefinitionController extends BaseController {
             @ApiImplicitParam(name = "locations", value = "PROCESS_DEFINITION_LOCATIONS", required = false, type = "String"),
             @ApiImplicitParam(name = "connects", value = "PROCESS_DEFINITION_CONNECTS", required = false, type = "String"),
             @ApiImplicitParam(name = "description", value = "PROCESS_DEFINITION_DESC", required = false, type = "String"),
-            @ApiImplicitParam(name = "releaseState", value = "PROCESS_DEFINITION_CONNECTS", required = true, dataType = "String", example = "100"),
-            @ApiImplicitParam(name = "serialization", value = "PROCESS_DEFINITION_CONNECTS", required = false, dataType = "String", example = "0"),
+            @ApiImplicitParam(name = "releaseState", value = "RELEASE_STATE", required = true, dataType = "String", example = "100"),
+            @ApiImplicitParam(name = "serialization", value = "SERIALIZATION", required = false, dataType = "String", example = "0"),
     })
     @PostMapping(value = "/update")
     @ResponseStatus(HttpStatus.OK)

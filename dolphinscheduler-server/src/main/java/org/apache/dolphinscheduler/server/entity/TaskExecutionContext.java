@@ -167,6 +167,21 @@ public class TaskExecutionContext implements Serializable{
     private String workerGroup;
 
     /**
+     * 简单任务标记
+     */
+    private int simple;
+
+    /**
+     * 临时执行参数
+     */
+    private String exec_params;
+
+    /**
+     * 调度执行参数
+     */
+    private String shell_params;
+
+    /**
      * resources full name and tenant code
      */
     private Map<String,String> resources;
@@ -456,6 +471,30 @@ public class TaskExecutionContext implements Serializable{
 
     public void setSqoopTaskExecutionContext(SqoopTaskExecutionContext sqoopTaskExecutionContext) {
         this.sqoopTaskExecutionContext = sqoopTaskExecutionContext;
+    }
+
+    public int getSimple() {
+        return simple;
+    }
+
+    public void setSimple(int simple) {
+        this.simple = simple;
+    }
+
+    public String getExec_params() {
+        return exec_params;
+    }
+
+    public void setExec_params(String exec_params) {
+        this.exec_params = exec_params;
+    }
+
+    public String getShell_params() {
+        return shell_params;
+    }
+
+    public void setShell_params(String shell_params) {
+        this.shell_params = shell_params;
     }
 
     @Override

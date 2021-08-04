@@ -194,7 +194,6 @@ public class ProcessDefinition {
     /**
      * shell param
      */
-    @TableField(exist = false)
     private String shellParams;
 
     /**

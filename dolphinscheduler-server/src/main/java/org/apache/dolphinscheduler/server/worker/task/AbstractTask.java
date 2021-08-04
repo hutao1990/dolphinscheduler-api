@@ -16,6 +16,7 @@
  */
 package org.apache.dolphinscheduler.server.worker.task;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.enums.CommandType;
@@ -40,8 +41,10 @@ import org.apache.dolphinscheduler.server.entity.TaskExecutionContext;
 import org.apache.dolphinscheduler.server.utils.ParamUtils;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.ClassicConstants.FINALIZE_SESSION_MARKER;
 
@@ -275,4 +278,15 @@ public abstract class AbstractTask {
         return status;
     }
 
+    /**
+     * get global paras map
+     */
+    protected Map<String, Property> getParamsMap(String paramsStr) {
+        Map<String, Property> globalParamsMap = new HashMap<>(16);
+        if (paramsStr != null) {
+            List<Property> globalParamsList = JSONObject.parseArray(paramsStr, Property.class);
+            globalParamsMap.putAll(globalParamsList.stream().collect(Collectors.toMap(Property::getProp, p -> p)));
+        }
+        return globalParamsMap;
+    }
 }

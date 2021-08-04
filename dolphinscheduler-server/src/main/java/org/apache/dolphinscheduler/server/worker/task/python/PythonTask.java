@@ -120,6 +120,13 @@ public class PythonTask extends AbstractTask {
             pythonParameters.getLocalParametersMap(),
             CommandType.of(taskExecutionContext.getCmdTypeIfComplement()),
             taskExecutionContext.getScheduleTime());
+    // 临时执行参数获取及替换
+    if(taskExecutionContext.getSimple() == 0){
+      Map<String, Property> map = getParamsMap(taskExecutionContext.getExec_params());
+      paramsMap.putAll(map);
+    }
+
+
     if (paramsMap != null){
       rawPythonScript = ParameterUtils.convertParameterPlaceholders(rawPythonScript, ParamUtils.convert(paramsMap));
     }

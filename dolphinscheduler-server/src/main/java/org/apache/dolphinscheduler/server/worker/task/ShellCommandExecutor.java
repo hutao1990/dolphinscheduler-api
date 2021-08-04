@@ -17,6 +17,7 @@
 package org.apache.dolphinscheduler.server.worker.task;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dolphinscheduler.common.utils.OSUtils;
 import org.apache.dolphinscheduler.server.entity.TaskExecutionContext;
 import org.slf4j.Logger;
@@ -106,8 +107,18 @@ public class ShellCommandExecutor extends AbstractCommandExecutor {
                     sb.append("source ").append(taskExecutionContext.getEnvFile()).append("\n");
                 }
             }
-
             sb.append(execCommand);
+            if (taskExecutionContext.getSimple() == 1){
+                String params = "";
+                if (StringUtils.isNotBlank(taskExecutionContext.getShell_params())){
+                    params = taskExecutionContext.getShell_params();
+                }
+                if (StringUtils.isNotBlank(taskExecutionContext.getExec_params())){
+                    params = taskExecutionContext.getExec_params();
+                }
+
+                sb.append(" ").append(params);
+            }
             logger.info("command : {}", sb.toString());
 
             // write data to file

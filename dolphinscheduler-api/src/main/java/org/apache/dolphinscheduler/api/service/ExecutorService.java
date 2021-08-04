@@ -97,7 +97,7 @@ public class ExecutorService extends BaseService{
                                                    FailureStrategy failureStrategy, String startNodeList,
                                                    TaskDependType taskDependType, WarningType warningType, int warningGroupId,
                                                    String receivers, String receiversCc, RunMode runMode,
-                                                   Priority processInstancePriority, String workerGroup, Integer timeout) throws ParseException {
+                                                   Priority processInstancePriority, String workerGroup, Integer timeout, String params) throws ParseException {
         Map<String, Object> result = new HashMap<>(5);
         // timeout is invalid
         if (timeout <= 0 || timeout > MAX_TASK_TIMEOUT) {
@@ -135,7 +135,7 @@ public class ExecutorService extends BaseService{
          */
         int create = this.createCommand(commandType, processDefinitionId,
                 taskDependType, failureStrategy, startNodeList, cronTime, warningType, loginUser.getId(),
-                warningGroupId, runMode,processInstancePriority, workerGroup);
+                warningGroupId, runMode,processInstancePriority, workerGroup, params);
         if(create > 0 ){
             /**
              * according to the process definition ID updateProcessInstance and CC recipient
@@ -494,7 +494,7 @@ public class ExecutorService extends BaseService{
                               TaskDependType nodeDep, FailureStrategy failureStrategy,
                               String startNodeList, String schedule, WarningType warningType,
                               int executorId, int warningGroupId,
-                              RunMode runMode,Priority processInstancePriority, String workerGroup) throws ParseException {
+                              RunMode runMode,Priority processInstancePriority, String workerGroup,String params) throws ParseException {
 
         /**
          * instantiate command schedule instance
@@ -520,6 +520,10 @@ public class ExecutorService extends BaseService{
         }
         if(warningType != null){
             command.setWarningType(warningType);
+        }
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(params)){
+            cmdParam.put(CMDPARAM_PARAMS,params);
         }
         command.setCommandParam(JSONUtils.toJson(cmdParam));
         command.setExecutorId(executorId);

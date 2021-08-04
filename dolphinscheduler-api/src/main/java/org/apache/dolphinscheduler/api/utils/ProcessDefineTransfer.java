@@ -119,6 +119,7 @@ public abstract class ProcessDefineTransfer {
         process.setModifyBy(definition.getModifyBy());
 //        process.setResourceIds(getResourceIds(processData));
         process.setSerialization(definition.getSerialization()+"");
+        process.setShellParams(definition.getParams());
 
         Date now = DateUtils.getCurrentDate();
         if ("create".equals(opt)) {

@@ -459,6 +459,10 @@ public final class Constants {
      */
     public static final String CMDPARAM_COMPLEMENT_DATA_END_DATE = "complementEndDate";
 
+    public static final String CMDPARAM_SIMPLE_PARAMS = "simpleParams";
+
+    public static final String CMDPARAM_PARAMS = "params";
+
     /**
      * hadoop configuration
      */

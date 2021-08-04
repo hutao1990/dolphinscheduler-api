@@ -18,6 +18,7 @@ package org.apache.dolphinscheduler.server.worker.task.shell;
 
 import static java.util.Calendar.DAY_OF_MONTH;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.enums.CommandType;
 import org.apache.dolphinscheduler.common.process.Property;
@@ -41,10 +42,8 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * shell task
@@ -138,6 +137,12 @@ public class ShellTask extends AbstractTask {
         shellParameters.getLocalParametersMap(),
         CommandType.of(taskExecutionContext.getCmdTypeIfComplement()),
         taskExecutionContext.getScheduleTime());
+    // 临时执行参数获取及替换
+    if(taskExecutionContext.getSimple() == 0){
+      Map<String, Property> map = getParamsMap(taskExecutionContext.getExec_params());
+      paramsMap.putAll(map);
+    }
+
     // replace variable TIME with $[YYYYmmddd...] in shell file when history run job and batch complement job
     if (taskExecutionContext.getScheduleTime() != null) {
       if (paramsMap == null) {

@@ -502,12 +502,34 @@ public class ProcessService {
         processInstance.setCommandStartTime(command.getStartTime());
         processInstance.setLocations(processDefinition.getLocations());
         processInstance.setConnects(processDefinition.getConnects());
-        // curing global params
-        processInstance.setGlobalParams(ParameterUtils.curingGlobalParams(
+
+        String globalParams = ParameterUtils.curingGlobalParams(
                 processDefinition.getGlobalParamMap(),
                 processDefinition.getGlobalParamList(),
                 getCommandTypeIfComplement(processInstance, command),
-                processInstance.getScheduleTime()));
+                processInstance.getScheduleTime());
+
+        String shellParams = processDefinition.getShellParams();
+
+
+        // curing global params
+        processInstance.setGlobalParams(globalParams);
+        processInstance.setShellParams(shellParams);
+
+
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(command.getCommandParam())){
+            Map<String, String> ps = JSONUtils.toMap(command.getCommandParam());
+            if (ps != null) {
+                if (ps.containsKey(CMDPARAM_PARAMS)) {
+                    processInstance.setExecParams(cmdParam.get(CMDPARAM_PARAMS));
+                }
+                if (ps.containsKey(CMDPARAM_SIMPLE_PARAMS)) {
+                    processInstance.setExecParams(cmdParam.get(CMDPARAM_SIMPLE_PARAMS));
+                }
+            }
+        }
+
 
         //copy process define json to process instance
         processInstance.setProcessInstanceJson(processDefinition.getProcessDefinitionJson());
@@ -717,6 +739,7 @@ public class ProcessService {
                 break;
         }
         processInstance.setState(runStatus);
+        processInstance.setSimple(processDefinition.getSimple());
         return processInstance;
     }
 

@@ -48,6 +48,9 @@ public class TaskExecutionContextBuilder {
         taskExecutionContext.setWorkerGroup(taskInstance.getWorkerGroup());
         taskExecutionContext.setHost(taskInstance.getHost());
         taskExecutionContext.setResources(taskInstance.getResources());
+        taskExecutionContext.setSimple(taskInstance.getProcessInstance().getSimple());
+        taskExecutionContext.setExec_params(taskInstance.getProcessInstance().getExecParams());
+        taskExecutionContext.setShell_params(taskInstance.getProcessInstance().getShellParams());
         return this;
     }
 
