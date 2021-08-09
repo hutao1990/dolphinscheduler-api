@@ -3,6 +3,7 @@ package org.apache.dolphinscheduler.api.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.SneakyThrows;
+import org.apache.dolphinscheduler.api.dto.ScheduleParam;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.ProcessDefineTransfer;
@@ -12,6 +13,7 @@ import org.apache.dolphinscheduler.common.enums.Priority;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
 import org.apache.dolphinscheduler.common.enums.WarningType;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
+import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.*;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
@@ -20,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,21 +141,36 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         ProcessDefinition processDefinition = ProcessDefineTransfer.toProcessDefinition(definition, loginUser.getTenantId(), "create");
 
         int i = processDefineMapper.insert(processDefinition);
-        Map<String, Object> map = schedulerService.insertSchedule(loginUser, projectName,
-                processDefinition.getId(),
-                cron, WarningType.FAILURE, 0,
-                FailureStrategy.CONTINUE,
-                processDefinition.getReceivers(), null,
-                Priority.MEDIUM, "default");
-        Status s = (Status)map.get(Constants.STATUS);
-        if (Status.SUCCESS.getCode() != s.getCode()){
-            return map;
+
+
+        Schedule scheduleObj = new Schedule();
+        Date now = new Date();
+        scheduleObj.setProjectName(projectName);
+        scheduleObj.setProcessDefinitionId(processDefinition.getId());
+        scheduleObj.setProcessDefinitionName(processDefinition.getName());
+        scheduleObj.setStartTime(now);
+        scheduleObj.setEndTime(DateUtils.getSomeDay(DateUtils.getCurrentDate(),100 * 365));
+        if (!org.quartz.CronExpression.isValidExpression(cron)) {
+            putMsg(result, Status.REQUEST_PARAMS_NOT_VALID_ERROR, cron);
+            return result;
         }
+        scheduleObj.setCrontab(cron);
+        scheduleObj.setWarningType(WarningType.FAILURE);
+        scheduleObj.setWarningGroupId(0);
+        scheduleObj.setFailureStrategy(FailureStrategy.CONTINUE);
+        scheduleObj.setCreateTime(now);
+        scheduleObj.setUpdateTime(now);
+        scheduleObj.setUserId(loginUser.getId());
+        scheduleObj.setUserName(loginUser.getUserName());
+        scheduleObj.setReleaseState(ReleaseState.OFFLINE);
+        scheduleObj.setProcessInstancePriority(Priority.MEDIUM);
+        scheduleObj.setWorkerGroup("default");
+        scheduleMapper.insert(scheduleObj);
 
         if (i > 0) {
             putMsg(result, Status.SUCCESS);
             result.put(PROCESSDEFINITIONID, processDefinition.getId());
-            result.put("scheduleId",map.get("scheduleId"));
+            result.put("scheduleId",scheduleObj.getId());
         } else {
             putMsg(result, Status.CREATE_PROCESS_DEFINITION);
         }
