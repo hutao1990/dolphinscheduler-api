@@ -143,6 +143,10 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
                 FailureStrategy.CONTINUE,
                 processDefinition.getReceivers(), null,
                 Priority.MEDIUM, "default");
+        Status s = (Status)map.get(Constants.STATUS);
+        if (Status.SUCCESS.getCode() != s.getCode()){
+            return map;
+        }
 
         if (i > 0) {
             putMsg(result, Status.SUCCESS);
