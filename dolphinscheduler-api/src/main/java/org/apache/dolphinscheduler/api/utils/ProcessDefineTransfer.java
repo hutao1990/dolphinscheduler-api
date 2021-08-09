@@ -50,7 +50,7 @@ public abstract class ProcessDefineTransfer {
         definition.setStatus(process.getScheduleReleaseState() == ReleaseState.ONLINE ? 1 : 0);
         definition.setCreateTime(DateUtils.dateToString(process.getCreateTime()));
         definition.setUpdateTime(DateUtils.dateToString(process.getUpdateTime()));
-        definition.setMail(process.getReceivers());
+        definition.setModifyBy(process.getModifyBy());
 
         if (processData != null) {
             List<TaskNode> tasks = processData.getTasks();
