@@ -40,7 +40,7 @@ public abstract class ProcessDefineTransfer {
 
         definition.setId(process.getId());
         definition.setProjectId(process.getProjectId());
-        definition.setName(process.getName());
+        definition.setProcessName(process.getName());
         definition.setCron(process.getScheduleCrontab());
         definition.setParams(process.getShellParams());
         definition.setSerialization(process.getSerialization() == null ? 0 : Integer.parseInt(process.getSerialization()));
@@ -82,7 +82,7 @@ public abstract class ProcessDefineTransfer {
         taskNode.setName(Constants.SIMPLE_TASK_NAME);
         taskNode.setId(Constants.SIMPLE_TASK_NAME);
         taskNode.setParams(jsonObject.toJSONString());
-        taskNode.setDesc(definition.getName());
+        taskNode.setDesc(definition.getProcessName());
         taskNode.setMailAlarmEnable(true);
         taskNode.setPhoneAlarmEnable(StringUtils.isNotBlank(definition.getPhone()));
         taskNode.setMaxRetryTimes(definition.getMaxRetries());
@@ -106,12 +106,12 @@ public abstract class ProcessDefineTransfer {
         processData.setTenantId(userId);
         processData.setTasks(Collections.singletonList(taskNode));
 
-        process.setName(definition.getName());
+        process.setName(definition.getProcessName());
         process.setReleaseState(ReleaseState.getEnum(definition.getStatus()));
         process.setProjectId(definition.getProjectId());
         process.setUserId(userId);
         process.setProcessDefinitionJson(JSON.toJSONString(processData));
-        process.setDescription(definition.getName());
+        process.setDescription(definition.getProcessName());
         process.setLocations(locations.toJSONString());
         process.setConnects(new JSONArray().toJSONString());
         process.setTimeout(definition.getTimeout());

@@ -82,7 +82,7 @@ public class SimpleProcessDefinitionController extends BaseController {
      *
      * @param loginUser     登录用户
      * @param projectName   项目名称
-     * @param name          工作流名称
+     * @param processName          工作流名称
      * @param cron          cron表达式
      * @param params        脚本参数
      * @param serialization 序列化标记
@@ -108,7 +108,7 @@ public class SimpleProcessDefinitionController extends BaseController {
     @ApiException(CREATE_PROCESS_DEFINITION)
     public Result saveProcessDefinition(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                         @ApiParam(name = "projectName", value = "PROJECT_NAME", required = true) @PathVariable String projectName,
-                                        @RequestParam(value = "name", required = true) String name,
+                                        @RequestParam(value = "processName", required = true) String processName,
                                         @RequestParam(value = "cron", required = true) String cron,
                                         @RequestParam(value = "params", required = false) String params,
                                         @RequestParam(value = "serialization", required = false) int serialization,
@@ -117,7 +117,7 @@ public class SimpleProcessDefinitionController extends BaseController {
                                         @RequestParam(value = "phone", required = false) String phone,
                                         @RequestParam(value = "timeout", required = false) int timeout
     ) {
-        Map<String, Object> result = simpleProcessDefinitionService.saveProcessDefine(loginUser, projectName, name, cron, params, serialization, maxRetries, mail, phone, timeout);
+        Map<String, Object> result = simpleProcessDefinitionService.saveProcessDefine(loginUser, projectName, processName, cron, params, serialization, maxRetries, mail, phone, timeout);
         return returnDataList(result);
     }
 
@@ -128,7 +128,7 @@ public class SimpleProcessDefinitionController extends BaseController {
      * @param loginUser     登录用户
      * @param projectName   项目名称
      * @param id            工作流id
-     * @param name          工作流名称
+     * @param processName          工作流名称
      * @param cron          cron表达式
      * @param params        脚本参数
      * @param serialization 系列化参数
@@ -158,7 +158,7 @@ public class SimpleProcessDefinitionController extends BaseController {
     public Result updateProcessDefinition(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                           @ApiParam(name = "projectName", value = "PROJECT_NAME", required = true) @PathVariable String projectName,
                                           @RequestParam(value = "id", required = true) int id,
-                                          @RequestParam(value = "name", required = true) String name,
+                                          @RequestParam(value = "processName", required = true) String processName,
                                           @RequestParam(value = "cron", required = true) String cron,
                                           @RequestParam(value = "params", required = false) String params,
                                           @RequestParam(value = "serialization", required = false) int serialization,
@@ -168,7 +168,7 @@ public class SimpleProcessDefinitionController extends BaseController {
                                           @RequestParam(value = "timeout", required = false) int timeout,
                                           @RequestParam(value = "status", required = true) int status
     ) {
-        Map<String, Object> result = simpleProcessDefinitionService.updateProcessDefine(loginUser, projectName, id, name, cron, params, serialization, maxRetries, mail, phone, timeout, status);
+        Map<String, Object> result = simpleProcessDefinitionService.updateProcessDefine(loginUser, projectName, id, processName, cron, params, serialization, maxRetries, mail, phone, timeout, status);
         return returnDataList(result);
     }
 

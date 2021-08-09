@@ -12,7 +12,7 @@ public class SimpleProcessDefinition {
     //项目id
     private int projectId;
     //工作流名称
-    private String name;
+    private String processName;
     //调度表达式
     private String cron;
     //参数
@@ -81,12 +81,12 @@ public class SimpleProcessDefinition {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getProcessName() {
+        return processName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProcessName(String processName) {
+        this.processName = processName;
     }
 
     public String getCron() {

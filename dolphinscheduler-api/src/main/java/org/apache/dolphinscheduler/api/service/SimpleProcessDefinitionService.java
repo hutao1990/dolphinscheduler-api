@@ -109,7 +109,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         definition.setSerialization(serialization);
         definition.setCron(cron);
         definition.setMail(mail);
-        definition.setName(processName);
+        definition.setProcessName(processName);
         definition.setParams(params);
         definition.setMaxRetries(maxRetries);
         definition.setModifyBy(loginUser.getUserName());
@@ -163,7 +163,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         definition.setSerialization(serialization);
         definition.setCron(cron);
         definition.setMail(mail);
-        definition.setName(processName);
+        definition.setProcessName(processName);
         definition.setParams(params);
         definition.setMaxRetries(maxRetries);
         definition.setModifyBy(loginUser.getUserName());
