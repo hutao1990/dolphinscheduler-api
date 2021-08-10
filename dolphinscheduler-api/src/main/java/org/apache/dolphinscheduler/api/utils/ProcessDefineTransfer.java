@@ -45,7 +45,11 @@ public abstract class ProcessDefineTransfer {
         definition.setParams(process.getShellParams());
         definition.setSerialization("1".equals(process.getSerialization())? Integer.parseInt(process.getSerialization()) : 0);
         definition.setMail(process.getReceivers());
-        definition.setEnableTimeout(process.getTimeout() > 0 ? 1 : 0);
+        if (process.getTimeout() >= 3600 * 24 || process.getTimeout() <= 0){
+            definition.setEnableTimeout(0);
+        }else {
+            definition.setEnableTimeout(1);
+        }
         definition.setTimeout(process.getTimeout());
         definition.setStatus(process.getScheduleReleaseState() == ReleaseState.ONLINE ? 1 : 0);
         definition.setCreateTime(DateUtils.dateToString(process.getCreateTime()));
@@ -103,8 +107,12 @@ public abstract class ProcessDefineTransfer {
 
         ProcessData processData = new ProcessData();
         processData.setSerialization(definition.getSerialization()+"");
-        if (definition.getTimeout() <= 0 && definition.getTimeout() > 3600 * 24) {
+        if (definition.getEnableTimeout() == 1 && definition.getTimeout() > 0) {
+            processData.setTimeout(definition.getTimeout());
+            process.setTimeout(definition.getTimeout());
+        }else {
             processData.setTimeout(3600 * 24);
+            process.setTimeout(3600 * 24);
         }
         processData.setTenantId(userId);
         processData.setTasks(Collections.singletonList(taskNode));
@@ -117,7 +125,6 @@ public abstract class ProcessDefineTransfer {
         process.setDescription(definition.getName());
         process.setLocations(locations.toJSONString());
         process.setConnects(new JSONArray().toJSONString());
-        process.setTimeout(definition.getTimeout());
         process.setTenantId(userId);
         process.setModifyBy(definition.getModifyBy());
         process.setReceivers(definition.getMail());
