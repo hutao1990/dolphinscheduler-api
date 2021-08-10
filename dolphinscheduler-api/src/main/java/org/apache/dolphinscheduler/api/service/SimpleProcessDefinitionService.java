@@ -138,7 +138,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         definition.setEnableTimeout(timeout <= 0 ? 0 : 1);
         definition.setContent("#!/bin/bash  \necho '----------bash start----------'\n\necho '----------bash end----------'\nexit 0");
 
-        ProcessDefinition processDefinition = ProcessDefineTransfer.toProcessDefinition(definition, loginUser.getTenantId(), "create");
+        ProcessDefinition processDefinition = ProcessDefineTransfer.toProcessDefinition(definition, loginUser.getId(), "create");
 
         int i = processDefineMapper.insert(processDefinition);
 
@@ -219,7 +219,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         definition.setTimeout(timeout);
         definition.setEnableTimeout(timeout <= 0 ? 0 : 1);
 
-        ProcessDefinition processDefinition1 = ProcessDefineTransfer.toProcessDefinition(definition, loginUser.getTenantId(), "update");
+        ProcessDefinition processDefinition1 = ProcessDefineTransfer.toProcessDefinition(definition, loginUser.getId(), "update");
 
 
         int i = processDefineMapper.updateById(processDefinition1);
@@ -341,7 +341,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         ProcessDefinition processDefinition = processDefineMapper.selectById(id);
         SimpleProcessDefinition definition = ProcessDefineTransfer.toSimpleProcessDefinition(processDefinition);
         definition.setContent(content);
-        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getTenantId(),"update");
+        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getId(),"update");
         int i = processDefineMapper.updateById(definition1);
         if (i > 0) {
             putMsg(result, Status.SUCCESS);
@@ -375,7 +375,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         ProcessDefinition processDefinition = processDefineMapper.selectById(id);
         SimpleProcessDefinition definition = ProcessDefineTransfer.toSimpleProcessDefinition(processDefinition);
         definition.setStatus(1);
-        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getTenantId(),"update");
+        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getId(),"update");
         int i = processDefineMapper.updateById(definition1);
         List<Schedule> schedules = scheduleMapper.queryByProcessDefinitionId(id);
         if (schedules.size() == 0){
@@ -419,7 +419,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         ProcessDefinition processDefinition = processDefineMapper.selectById(id);
         SimpleProcessDefinition definition = ProcessDefineTransfer.toSimpleProcessDefinition(processDefinition);
         definition.setStatus(0);
-        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getTenantId(),"update");
+        ProcessDefinition definition1 = ProcessDefineTransfer.toProcessDefinition(definition,loginUser.getId(),"update");
         int i = processDefineMapper.updateById(definition1);
         List<Schedule> schedules = scheduleMapper.queryByProcessDefinitionId(id);
         if (schedules.size() == 0){
