@@ -101,11 +101,10 @@ public class ExecutorService extends BaseService{
                                                    Priority processInstancePriority, String workerGroup, Integer timeout, String params) throws ParseException {
         Map<String, Object> result = new HashMap<>(5);
         // timeout is invalid
-//        if (timeout <= 0 || timeout > MAX_TASK_TIMEOUT) {
-//            putMsg(result,Status.TASK_TIMEOUT_PARAMS_ERROR);
-//            return result;
-//        }
-
+        if (timeout <= 0 || timeout > MAX_TASK_TIMEOUT) {
+            putMsg(result,Status.TASK_TIMEOUT_PARAMS_ERROR);
+            return result;
+        }
         Project project = projectMapper.queryByName(projectName);
         Map<String, Object> checkResultAndAuth = checkResultAndAuth(loginUser, projectName, project);
         if (checkResultAndAuth != null){
