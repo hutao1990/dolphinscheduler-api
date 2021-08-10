@@ -103,7 +103,9 @@ public abstract class ProcessDefineTransfer {
 
         ProcessData processData = new ProcessData();
         processData.setSerialization(definition.getSerialization()+"");
-        processData.setTimeout(definition.getTimeout());
+        if (definition.getTimeout() <= 0 && definition.getTimeout() > 3600 * 24) {
+            processData.setTimeout(3600 * 24);
+        }
         processData.setTenantId(userId);
         processData.setTasks(Collections.singletonList(taskNode));
 
