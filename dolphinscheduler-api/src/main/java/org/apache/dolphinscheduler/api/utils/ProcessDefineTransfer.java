@@ -43,7 +43,7 @@ public abstract class ProcessDefineTransfer {
         definition.setName(process.getName());
         definition.setCron(process.getScheduleCrontab());
         definition.setParams(process.getShellParams());
-        definition.setSerialization(process.getSerialization() == null ? 0 : Integer.parseInt(process.getSerialization()));
+        definition.setSerialization("1".equals(process.getSerialization())? Integer.parseInt(process.getSerialization()) : 0);
         definition.setMail(process.getReceivers());
         definition.setEnableTimeout(process.getTimeout() > 0 ? 1 : 0);
         definition.setTimeout(process.getTimeout());
