@@ -122,7 +122,7 @@ public class ExecutorController extends BaseController {
 
         Map<String, Object> result = execService.execProcessInstance(loginUser, projectName, processDefinitionId, scheduleTime, execType, failureStrategy,
                 startNodeList, taskDependType, warningType,
-                warningGroupId, receivers, receiversCc, runMode, processInstancePriority, workerGroup, timeout,params);
+                warningGroupId, receivers, receiversCc, runMode, processInstancePriority, workerGroup, timeout,params, 0);
         return returnDataList(result);
     }
 
