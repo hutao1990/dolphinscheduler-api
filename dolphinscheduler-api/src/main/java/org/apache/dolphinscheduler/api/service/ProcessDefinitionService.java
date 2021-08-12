@@ -289,7 +289,7 @@ public class ProcessDefinitionService extends BaseDAGService {
             return checkResult;
         }
 
-        ProcessDefinition processDefinition = processDefineMapper.selectById(processId);
+        ProcessDefinition processDefinition = processDefineMapper.queryByProcessDefineId(processId,0);
         if (processDefinition == null) {
             putMsg(result, Status.PROCESS_INSTANCE_NOT_EXIST, processId);
         } else {

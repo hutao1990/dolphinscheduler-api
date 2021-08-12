@@ -65,6 +65,7 @@ public interface ProcessDefinitionMapper extends BaseMapper<ProcessDefinition> {
      * @param userId userId
      * @param projectId projectId
      * @param isAdmin isAdmin
+     * @param simple 简单工作流标记
      * @return process definition IPage
      */
     IPage<ProcessDefinition> queryDefineListPaging(IPage<ProcessDefinition> page,
@@ -73,6 +74,14 @@ public interface ProcessDefinitionMapper extends BaseMapper<ProcessDefinition> {
                                                    @Param("projectId") int projectId,
                                                    @Param("isAdmin") boolean isAdmin,
                                                    @Param("simple") int simple);
+
+    /**
+     * query process definition and schedule info by id
+     * @param id process definition id
+     * @param simple 简单工作流标记
+     * @return
+     */
+    ProcessDefinition queryByProcessDefineId(@Param("id") int id,@Param("simple") int simple);
 
     /**
      * query all process definition list
