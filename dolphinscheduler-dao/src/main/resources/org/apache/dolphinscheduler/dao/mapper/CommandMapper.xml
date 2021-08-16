@@ -21,7 +21,7 @@
     <select id="getOneToRun" resultType="org.apache.dolphinscheduler.dao.entity.Command">
         select command.* from t_ds_command command
         join t_ds_process_definition definition on command.process_definition_id = definition.id
-        where definition.release_state = 1 AND definition.flag = 1
+        where (definition.release_state = 1 OR definition.simple = 1) AND definition.flag = 1
         order by command.update_time asc
         limit 1
     </select>
