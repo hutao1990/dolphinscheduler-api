@@ -321,7 +321,7 @@ public class AlertManager {
             List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
             List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
             User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
-            Map<String, List<TaskInstance>> alaramMap = callPhone(collect, user.getPhone());
+            Map<String, List<TaskInstance>> alaramMap = callPhone(collect, user.getPhone(),processInstance.getSimple());
             if (!alaramMap.isEmpty() ) {
                 alaramMap.forEach((phone,tasks) ->{
                     list.addAll(tasks.stream().map(TaskInstance::getId).collect(Collectors.toList()));
@@ -342,14 +342,15 @@ public class AlertManager {
 
     }
 
-    private Map<String, List<TaskInstance>> callPhone(List<TaskInstance> taskInstances,String phone) {
+    private Map<String, List<TaskInstance>> callPhone(List<TaskInstance> taskInstances,String phone, int simple) {
         Map<String, List<TaskInstance>> alarmMap = new HashMap<>();
         if (taskInstances != null && !taskInstances.isEmpty()) {
             for (TaskInstance task : taskInstances) {
                 String str = task.getTaskJson();
                 JSONObject json = JSONObject.parseObject(str);
                 boolean phoneAlarmEnable = json.getBooleanValue("phoneAlarmEnable");
-                if (phoneAlarmEnable) {
+                String ph = json.getOrDefault("phoneNumber","").toString();
+                if (phoneAlarmEnable || (StringUtils.isNotBlank(ph) && simple == 1)) {
                     String phoneStrategy = json.getOrDefault("phoneStrategy","default").toString();
                     String phoneNumber = json.getOrDefault("phoneNumber",phone).toString();
                     switch (phoneStrategy){
