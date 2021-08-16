@@ -331,7 +331,11 @@ public class AlertManager {
                     phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
                     phoneBean.setPhoneNumber(phone);
                     phoneBean.setTitle("scheduler alarm");
-                    phoneBean.setContent(StringUtils.join(tasks.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                    if (processInstance.getSimple() == 0) {
+                        phoneBean.setContent("process: "+processInstance.getName()+", task:"+StringUtils.join(tasks.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                    }else {
+                        phoneBean.setContent("process: "+processInstance.getName() + " error!");
+                    }
                     SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
                 });
             }
