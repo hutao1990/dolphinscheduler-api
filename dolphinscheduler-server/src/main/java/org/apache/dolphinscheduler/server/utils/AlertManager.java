@@ -22,6 +22,7 @@ import com.gome.hkalarm.sdk.bean.PhoneBean;
 import com.gome.hkalarm.sdk.util.SDK;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import javafx.concurrent.Task;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dolphinscheduler.common.enums.*;
@@ -319,17 +320,20 @@ public class AlertManager {
         try {
             List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
             List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
-            if (callPhone(collect)) {
-                list.addAll(collect.stream().map(TaskInstance::getId).collect(Collectors.toList()));
-                User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
-                logger.info("callPhone " + user.getPhone() + " alarm!");
-                PhoneBean phoneBean = new PhoneBean();
-                phoneBean.setAppId("dolphinscheduler");
-                phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
-                phoneBean.setPhoneNumber(user.getPhone());
-                phoneBean.setTitle("scheduler alarm");
-                phoneBean.setContent(StringUtils.join(collect.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
-                SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+            User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
+            Map<String, List<TaskInstance>> alaramMap = callPhone(collect, user.getPhone());
+            if (!alaramMap.isEmpty() ) {
+                alaramMap.forEach((phone,tasks) ->{
+                    list.addAll(tasks.stream().map(TaskInstance::getId).collect(Collectors.toList()));
+                    logger.info("callPhone " + phone + " alarm!");
+                    PhoneBean phoneBean = new PhoneBean();
+                    phoneBean.setAppId("dolphinscheduler");
+                    phoneBean.setDetailId(user.getUserName() + "#" + processInstance.getProcessDefinition().getName());
+                    phoneBean.setPhoneNumber(phone);
+                    phoneBean.setTitle("scheduler alarm");
+                    phoneBean.setContent(StringUtils.join(tasks.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                    SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
+                });
             }
         }catch (Exception e) {
             e.printStackTrace();
@@ -338,7 +342,8 @@ public class AlertManager {
 
     }
 
-    private boolean callPhone(List<TaskInstance> taskInstances) {
+    private Map<String, List<TaskInstance>> callPhone(List<TaskInstance> taskInstances,String phone) {
+        Map<String, List<TaskInstance>> alarmMap = new HashMap<>();
         if (taskInstances != null && !taskInstances.isEmpty()) {
             for (TaskInstance task : taskInstances) {
                 String str = task.getTaskJson();
@@ -346,11 +351,18 @@ public class AlertManager {
                 boolean phoneAlarmEnable = json.getBooleanValue("phoneAlarmEnable");
                 if (phoneAlarmEnable) {
                     String phoneStrategy = json.getOrDefault("phoneStrategy","default").toString();
+                    String phoneNumber = json.getOrDefault("phoneNumber",phone).toString();
                     switch (phoneStrategy){
                         case "last_retry":
                             if (task.getRetryTimes() == task.getMaxRetryTimes()){
                                 logger.info("task '{}({})' retry times is {}/{} strategy {}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
-                                return true;
+                                if(alarmMap.containsKey(phoneNumber)){
+                                    alarmMap.get(phoneNumber).add(task);
+                                }else {
+                                    List<TaskInstance> tasks = new ArrayList<>();
+                                    tasks.add(task);
+                                    alarmMap.put(phoneNumber,tasks);
+                                }
                             }else {
                                 logger.info("task '{}({})' retry times is {}/{} strategy {}, skip call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
                                 break;
@@ -358,12 +370,18 @@ public class AlertManager {
                         case "default":
                         default:
                             logger.info("task '{}({})' retry times is {}/{} strategy {}, start call phone!",task.getName(),task.getId(),task.getRetryTimes(),task.getMaxRetryTimes(),phoneStrategy);
-                            return true;
+                            if(alarmMap.containsKey(phoneNumber)){
+                                alarmMap.get(phoneNumber).add(task);
+                            }else {
+                                List<TaskInstance> tasks = new ArrayList<>();
+                                tasks.add(task);
+                                alarmMap.put(phoneNumber,tasks);
+                            }
                     }
                 }
             }
         }
-        return false;
+        return alarmMap;
     }
     private boolean sendMail(List<TaskInstance> taskInstances) {
         if (taskInstances != null && !taskInstances.isEmpty()) {
