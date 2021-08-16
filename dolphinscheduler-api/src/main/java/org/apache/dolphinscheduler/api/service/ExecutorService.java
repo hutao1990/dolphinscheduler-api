@@ -158,7 +158,7 @@ public class ExecutorService extends BaseService {
         ProcessDefinition processDefinition = processDefinitionMapper.queryByDefineId(processDefineId);
 
         Map<String, Object> result = execProcessInstance(loginUser, projectName, processDefineId, null, null, FailureStrategy.CONTINUE,
-                null, TaskDependType.TASK_ONLY, WarningType.FAILURE, 0, processDefinition.getReceivers(),
+                null, TaskDependType.TASK_POST, WarningType.FAILURE, 0, processDefinition.getReceivers(),
                 processDefinition.getReceiversCc(), RunMode.RUN_MODE_PARALLEL, Priority.MEDIUM, null, processDefinition.getTimeout(), params, processDefinition.getSimple());
 
 
