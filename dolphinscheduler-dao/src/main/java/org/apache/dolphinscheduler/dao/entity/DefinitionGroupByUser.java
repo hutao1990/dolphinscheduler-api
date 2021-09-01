@@ -69,4 +69,20 @@ public class DefinitionGroupByUser {
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
+
+    public int getOnlineCount() {
+        return onlineCount;
+    }
+
+    public void setOnlineCount(int onlineCount) {
+        this.onlineCount = onlineCount;
+    }
+
+    public int getOfflineCount() {
+        return offlineCount;
+    }
+
+    public void setOfflineCount(int offlineCount) {
+        this.offlineCount = offlineCount;
+    }
 }
