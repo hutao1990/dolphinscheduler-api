@@ -36,6 +36,16 @@ public class DefinitionGroupByUser {
      */
     private int count;
 
+    /**
+     * online count
+     */
+    private int onlineCount;
+
+    /**
+     * offline count
+     */
+    private int offlineCount;
+
     public String getUserName() {
         return userName;
     }

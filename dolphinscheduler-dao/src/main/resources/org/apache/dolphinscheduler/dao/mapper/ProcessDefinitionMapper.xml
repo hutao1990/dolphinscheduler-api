@@ -85,7 +85,9 @@
         </foreach>
     </select>
     <select id="countDefinitionGroupByUser" resultType="org.apache.dolphinscheduler.dao.entity.DefinitionGroupByUser">
-        SELECT td.user_id as user_id, tu.user_name as user_name, count(0) as count
+        SELECT td.user_id as user_id, tu.user_name as user_name, count(0) as count,
+        sum(case when release_state = 1 then 1 else 0 end ) as online_count,
+        sum(case when release_state = 0 then 1 else 0 end ) as offline_count
         FROM t_ds_process_definition td
         JOIN t_ds_user tu on tu.id=td.user_id
         where 1 = 1
