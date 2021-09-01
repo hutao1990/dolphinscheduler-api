@@ -125,6 +125,11 @@ public class SchedulerService extends BaseService {
             return result;
         }
 
+        List<Schedule> schedules = scheduleMapper.queryByProcessDefinitionId(processDefineId);
+        if (schedules.size() > 0){
+            putMsg(result,Status.CREATE_SCHEDULE_ERROR);
+            return result;
+        }
         Schedule scheduleObj = new Schedule();
         Date now = new Date();
 
