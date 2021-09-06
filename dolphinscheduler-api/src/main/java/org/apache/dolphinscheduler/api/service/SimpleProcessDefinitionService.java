@@ -390,6 +390,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         if (i > 0) {
             putMsg(result, Status.SUCCESS);
             result.put(PROCESSDEFINITIONID, id);
+            schedulerService.setSchedule(project.getId(),schedule.getId());
         } else {
             putMsg(result, Status.PUBLISH_SCHEDULE_ONLINE_ERROR);
         }
@@ -434,6 +435,7 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         if (i > 0) {
             putMsg(result, Status.SUCCESS);
             result.put(PROCESSDEFINITIONID, id);
+            SchedulerService.deleteSchedule(project.getId(),schedule.getId());
         } else {
             putMsg(result, Status.PUBLISH_SCHEDULE_ONLINE_ERROR);
         }
