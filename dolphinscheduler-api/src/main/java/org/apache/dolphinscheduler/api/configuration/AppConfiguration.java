@@ -56,7 +56,7 @@ public class AppConfiguration implements WebMvcConfigurer {
     CookieLocaleResolver localeResolver = new CookieLocaleResolver();
     localeResolver.setCookieName(LOCALE_LANGUAGE_COOKIE);
     /** set default locale **/
-    localeResolver.setDefaultLocale(Locale.US);
+    localeResolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
     /** set cookie max age **/
     localeResolver.setCookieMaxAge(COOKIE_MAX_AGE);
     return localeResolver;
