@@ -17,6 +17,7 @@
 package org.apache.dolphinscheduler.server.utils;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gome.hkalarm.sdk.bean.PhoneBean;
 import com.gome.hkalarm.sdk.util.SDK;
@@ -26,6 +27,7 @@ import javafx.concurrent.Task;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dolphinscheduler.common.enums.*;
+import org.apache.dolphinscheduler.common.model.TaskNode;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.AlertDao;
@@ -272,7 +274,7 @@ public class AlertManager {
                 }
                 break;
             case FAILURE:
-                if (processInstance.getState().typeIsFailure()) {
+                if (processInstance.getState().typeIsFailure() || processInstance.getState().typeIsStop()) {
                     sendWarnning = true;
                 }
                 break;
@@ -319,12 +321,25 @@ public class AlertManager {
 
         try {
             List<Integer> list = phCache.get(processInstance.getId(), ArrayList::new);
-            List<TaskInstance> collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
+            List<TaskInstance> collect = new ArrayList<>();
+            Map<String, List<TaskInstance>> alaramMap = new HashMap<>();
             User user = userMapper.selectById(processInstance.getProcessDefinition().getUserId());
-            Map<String, List<TaskInstance>> alaramMap = callPhone(collect, user.getPhone(),processInstance.getSimple());
-            if (!alaramMap.isEmpty() ) {
-                alaramMap.forEach((phone,tasks) ->{
-                    list.addAll(tasks.stream().map(TaskInstance::getId).collect(Collectors.toList()));
+            if (!taskInstances.isEmpty()) {
+                collect = taskInstances.stream().filter(t -> Arrays.asList(5, 6, 8, 9).contains(t.getState().getCode())).filter(t -> !list.contains(t.getId())).collect(Collectors.toList());
+                alaramMap = callPhone(collect, user.getPhone(), processInstance.getSimple());
+            }else {
+                String definitionJson = processInstance.getProcessDefinition().getProcessDefinitionJson();
+                ProcessData processData = JSON.parseObject(definitionJson, ProcessData.class);
+                List<TaskNode> tasks = processData.getTasks();
+                if (tasks.size() > 0){
+                    String phoneNumber = tasks.get(0).getPhoneNumber();
+                    if (StringUtils.isNotBlank(phoneNumber)){
+                        alaramMap.put(phoneNumber,new ArrayList<>());
+                    }
+                }
+            }
+            if (!alaramMap.isEmpty()) {
+                alaramMap.forEach((phone, tasks) -> {
                     logger.info("callPhone " + phone + " alarm!");
                     PhoneBean phoneBean = new PhoneBean();
                     phoneBean.setAppId("dolphinscheduler");
@@ -332,9 +347,10 @@ public class AlertManager {
                     phoneBean.setPhoneNumber(phone);
                     phoneBean.setTitle("scheduler alarm");
                     if (processInstance.getSimple() == 0) {
-                        phoneBean.setContent("process: "+processInstance.getName()+", task:"+StringUtils.join(tasks.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
-                    }else {
-                        phoneBean.setContent("process: "+processInstance.getName() + " error!");
+                        phoneBean.setContent("process: " + processInstance.getName() + ", task:" + StringUtils.join(tasks.stream().map(TaskInstance::getName).collect(Collectors.toList()), ",") + " error!");
+                        list.addAll(tasks.stream().map(TaskInstance::getId).collect(Collectors.toList()));
+                    } else {
+                        phoneBean.setContent("process: " + processInstance.getName() + " error!");
                     }
                     SDK.HkAlarmSDK.getInstance().sendPhoneMsg(phoneBean);
                 });
