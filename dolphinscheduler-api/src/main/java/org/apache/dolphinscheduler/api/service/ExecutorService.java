@@ -98,7 +98,8 @@ public class ExecutorService extends BaseService {
                                                    FailureStrategy failureStrategy, String startNodeList,
                                                    TaskDependType taskDependType, WarningType warningType, int warningGroupId,
                                                    String receivers, String receiversCc, RunMode runMode,
-                                                   Priority processInstancePriority, String workerGroup, Integer timeout, String params, int simple) throws ParseException {
+                                                   Priority processInstancePriority, String workerGroup, Integer timeout, String params, int simple,
+                                                   String disableTaskList) throws ParseException {
         Map<String, Object> result = new HashMap<>(5);
         // timeout is invalid
         if (timeout <= 0 || timeout > MAX_TASK_TIMEOUT) {
@@ -138,7 +139,7 @@ public class ExecutorService extends BaseService {
          */
         int create = this.createCommand(commandType, processDefinitionId,
                 taskDependType, failureStrategy, startNodeList, cronTime, warningType, loginUser.getId(),
-                warningGroupId, runMode, processInstancePriority, workerGroup, params);
+                warningGroupId, runMode, processInstancePriority, workerGroup, params, disableTaskList);
         if (create > 0) {
             /**
              * according to the process definition ID updateProcessInstance and CC recipient
@@ -159,7 +160,8 @@ public class ExecutorService extends BaseService {
 
         Map<String, Object> result = execProcessInstance(loginUser, projectName, processDefineId, null, null, FailureStrategy.CONTINUE,
                 null, TaskDependType.TASK_POST, WarningType.FAILURE, 0, processDefinition.getReceivers(),
-                processDefinition.getReceiversCc(), RunMode.RUN_MODE_PARALLEL, Priority.MEDIUM, null, processDefinition.getTimeout(), params, processDefinition.getSimple());
+                processDefinition.getReceiversCc(), RunMode.RUN_MODE_PARALLEL, Priority.MEDIUM, null, processDefinition.getTimeout(), params,
+                processDefinition.getSimple(),"");
 
 
         return result;
@@ -512,7 +514,8 @@ public class ExecutorService extends BaseService {
                               TaskDependType nodeDep, FailureStrategy failureStrategy,
                               String startNodeList, String schedule, WarningType warningType,
                               int executorId, int warningGroupId,
-                              RunMode runMode, Priority processInstancePriority, String workerGroup, String params) throws ParseException {
+                              RunMode runMode, Priority processInstancePriority, String workerGroup,
+                              String params, String disableTaskList) throws ParseException {
 
         /**
          * instantiate command schedule instance
@@ -544,6 +547,11 @@ public class ExecutorService extends BaseService {
             cmdParam.put(CMDPARAM_PARAMS, params);
             cmdParam.put(CMDPARAM_SIMPLE_PARAMS, params);
         }
+
+        if (StringUtils.isNotBlank(disableTaskList)){
+            cmdParam.put(CMDPARAM_TASK_SKIP_RUN_LIST_ID, disableTaskList);
+        }
+
         command.setCommandParam(JSONUtils.toJson(cmdParam));
         command.setExecutorId(executorId);
         command.setWarningGroupId(warningGroupId);

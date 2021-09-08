@@ -449,6 +449,8 @@ public final class Constants {
 
     public static final String CMDPARAM_START_NODE_NAMES = "StartNodeNameList";
 
+    public static final String CMDPARAM_TASK_SKIP_RUN_LIST_ID = "taskSkipRunList";
+
     /**
      * complement data start date
      */

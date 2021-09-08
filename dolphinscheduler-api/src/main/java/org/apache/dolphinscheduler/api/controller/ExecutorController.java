@@ -88,6 +88,8 @@ public class ExecutorController extends BaseController {
             @ApiImplicitParam(name = "processInstancePriority", value = "PROCESS_INSTANCE_PRIORITY", required = true, dataType = "Priority"),
             @ApiImplicitParam(name = "workerGroup", value = "WORKER_GROUP", dataType = "String", example = "default"),
             @ApiImplicitParam(name = "timeout", value = "TIMEOUT", dataType = "Int", example = "100"),
+            @ApiImplicitParam(name = "params", value = "PARAMS", dataType = "String", example = "{'p1':'v1','p2':'v2',...}"),
+            @ApiImplicitParam(name = "disableTaskList", value = "DISABLE_TASK_LIST", dataType = "String", example = "name1,name2,..."),
     })
     @PostMapping(value = "start-process-instance")
     @ResponseStatus(HttpStatus.OK)
@@ -108,7 +110,8 @@ public class ExecutorController extends BaseController {
                                        @RequestParam(value = "processInstancePriority", required = false) Priority processInstancePriority,
                                        @RequestParam(value = "workerGroup", required = false, defaultValue = "default") String workerGroup,
                                        @RequestParam(value = "timeout", required = false) Integer timeout,
-                                       @RequestParam(value = "params", required = false) String params) throws ParseException {
+                                       @RequestParam(value = "params", required = false) String params,
+                                       @RequestParam(value = "disableTaskList", required = false) String disableTaskList) throws ParseException {
         logger.info("login user {}, start process instance, project name: {}, process definition id: {}, schedule time: {}, "
                         + "failure policy: {}, node name: {}, node dep: {}, notify type: {}, "
                         + "notify group id: {},receivers:{},receiversCc:{}, run mode: {},process instance priority:{}, workerGroup: {}, timeout: {}, params: {}",
@@ -122,7 +125,7 @@ public class ExecutorController extends BaseController {
 
         Map<String, Object> result = execService.execProcessInstance(loginUser, projectName, processDefinitionId, scheduleTime, execType, failureStrategy,
                 startNodeList, taskDependType, warningType,
-                warningGroupId, receivers, receiversCc, runMode, processInstancePriority, workerGroup, timeout,params, 0);
+                warningGroupId, receivers, receiversCc, runMode, processInstancePriority, workerGroup, timeout,params, 0,disableTaskList);
         return returnDataList(result);
     }
 
