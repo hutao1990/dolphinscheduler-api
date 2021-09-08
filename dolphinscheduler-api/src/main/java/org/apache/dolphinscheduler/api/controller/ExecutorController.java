@@ -70,6 +70,8 @@ public class ExecutorController extends BaseController {
      * @param processInstancePriority process instance priority
      * @param workerGroup             worker group
      * @param timeout                 timeout
+     * @param params                  params
+     * @param disableTaskList         disable task list
      * @return start process result code
      */
     @ApiOperation(value = "startProcessInstance", notes = "RUN_PROCESS_INSTANCE_NOTES")
