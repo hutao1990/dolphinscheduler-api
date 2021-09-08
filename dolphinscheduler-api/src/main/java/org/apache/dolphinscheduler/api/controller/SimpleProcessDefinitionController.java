@@ -26,7 +26,7 @@ import static org.apache.dolphinscheduler.api.enums.Status.*;
  * @date 2021/7/22 11:34
  * @description 简单工作流定义控制器
  */
-@Api(tags = "SIMPLE_PROCESS_DEFINITION_TAG", position = 2)
+@Api(tags = "SIMPLE_PROCESS_DEFINITION_TAG", position = 17)
 @RestController
 @RequestMapping("projects/{projectName}/simple/process")
 public class SimpleProcessDefinitionController extends BaseController {
