@@ -120,6 +120,14 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
         if (resultStatus != Status.SUCCESS) {
             return checkResult;
         }
+
+        // check whether the new process define name exist
+        ProcessDefinition df = processDefineMapper.verifyByDefineName(project.getId(), processName);
+        if (df != null) {
+            putMsg(result, Status.VERIFY_PROCESS_DEFINITION_NAME_UNIQUE_ERROR, processName);
+            return result;
+        }
+
         String currentTime = DateUtils.getCurrentTime();
         SimpleProcessDefinition definition = new SimpleProcessDefinition();
         definition.setProjectId(project.getId());
@@ -205,6 +213,16 @@ public class SimpleProcessDefinitionService extends BaseDAGService {
             return checkResult;
         }
         ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(id);
+
+        if (!processName.equals(processDefinition.getName())) {
+            // check whether the new process define name exist
+            ProcessDefinition df = processDefineMapper.verifyByDefineName(project.getId(), processName);
+            if (df != null) {
+                putMsg(result, Status.VERIFY_PROCESS_DEFINITION_NAME_UNIQUE_ERROR, processName);
+                return result;
+            }
+        }
+
         SimpleProcessDefinition definition = ProcessDefineTransfer.toSimpleProcessDefinition(processDefinition);
         definition.setUpdateTime(DateUtils.getCurrentTime());
         definition.setSerialization(serialization);
