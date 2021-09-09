@@ -519,13 +519,16 @@ public class ProcessService {
 
         //copy process define json to process instance
         ProcessData processData = JSON.parseObject(processDefinition.getProcessDefinitionJson(), ProcessData.class);
-        Set<String> set = new HashSet<>(Arrays.asList(cmdParam.get(CMDPARAM_TASK_SKIP_RUN_LIST_ID).split(",")));
-        processData.getTasks().forEach(t ->{
-            if (set.contains(t.getName())){
-                t.setRunFlag(FLOWNODE_RUN_FLAG_FORBIDDEN);
-            }
+        String list = cmdParam.get(CMDPARAM_TASK_SKIP_RUN_LIST_ID);
+        if (StringUtils.isNotBlank(list)) {
+            Set<String> set = new HashSet<>(Arrays.asList(list.split(",")));
+            processData.getTasks().forEach(t -> {
+                if (set.contains(t.getName())) {
+                    t.setRunFlag(FLOWNODE_RUN_FLAG_FORBIDDEN);
+                }
 
-        });
+            });
+        }
         processInstance.setProcessInstanceJson(JSON.toJSONString(processData));
         // set process instance priority
         processInstance.setProcessInstancePriority(command.getProcessInstancePriority());
