@@ -429,6 +429,24 @@ public class ProcessDefinitionService extends BaseDAGService {
     }
 
     /**
+     *
+     * @param loginUser 登录用户
+     * @param projectName 项目名
+     * @param id         工作流id
+     * @param name       工作流名称
+     * @param desc       工作流描述
+     * @param releaseState 是否上线
+     * @param serialization 是否启用串行化
+     * @return
+     */
+    public Map<String, Object> updateBaseInfo(User loginUser, String projectName, int id, String name, String desc,
+                                              String releaseState, String serialization){
+        ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(id);
+        return updateProcessDefinition(loginUser,projectName,id,name,processDefinition.getProcessDefinitionJson(),desc,
+                processDefinition.getLocations(),processDefinition.getConnects(),releaseState,serialization);
+    }
+
+    /**
      * verify process definition name unique
      *
      * @param loginUser   login user

@@ -193,6 +193,44 @@ public class ProcessDefinitionController extends BaseController {
         return returnDataList(result);
     }
 
+
+
+    /**
+     * update process definition
+     *
+     * @param loginUser             login user
+     * @param projectName           project name
+     * @param name                  process definition name
+     * @param id                    process definition id
+     * @param description           description
+     * @return update result code
+     */
+
+    @ApiOperation(value = "updateProcessDefinitionBaseInfo", notes= "UPDATE_PROCESS_DEFINITION_NOTES_BASE")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "PROCESS_DEFINITION_NAME", required = true, type = "String"),
+            @ApiImplicitParam(name = "id", value = "PROCESS_DEFINITION_ID", required = true, dataType = "Int", example = "100"),
+            @ApiImplicitParam(name = "description", value = "PROCESS_DEFINITION_DESC", required = false, type = "String"),
+            @ApiImplicitParam(name = "releaseState", value = "RELEASE_STATE", required = true, dataType = "String", example = "100"),
+            @ApiImplicitParam(name = "serialization", value = "SERIALIZATION", required = false, dataType = "String", example = "0"),
+    })
+    @PostMapping(value = "/update-base")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(UPDATE_PROCESS_DEFINITION_ERROR)
+    public Result updateProcessDefinitionBaseInfo(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                          @ApiParam(name = "projectName", value = "PROJECT_NAME", required = true) @PathVariable String projectName,
+                                          @RequestParam(value = "name", required = true) String name,
+                                          @RequestParam(value = "id", required = true) int id,
+                                          @RequestParam(value = "description", required = false) String description,
+                                          @RequestParam(value = "releaseState", required = true) String releaseState,
+                                          @RequestParam(value = "serialization", required = false) String serialization) {
+
+        logger.info("login user {}, update process define, project name: {}, process define name: {}, desc: {},",
+                loginUser.getUserName(), projectName, name, description);
+        Map<String, Object> result = processDefinitionService.updateBaseInfo(loginUser, projectName, id, name, description, releaseState,serialization);
+        return returnDataList(result);
+    }
+
     /**
      * release process definition
      *
