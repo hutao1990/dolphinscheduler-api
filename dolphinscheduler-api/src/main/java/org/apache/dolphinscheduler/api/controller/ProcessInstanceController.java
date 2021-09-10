@@ -81,6 +81,7 @@ public class ProcessInstanceController extends BaseController {
             @ApiImplicitParam(name = "host", value = "HOST", type = "String"),
             @ApiImplicitParam(name = "startDate", value = "START_DATE", type = "String"),
             @ApiImplicitParam(name = "endDate", value = "END_DATE", type = "String"),
+            @ApiImplicitParam(name = "pName", value = "P_NAME", type = "String"),
             @ApiImplicitParam(name = "pageNo", value = "PAGE_NO", dataType = "Int", example = "100"),
             @ApiImplicitParam(name = "pageSize", value = "PAGE_SIZE", dataType = "Int", example = "100")
     })
@@ -96,15 +97,16 @@ public class ProcessInstanceController extends BaseController {
                                            @RequestParam(value = "host", required = false) String host,
                                            @RequestParam(value = "startDate", required = false) String startTime,
                                            @RequestParam(value = "endDate", required = false) String endTime,
+                                           @RequestParam(value = "pName", required = false) String pName,
                                            @RequestParam("pageNo") Integer pageNo,
                                            @RequestParam("pageSize") Integer pageSize) {
         logger.info("query all process instance list, login user:{},project name:{}, define id:{}," +
-                        "search value:{},executor name:{},state type:{},host:{},start time:{}, end time:{},page number:{}, page size:{}",
+                        "search value:{},executor name:{},state type:{},host:{},start time:{}, end time:{}, pname {},page number:{}, page size:{}",
                 loginUser.getUserName(), projectName, processDefinitionId, searchVal, executorName, stateType, host,
-                startTime, endTime, pageNo, pageSize);
+                startTime, endTime, pName, pageNo, pageSize);
         searchVal = ParameterUtils.handleEscapes(searchVal);
         Map<String, Object> result = processInstanceService.queryProcessInstanceList(
-                loginUser, projectName, processDefinitionId, startTime, endTime, searchVal, executorName, stateType, host, pageNo, pageSize);
+                loginUser, projectName, processDefinitionId, startTime, endTime, searchVal, executorName, stateType, host, pageNo, pageSize, pName);
         return returnDataListPaging(result);
     }
 

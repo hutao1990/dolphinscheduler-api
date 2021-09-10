@@ -127,15 +127,18 @@ public class ProjectService extends BaseService{
 
         Map<String, Object> result = new HashMap<>(5);
 
-        if (project == null) {
-            putMsg(result, Status.PROJECT_NOT_FOUNT, projectName);
-        } else if (!checkReadPermission(loginUser, project)) {
-            // check read permission
-            putMsg(result, Status.USER_NO_OPERATION_PROJECT_PERM, loginUser.getUserName(), projectName);
-        }else {
+        if (projectName.endsWith(Constants.PROCESS_INSTANCE_PROJECT_FLAG)){
             putMsg(result, Status.SUCCESS);
+        }else {
+            if (project == null) {
+                putMsg(result, Status.PROJECT_NOT_FOUNT, projectName);
+            } else if (!checkReadPermission(loginUser, project)) {
+                // check read permission
+                putMsg(result, Status.USER_NO_OPERATION_PROJECT_PERM, loginUser.getUserName(), projectName);
+            } else {
+                putMsg(result, Status.SUCCESS);
+            }
         }
-
 
         return result;
     }

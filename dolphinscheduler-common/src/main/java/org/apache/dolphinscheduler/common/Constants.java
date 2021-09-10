@@ -1002,4 +1002,6 @@ public final class Constants {
 
     public static final String SIMPLE_TASK_NAME="task_simple";
 
+    public static final String PROCESS_INSTANCE_PROJECT_FLAG = ":::FLAG";
+
 }

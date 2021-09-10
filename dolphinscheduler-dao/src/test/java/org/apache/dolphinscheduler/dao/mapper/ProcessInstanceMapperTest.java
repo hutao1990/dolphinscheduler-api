@@ -166,14 +166,15 @@ public class ProcessInstanceMapperTest {
 
         IPage<ProcessInstance> processInstanceIPage = processInstanceMapper.queryProcessInstanceListPaging(
                 page,
-                processDefinition.getProjectId(),
+                0,
                 processInstance.getProcessDefinitionId(),
                 processInstance.getName(),
                 0,
                 stateArray,
                 processInstance.getHost(),
                 null,
-                null
+                null,
+                ""
         );
         Assert.assertNotEquals(processInstanceIPage.getTotal(), 0);
 

@@ -71,13 +71,20 @@
         instance.run_times, instance.recovery, instance.host
         from t_ds_process_instance instance
         join t_ds_process_definition define ON instance.process_definition_id = define.id
+        join t_ds_project p on p.id = define.project_id
         where instance.is_sub_process=0
-        and define.project_id = #{projectId}
+        -- and define.project_id = #{projectId}
+          <if test="userId != -999">
+              define.user_id = #{userId}
+          </if>
         <if test="processDefinitionId != 0">
             and instance.process_definition_id = #{processDefinitionId}
         </if>
         <if test="searchVal != null and searchVal != ''">
             and  instance.name like concat('%', #{searchVal}, '%')
+        </if>
+        <if test="pName != null and pName != ''">
+            and  p.name like concat('%', #{pName}, '%')
         </if>
         <if test="startTime != null ">
             and instance.start_time > #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}

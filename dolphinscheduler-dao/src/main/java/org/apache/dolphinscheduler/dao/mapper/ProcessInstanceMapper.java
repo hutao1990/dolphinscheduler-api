@@ -93,14 +93,15 @@ public interface ProcessInstanceMapper extends BaseMapper<ProcessInstance> {
      * @return process instance page
      */
     IPage<ProcessInstance> queryProcessInstanceListPaging(Page<ProcessInstance> page,
-                                                          @Param("projectId") int projectId,
+                                                          @Param("userId") int userId,
                                                           @Param("processDefinitionId") Integer processDefinitionId,
                                                           @Param("searchVal") String searchVal,
                                                           @Param("executorId") Integer executorId,
                                                           @Param("states") int[] statusArray,
                                                           @Param("host") String host,
                                                           @Param("startTime") Date startTime,
-                                                          @Param("endTime") Date endTime);
+                                                          @Param("endTime") Date endTime,
+                                                          @Param("pName") String pName);
 
     /**
      * set failover by host and state array

@@ -108,7 +108,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -142,12 +142,12 @@ public class ProcessInstanceService extends BaseDAGService {
     public Map<String, Object> queryProcessInstanceList(User loginUser, String projectName, Integer processDefineId,
                                                         String startDate, String endDate,
                                                         String searchVal, String executorName,ExecutionStatus stateType, String host,
-                                                        Integer pageNo, Integer pageSize) {
+                                                        Integer pageNo, Integer pageSize,String pName) {
 
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
-
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Constants
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -179,7 +179,7 @@ public class ProcessInstanceService extends BaseDAGService {
 
         IPage<ProcessInstance> processInstanceList =
                 processInstanceMapper.queryProcessInstanceListPaging(page,
-                project.getId(), processDefineId, searchVal, executorId,statusArray, host, start, end);
+                isAdmin(loginUser)? -999 : loginUser.getId(), processDefineId, searchVal, executorId,statusArray, host, start, end, pName);
 
         List<ProcessInstance> processInstances = processInstanceList.getRecords();
 
@@ -213,7 +213,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -289,7 +289,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -340,7 +340,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Project project = projectMapper.queryByName(projectName);
 
         //check project permission
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -430,7 +430,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
@@ -471,7 +471,7 @@ public class ProcessInstanceService extends BaseDAGService {
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
             return checkResult;
