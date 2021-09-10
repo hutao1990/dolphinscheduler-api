@@ -29,6 +29,7 @@ import org.apache.dolphinscheduler.api.dto.treeview.Instance;
 import org.apache.dolphinscheduler.api.dto.treeview.TreeViewDto;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.patch.AzJobTransferUtil;
+import org.apache.dolphinscheduler.api.patch.PositionCalc;
 import org.apache.dolphinscheduler.api.patch.TaskIdToName;
 import org.apache.dolphinscheduler.api.utils.CheckUtils;
 import org.apache.dolphinscheduler.api.utils.FileUtils;
@@ -293,6 +294,9 @@ public class ProcessDefinitionService extends BaseDAGService {
         if (processDefinition == null) {
             putMsg(result, Status.PROCESS_INSTANCE_NOT_EXIST, processId);
         } else {
+            if (processDefinition.getConnects().length() > 10){
+                processDefinition.setLocations(PositionCalc.createLocations(processDefinition.getConnects()));
+            }
             result.put(Constants.DATA_LIST, processDefinition);
             putMsg(result, Status.SUCCESS);
         }
