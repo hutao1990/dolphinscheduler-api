@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.dolphinscheduler.api.dto.gantt.GanttDto;
 import org.apache.dolphinscheduler.api.dto.gantt.Task;
 import org.apache.dolphinscheduler.api.enums.Status;
+import org.apache.dolphinscheduler.api.patch.PositionCalc;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
@@ -116,6 +117,9 @@ public class ProcessInstanceService extends BaseDAGService {
         ProcessInstance processInstance = processService.findProcessInstanceDetailById(processId);
 
         ProcessDefinition processDefinition = processService.findProcessDefineById(processInstance.getProcessDefinitionId());
+        if (processDefinition.getConnects().length() > 10){
+            processInstance.setLocations(PositionCalc.createLocations(processDefinition.getConnects()));
+        }
         processInstance.setReceivers(processDefinition.getReceivers());
         processInstance.setReceiversCc(processDefinition.getReceiversCc());
         result.put(Constants.DATA_LIST, processInstance);

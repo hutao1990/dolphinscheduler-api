@@ -82,7 +82,7 @@ public interface ProcessInstanceMapper extends BaseMapper<ProcessInstance> {
     /**
      * process instance page
      * @param page page
-     * @param projectId projectId
+     * @param userId userId
      * @param processDefinitionId processDefinitionId
      * @param searchVal searchVal
      * @param executorId executorId

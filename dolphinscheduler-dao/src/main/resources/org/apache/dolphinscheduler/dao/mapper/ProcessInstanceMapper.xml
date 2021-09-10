@@ -73,7 +73,6 @@
         join t_ds_process_definition define ON instance.process_definition_id = define.id
         join t_ds_project p on p.id = define.project_id
         where instance.is_sub_process=0
-        -- and define.project_id = #{projectId}
           <if test="userId != -999">
               define.user_id = #{userId}
           </if>
