@@ -146,7 +146,6 @@ public class ProcessInstanceService extends BaseDAGService {
 
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
-        Constants
         Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName+ PROCESS_INSTANCE_PROJECT_FLAG);
         Status resultEnum = (Status) checkResult.get(Constants.STATUS);
         if (resultEnum != Status.SUCCESS) {
