@@ -294,7 +294,7 @@ public class ProcessDefinitionService extends BaseDAGService {
         if (processDefinition == null) {
             putMsg(result, Status.PROCESS_INSTANCE_NOT_EXIST, processId);
         } else {
-            if (processDefinition.getConnects().length() > 10){
+            if (null != processDefinition.getConnects() && processDefinition.getConnects().length() > 10){
                 processDefinition.setLocations(PositionCalc.createLocations(processDefinition.getConnects()));
             }
             result.put(Constants.DATA_LIST, processDefinition);
