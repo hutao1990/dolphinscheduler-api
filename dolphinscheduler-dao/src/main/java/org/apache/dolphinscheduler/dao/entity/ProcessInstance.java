@@ -158,6 +158,12 @@ public class ProcessInstance {
     private String queue;
 
     /**
+     * project name
+     */
+    @TableField(exist = false)
+    private String projectName;
+
+    /**
      * process is sub process
      */
     private Flag isSubProcess;
@@ -613,6 +619,14 @@ public class ProcessInstance {
 
     public void setSimple(int simple) {
         this.simple = simple;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     @Override
