@@ -221,7 +221,7 @@ public class ExecutorService extends BaseService {
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = checkResultAndAuth(loginUser, projectName, project);
+        Map<String, Object> checkResult = checkResultAndAuth(loginUser, projectName+ PROCESS_INSTANCE_PROJECT_FLAG, project);
         if (checkResult != null) {
             return checkResult;
         }
