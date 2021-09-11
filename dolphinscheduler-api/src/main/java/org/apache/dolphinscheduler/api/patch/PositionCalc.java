@@ -39,13 +39,25 @@ public class PositionCalc {
     public static String createLocations(String connects){
         Collection<NodePosition> nodePositions = calcPosition(connects);
         JSONObject json = new JSONObject(true);
+        int size = nodePositions.size();
+        int depthHight = 0;
+        if (size < 20){
+            depthHight = 250;
+        }else if (size < 80){
+            depthHight = 600;
+        }else {
+            depthHight = size * 6;
+        }
+        if (depthHight > 2000){
+            depthHight = 2000;
+        }
         for (NodePosition nodePosition : nodePositions) {
             JSONObject obj = new JSONObject(true);
             obj.put("name",nodePosition.getName());
             obj.put("nodenumber",nodePosition.getPreDeps()== null?0:nodePosition.getPreDeps().size()+"");
             obj.put("targetarr", StringUtils.join(nodePosition.getAfterDeps(),","));
             obj.put("x", nodePosition.getWidth() * 12);
-            obj.put("y", nodePosition.getDepth() * 500);
+            obj.put("y", nodePosition.getDepth() * depthHight);
             json.put(nodePosition.getName(),obj);
         }
         return json.toJSONString();
