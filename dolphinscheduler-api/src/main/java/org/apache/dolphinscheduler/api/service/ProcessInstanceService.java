@@ -117,7 +117,7 @@ public class ProcessInstanceService extends BaseDAGService {
         ProcessInstance processInstance = processService.findProcessInstanceDetailById(processId);
 
         ProcessDefinition processDefinition = processService.findProcessDefineById(processInstance.getProcessDefinitionId());
-        if (processDefinition.getConnects().length() > 10){
+        if (processDefinition.getConnects() != null && processDefinition.getConnects().length() > 10){
             processInstance.setLocations(PositionCalc.createLocations(processDefinition.getConnects()));
         }
         processInstance.setReceivers(processDefinition.getReceivers());
