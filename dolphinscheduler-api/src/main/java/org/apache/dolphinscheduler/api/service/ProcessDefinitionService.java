@@ -264,7 +264,13 @@ public class ProcessDefinitionService extends BaseDAGService {
 
         PageInfo pageInfo = new PageInfo<ProcessData>(pageNo, pageSize);
         pageInfo.setTotalCount((int) processDefinitionIPage.getTotal());
-        pageInfo.setLists(processDefinitionIPage.getRecords());
+        List<ProcessDefinition> records = processDefinitionIPage.getRecords();
+        records.forEach(r ->{
+            if (r.getConnects() != null && r.getConnects().length() > 10) {
+                r.setLocations(PositionCalc.createLocations(r.getConnects()));
+            }
+        });
+        pageInfo.setLists(records);
         result.put(Constants.DATA_LIST, pageInfo);
         putMsg(result, Status.SUCCESS);
 
