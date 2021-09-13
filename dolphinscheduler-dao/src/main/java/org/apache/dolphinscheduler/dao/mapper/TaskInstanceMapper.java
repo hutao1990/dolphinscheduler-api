@@ -67,6 +67,9 @@ public interface TaskInstanceMapper extends BaseMapper<TaskInstance> {
                                                     @Param("states") int[] statusArray,
                                                     @Param("host") String host,
                                                     @Param("startTime") Date startTime,
-                                                    @Param("endTime") Date endTime
+                                                    @Param("endTime") Date endTime,
+                                                    @Param("userId") int userId,
+                                                    @Param("pName") String pName,
+                                                    @Param("processName") String processName
     );
 }

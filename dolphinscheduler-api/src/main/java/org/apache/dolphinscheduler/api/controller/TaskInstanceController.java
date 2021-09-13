@@ -76,6 +76,8 @@ public class TaskInstanceController extends BaseController {
             @ApiImplicitParam(name = "host", value = "HOST", type = "String"),
             @ApiImplicitParam(name = "startDate", value = "START_DATE", type = "String"),
             @ApiImplicitParam(name = "endDate", value = "END_DATE", type = "String"),
+            @ApiImplicitParam(name = "pName", value = "P_NAME", type = "String"),
+            @ApiImplicitParam(name = "processName", value = "PROCESS_NAME", type = "String"),
             @ApiImplicitParam(name = "pageNo", value = "PAGE_NO", dataType = "Int", example = "1"),
             @ApiImplicitParam(name = "pageSize", value = "PAGE_SIZE", dataType = "Int", example = "20")
     })
@@ -92,6 +94,8 @@ public class TaskInstanceController extends BaseController {
                                       @RequestParam(value = "host", required = false) String host,
                                       @RequestParam(value = "startDate", required = false) String startTime,
                                       @RequestParam(value = "endDate", required = false) String endTime,
+                                      @RequestParam(value = "pName", required = false) String pName,
+                                      @RequestParam(value = "processName", required = false) String processName,
                                       @RequestParam("pageNo") Integer pageNo,
                                       @RequestParam("pageSize") Integer pageSize) {
 
@@ -99,7 +103,7 @@ public class TaskInstanceController extends BaseController {
                 projectName, processInstanceId, searchVal, taskName, executorName, stateType, host, startTime, endTime);
         searchVal = ParameterUtils.handleEscapes(searchVal);
         Map<String, Object> result = taskInstanceService.queryTaskListPaging(
-                loginUser, projectName, processInstanceId, taskName, executorName, startTime, endTime, searchVal, stateType, host, pageNo, pageSize);
+                loginUser, projectName, processInstanceId, taskName, executorName, startTime, endTime, searchVal, stateType, host, pageNo, pageSize, pName, processName);
         return returnDataListPaging(result);
     }
 

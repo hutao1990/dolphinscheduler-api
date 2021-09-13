@@ -82,11 +82,11 @@ public class TaskInstanceService extends BaseService {
     public Map<String,Object> queryTaskListPaging(User loginUser, String projectName,
                                                   Integer processInstanceId, String taskName, String executorName, String startDate,
                                                   String endDate, String searchVal, ExecutionStatus stateType,String host,
-                                                  Integer pageNo, Integer pageSize) {
+                                                  Integer pageNo, Integer pageSize, String pName, String processName) {
         Map<String, Object> result = new HashMap<>(5);
         Project project = projectMapper.queryByName(projectName);
 
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName);
+        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectName + Constants.PROCESS_INSTANCE_PROJECT_FLAG);
         Status status = (Status) checkResult.get(Constants.STATUS);
         if (status != Status.SUCCESS) {
             return checkResult;
@@ -117,7 +117,8 @@ public class TaskInstanceService extends BaseService {
         int executorId = usersService.getUserIdByName(executorName);
 
         IPage<TaskInstance> taskInstanceIPage = taskInstanceMapper.queryTaskInstanceListPaging(
-                page, project.getId(), processInstanceId, searchVal, taskName, executorId, statusArray, host, start, end
+                page, project.getId(), processInstanceId, searchVal, taskName, executorId, statusArray, host, start, end,loginUser.getId(),
+                pName, processName
         );
         Set<String> exclusionSet = new HashSet<>();
         exclusionSet.add(Constants.CLASS);
