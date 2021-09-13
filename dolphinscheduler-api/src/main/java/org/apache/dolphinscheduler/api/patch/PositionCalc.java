@@ -27,7 +27,7 @@ public class PositionCalc {
         int maxWidth = positionsMap.values().stream().map(NodePosition::getWidth).max(Comparator.comparingInt(Integer::intValue)).get();
 
         //减少线段交点
-        //reduceFocusPoint(positionsMap, map);
+        reduceFocusPoint(positionsMap, map);
 
         //居中对齐
         adjustWidth(positionsMap, map, maxWidth);
@@ -64,10 +64,8 @@ public class PositionCalc {
     }
 
     private static void reduceFocusPoint(Map<String, NodePosition> positionsMap, Map<Integer, Integer> map) {
-        List<NodePosition> ends = positionsMap.values().stream().filter(n -> n.isEnd()).sorted(Comparator.comparingInt(NodePosition::getDepth)).collect(Collectors.toList());
-        Collections.reverse(ends);
         Map<Integer, Map<Integer,NodePosition>> positionMap = new HashMap<>();
-        positionsMap.values().forEach(p ->{
+        positionsMap.forEach((k,p) ->{
             int depth = p.getDepth();
             int order = p.getOrder();
             if (positionMap.containsKey(depth)){
@@ -77,25 +75,72 @@ public class PositionCalc {
                 orderMap.put(order,p);
                 positionMap.put(depth,orderMap);
             }
+            if (p.getPreDeps() != null && p.getPreDeps().size() > 0){
+                Map<Integer, List<String>> preDepsMap = p.getPreDepsMap();
+                for (String preDep : p.getPreDeps()) {
+                    NodePosition n = positionsMap.get(preDep);
+                    if (preDepsMap.containsKey(n.getDepth())){
+                        preDepsMap.get(n.getDepth()).add(n.getName());
+                    }else {
+                        List<String> list = new ArrayList<>();
+                        list.add(n.getName());
+                        preDepsMap.put(n.getDepth(),list);
+                    }
+                }
+                p.setPreDepsMap(preDepsMap);
+                positionsMap.put(k, p);
+            }
         });
         Map<Integer, Integer> depthMaxOrderCount = new HashMap<>();
-        ends.forEach(n ->{
-            exchangePosition(positionsMap, positionMap, depthMaxOrderCount, n);
+        Set<String> changedNodeSet = new HashSet<>();
+        List<NodePosition> first = positionsMap.values().stream().filter(n -> n.isEnd()).sorted(Comparator.comparingInt(NodePosition::getDepth)).collect(Collectors.toList());
+        Collections.reverse(first);
+        first.forEach(n ->{
+            exchangePosition(positionsMap, positionMap, depthMaxOrderCount, changedNodeSet, n);
         });
 
     }
 
-    private static void exchangePosition(Map<String, NodePosition> positionsMap,Map<Integer, Map<Integer,NodePosition>> positionMap, Map<Integer, Integer> depthMaxOrderCount, NodePosition nextPosition){
-        Set<String> preDeps = nextPosition.getPreDeps();
-        if (nextPosition.getOrder() < positionMap.get(nextPosition.getDepth()).size()){
+    private static void exchangePosition(Map<String, NodePosition> positionsMap,
+                                         Map<Integer, Map<Integer,NodePosition>> positionMap,
+                                         Map<Integer, Integer> depthMaxOrderCount,
+                                         Set<String> changedNodeSet,
+                                         NodePosition nextPosition){
+        Map<Integer, List<String>> preDepsMap = nextPosition.getPreDepsMap();
+        List<Integer> collect = preDepsMap.keySet().stream().sorted(Comparator.comparingInt(Integer::intValue)).collect(Collectors.toList());
+        collect.forEach( k -> {
+            List<String> list = new ArrayList<>();
+            for (String s : preDepsMap.get(k)) {
+                Integer idx = depthMaxOrderCount.getOrDefault(k, 0);
+                idx ++;
+                depthMaxOrderCount.put(k, idx);
+                NodePosition np1 = positionsMap.get(s);
+                NodePosition np2 = positionMap.get(k).get(idx);
+                if (np2 != null && !changedNodeSet.contains(np2.getName())){
+                    change(np1, np2);
+                }
+                changedNodeSet.add(np1.getName());
+                list.add(np1.getName());
+            }
+            for (String s : list) {
+                exchangePosition(positionsMap,positionMap,depthMaxOrderCount,changedNodeSet,positionsMap.get(s));
+            }
+        });
 
-        }
-        for (String preDep : preDeps) {
-            NodePosition nodePosition = positionsMap.get(preDep);
-        }
+    }
+
+    private static void change(NodePosition p1, NodePosition p2){
+        System.out.println("source:"+p1.getName()+"(y:"+p1.getDepth()+",x:"+p1.getOrder()+")"+"  target:"+p2.getName()+"(y:"+p2.getDepth()+",x:"+p2.getOrder()+")");
+        int order = p1.getOrder();
+        int width = p1.getWidth();
+        p1.setOrder(p2.getOrder());
+        p1.setWidth(p2.getWidth());
+        p2.setOrder(order);
+        p2.setWidth(width);
     }
 
     private static void adjustWidth(Map<String, NodePosition> positionsMap, Map<Integer, Integer> map, int maxWidth) {
+        Map<Integer, Float> map1 = new HashMap<>();
         for (Integer key : map.keySet()) {
             map.put(key, (maxWidth - map.get(key)) / 2);
         }
@@ -214,8 +259,10 @@ public class PositionCalc {
             JSONObject obj = new JSONObject(true);
             obj.put("id", position.getName());
             obj.put("text", position.getName());
+            obj.put("order", position.getOrder());
+            obj.put("depth", position.getDepth());
             obj.put("x", position.getWidth() * 12);
-            obj.put("y", position.getDepth() * 500);
+            obj.put("y", position.getDepth() * 1500);
             obj.put("fixed", true);
             nodes.add(obj);
         }

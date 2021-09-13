@@ -2,8 +2,7 @@ package org.apache.dolphinscheduler.api.patch.bean;
 
 import lombok.Data;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @author hutao
@@ -17,6 +16,8 @@ public class NodePosition {
     private int order;
     private int width;
     private Set<String> preDeps = new TreeSet<>();
+    private Map<Integer, List<String>> preDepsMap = new HashMap<>();
+    private Map<Integer, Integer> preDepsIndexMap = new HashMap<>();
     private Set<String> afterDeps = new TreeSet<>();
     private int length;
 
