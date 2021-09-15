@@ -117,7 +117,7 @@ public class TaskInstanceService extends BaseService {
         int executorId = usersService.getUserIdByName(executorName);
 
         IPage<TaskInstance> taskInstanceIPage = taskInstanceMapper.queryTaskInstanceListPaging(
-                page, 0, processInstanceId, searchVal, taskName, executorId, statusArray, host, start, end,loginUser.getId(),
+                page, 0, processInstanceId, searchVal, taskName, executorId, statusArray, host, start, end, isAdmin(loginUser)? 0: loginUser.getId(),
                 pName, processName
         );
         Set<String> exclusionSet = new HashSet<>();

@@ -103,7 +103,10 @@
         left join t_ds_process_definition define on instance.process_definition_id = define.id
         left join t_ds_process_instance process on process.id=instance.process_instance_id
         left join t_ds_project p on define.project_id = p.id
-        where define.user_id=#{userId}
+        where 1=1
+        <if test="userId != 0">
+            define.user_id=#{userId}
+        </if>
         <if test="projectId != 0">
               define.project_id = #{projectId}
         </if>
