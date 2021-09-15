@@ -15,9 +15,10 @@ public class NodePosition {
     private int depth;
     private int order;
     private int width;
+    private int preLineCount;
+    private int minLineCount;
+    private List<String> adjoin = new ArrayList<>();
     private Set<String> preDeps = new TreeSet<>();
-    private Map<Integer, List<String>> preDepsMap = new HashMap<>();
-    private Map<Integer, Integer> preDepsIndexMap = new HashMap<>();
     private Set<String> afterDeps = new TreeSet<>();
     private int length;
 
@@ -32,6 +33,10 @@ public class NodePosition {
 
     public boolean isEnd() {
         return afterDeps == null || afterDeps.size() == 0;
+    }
+
+    public int getTotalLineCount(){
+        return this.preLineCount + (this.getPreDeps() == null? 0: this.getPreDeps().size());
     }
 
 }
