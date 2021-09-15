@@ -98,7 +98,7 @@
         </if>
     </select>
     <select id="queryTaskInstanceListPaging" resultType="org.apache.dolphinscheduler.dao.entity.TaskInstance">
-        select instance.*,process.name as process_instance_name
+        select instance.*,process.name as process_instance_name, p.name as project_name
         from t_ds_task_instance instance
         left join t_ds_process_definition define on instance.process_definition_id = define.id
         left join t_ds_process_instance process on process.id=instance.process_instance_id

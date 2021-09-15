@@ -208,8 +208,17 @@ public class TaskInstance implements Serializable {
     private String executorName;
 
 
+    /**
+     * resources
+     */
     @TableField(exist = false)
     private Map<String,String> resources;
+
+    /**
+     *  项目名称
+     */
+    @TableField(exist = false)
+    private String projectName;
 
 
 
@@ -523,6 +532,14 @@ public class TaskInstance implements Serializable {
 
     public void setDependentResult(String dependentResult) {
         this.dependentResult = dependentResult;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     @Override
