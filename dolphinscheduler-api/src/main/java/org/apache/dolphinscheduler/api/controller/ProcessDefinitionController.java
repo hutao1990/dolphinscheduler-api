@@ -212,6 +212,7 @@ public class ProcessDefinitionController extends BaseController {
             @ApiImplicitParam(name = "id", value = "PROCESS_DEFINITION_ID", required = true, dataType = "Int", example = "100"),
             @ApiImplicitParam(name = "description", value = "PROCESS_DEFINITION_DESC", required = false, type = "String"),
             @ApiImplicitParam(name = "releaseState", value = "RELEASE_STATE", required = true, dataType = "String", example = "100"),
+            @ApiImplicitParam(name = "processDefinitionJson", value = "PROCESS_DEFINITION_JSON", required = true, type = "String"),
             @ApiImplicitParam(name = "serialization", value = "SERIALIZATION", required = false, dataType = "String", example = "0"),
     })
     @PostMapping(value = "/update-base")
@@ -223,11 +224,12 @@ public class ProcessDefinitionController extends BaseController {
                                           @RequestParam(value = "id", required = true) int id,
                                           @RequestParam(value = "description", required = false) String description,
                                           @RequestParam(value = "releaseState", required = true) String releaseState,
+                                          @RequestParam(value = "processDefinitionJson", required = true) String processDefinitionJson,
                                           @RequestParam(value = "serialization", required = false) String serialization) {
 
         logger.info("login user {}, update process define, project name: {}, process define name: {}, desc: {},",
                 loginUser.getUserName(), projectName, name, description);
-        Map<String, Object> result = processDefinitionService.updateBaseInfo(loginUser, projectName, id, name, description, releaseState,serialization);
+        Map<String, Object> result = processDefinitionService.updateBaseInfo(loginUser, projectName, id, name, description, releaseState,serialization, processDefinitionJson);
         return returnDataList(result);
     }
 

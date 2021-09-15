@@ -450,9 +450,9 @@ public class ProcessDefinitionService extends BaseDAGService {
      * @return
      */
     public Map<String, Object> updateBaseInfo(User loginUser, String projectName, int id, String name, String desc,
-                                              String releaseState, String serialization){
+                                              String releaseState, String serialization, String processDefinitionJson){
         ProcessDefinition processDefinition = processDefineMapper.queryByDefineId(id);
-        return updateProcessDefinition(loginUser,projectName,id,name,processDefinition.getProcessDefinitionJson(),desc,
+        return updateProcessDefinition(loginUser,projectName,id,name,processDefinitionJson,desc,
                 processDefinition.getLocations(),processDefinition.getConnects(),releaseState,serialization);
     }
 
