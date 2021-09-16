@@ -354,7 +354,9 @@ public class ProcessDefinition {
 
         if (globalParamMap == null && StringUtils.isNotEmpty(globalParams)) {
             propList = JSON.parseArray(globalParams, Property.class);
-            globalParamMap = propList.stream().collect(Collectors.toMap(Property::getProp, Property::getValue));
+            if (propList != null) {
+                globalParamMap = propList.stream().collect(Collectors.toMap(Property::getProp, Property::getValue));
+            }
         }
 
         return globalParamMap;
