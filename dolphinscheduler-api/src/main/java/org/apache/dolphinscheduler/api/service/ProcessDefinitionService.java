@@ -371,6 +371,12 @@ public class ProcessDefinitionService extends BaseDAGService {
             return checkResult;
         }
 
+        String cycle = PositionCalc.isCycle(connects);
+        if (cycle.length() != 0){
+            putMsg(result, Status.PROCESS_NODE_HAS_CYCLE_MSG, cycle);
+            return result;
+        }
+
         ProcessData processData = JSONUtils.parseObject(processDefinitionJson, ProcessData.class);
         Map<String, Object> checkProcessJson = checkProcessNodeList(processData, processDefinitionJson);
         if ((checkProcessJson.get(Constants.STATUS) != Status.SUCCESS)) {
@@ -852,6 +858,11 @@ public class ProcessDefinitionService extends BaseDAGService {
         Map<String, Resource> collect = resourceList.stream().collect(Collectors.toMap(r -> r.getFileName(), r -> r, (r1, r2) -> r2));
 
         for (ProcessMeta processMeta : processMetaList) {
+            String cycle = PositionCalc.isCycle(processMeta.getProcessDefinitionConnects());
+            if (cycle.length() != 0){
+                putMsg(result, Status.PROCESS_NODE_HAS_CYCLE_MSG, cycle);
+                return result;
+            }
             String s = processMeta.getProcessDefinitionJson();
             JSONObject json = JSON.parseObject(s);
             json.put("tenantId", loginUser.getTenantId());

@@ -260,7 +260,8 @@ public enum Status {
     PARSE_UPLOAD_ZIP_FILE_ERROR(100004,"parse upload zipx file error, plaese check zipx file", "解析上传的zipx文件异常，请检查文件是否损坏！"),
     AZ_JOB_FILE_PARSE_ERROR(100005,"parse azkaban zip file error! [{0}]", "解析上传azkaban的zip包错误，[{0}]！"),
     SIMPLE_PROCESS_UPDATE_ERROR(100007,"simple process operate error, [{0}]", "简单工作流操作错误！ [{0}]"),
-    PROCESS_DEFINE_ONLINE_ERROR(100006,"process define online error，empty process not allow online!", "工作流上线异常，空工作流[{0}]不允许上线！")
+    PROCESS_DEFINE_ONLINE_ERROR(100006,"process define online error，empty process not allow online!", "工作流上线异常，空工作流[{0}]不允许上线！"),
+    PROCESS_NODE_HAS_CYCLE_MSG(100008,"process node has cycle, msg[{0}]", "流程节点间存在循环依赖, 循环路径 [{0}]")
     ;
 
     private final int code;
