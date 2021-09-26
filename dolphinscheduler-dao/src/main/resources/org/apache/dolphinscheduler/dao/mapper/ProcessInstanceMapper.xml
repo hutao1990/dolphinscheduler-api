@@ -86,7 +86,7 @@
             and  p.name like concat('%', #{pName}, '%')
         </if>
         <if test="startTime != null ">
-            and instance.start_time > #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}
+            and instance.start_time <![CDATA[ >= ]]> #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}
         </if>
         <if test="states != null and states != ''">
             and instance.state in

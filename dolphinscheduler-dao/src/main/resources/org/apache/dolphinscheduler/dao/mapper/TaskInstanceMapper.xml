@@ -68,7 +68,7 @@
             </foreach>
         </if>
         <if test="startTime != null and endTime != null">
-            and t.start_time > #{startTime} and t.start_time <![CDATA[ <= ]]> #{endTime}
+            and t.start_time <![CDATA[ >= ]]> #{startTime} and t.start_time <![CDATA[ <= ]]> #{endTime}
         </if>
         group by t.state
     </select>
@@ -111,7 +111,7 @@
               define.project_id = #{projectId}
         </if>
         <if test="startTime != null">
-            and instance.start_time > #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}
+            and instance.start_time <![CDATA[ >= ]]> #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}
         </if>
         <if test="processInstanceId != 0">
             and instance.process_instance_id = #{processInstanceId}
