@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static org.apache.dolphinscheduler.common.Constants.*;
 
@@ -904,6 +905,11 @@ public class MasterExecThread implements Runnable {
                     submitPostNode(task.getName());
                     continue;
                 }
+
+                if (task.getState().typeIsSubmitSuccess() && processInstance.getState() == ExecutionStatus.READY_STOP){
+                    entry.getKey().kill();
+                }
+
                 // node fails, retry first, and then execute the failure process
                 if(task.getState().typeIsFailure()){
                     if(task.getState() == ExecutionStatus.NEED_FAULT_TOLERANCE){

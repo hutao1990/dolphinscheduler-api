@@ -81,6 +81,14 @@ public enum ExecutionStatus {
      return this == FAILURE || this == NEED_FAULT_TOLERANCE;
    }
 
+    /**
+     * status is submit success
+     * @return status
+     */
+    public boolean typeIsSubmitSuccess(){
+        return this == SUBMITTED_SUCCESS;
+    }
+
  /**
   * status is finished
   * @return status
