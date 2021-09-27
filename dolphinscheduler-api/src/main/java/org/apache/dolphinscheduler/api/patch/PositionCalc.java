@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class PositionCalc {
 
     public static String isCycle(String connects){
+        if (null == connects || connects.length() < 5) return "";
         Map<String, NodePosition> positionsMap = getPositionList(connects);
         List<NodePosition> ends = positionsMap.values().stream().filter(NodePosition::isEnd).collect(Collectors.toList());
         List<NodePosition> starts = positionsMap.values().stream().filter(NodePosition::isFirst).collect(Collectors.toList());
