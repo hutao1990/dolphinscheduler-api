@@ -680,8 +680,12 @@ public class MasterExecThread implements Runnable {
         ExecutionStatus state = instance.getState();
 
         if(activeTaskNode.size() > 0 || retryTaskExists()){
-            // active task and retry task exists
-            return runningState(state);
+            List<MasterBaseTaskExecThread> collect = activeTaskNode.keySet().stream().filter(m -> m.getTaskInstance().getState() != ExecutionStatus.READY_STOP
+                    && m.getTaskInstance().getState() != ExecutionStatus.READY_PAUSE).collect(Collectors.toList());
+            if (collect.size() > 0 && processInstance.getState() != ExecutionStatus.READY_STOP && processInstance.getState() != ExecutionStatus.READY_PAUSE) {
+                // active task and retry task exists
+                return runningState(state);
+            }
         }
         // process failure
         if(processFailed()){
