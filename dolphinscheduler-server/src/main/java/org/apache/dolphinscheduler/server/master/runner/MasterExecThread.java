@@ -711,6 +711,9 @@ public class MasterExecThread implements Runnable {
                     || !isComplementEnd()){
                 return ExecutionStatus.STOP;
             }else{
+                if (activeTaskNode.size() > 0){
+                    return ExecutionStatus.STOP;
+                }
                 return ExecutionStatus.SUCCESS;
             }
         }
@@ -908,11 +911,6 @@ public class MasterExecThread implements Runnable {
                     completeTaskList.put(task.getName(), task);
                     submitPostNode(task.getName());
                     continue;
-                }
-
-                if (task.getState().typeIsSubmitSuccess() && processInstance.getState() == ExecutionStatus.READY_STOP){
-                    entry.getKey().kill();
-                    entry.getKey().getTaskInstance().setState(ExecutionStatus.STOP);
                 }
 
                 // node fails, retry first, and then execute the failure process
