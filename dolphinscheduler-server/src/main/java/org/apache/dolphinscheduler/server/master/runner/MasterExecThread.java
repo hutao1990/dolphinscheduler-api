@@ -908,6 +908,7 @@ public class MasterExecThread implements Runnable {
 
                 if (task.getState().typeIsSubmitSuccess() && processInstance.getState() == ExecutionStatus.READY_STOP){
                     entry.getKey().kill();
+                    entry.getKey().getTaskInstance().setState(ExecutionStatus.STOP);
                 }
 
                 // node fails, retry first, and then execute the failure process
