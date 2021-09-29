@@ -127,7 +127,7 @@ public class ProjectService extends BaseService{
 
         Map<String, Object> result = new HashMap<>(5);
 
-        if (projectName.endsWith(Constants.PROCESS_INSTANCE_PROJECT_FLAG)){
+        if (projectName.contains(Constants.PROCESS_INSTANCE_PROJECT_FLAG)){
             putMsg(result, Status.SUCCESS);
         }else {
             if (project == null) {
