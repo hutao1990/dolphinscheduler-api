@@ -105,10 +105,10 @@
         left join t_ds_project p on define.project_id = p.id
         where 1=1
         <if test="userId != 0">
-            define.user_id=#{userId}
+            and define.user_id=#{userId}
         </if>
         <if test="projectId != 0">
-              define.project_id = #{projectId}
+             and define.project_id = #{projectId}
         </if>
         <if test="startTime != null">
             and instance.start_time <![CDATA[ >= ]]> #{startTime} and instance.start_time <![CDATA[ <=]]> #{endTime}
