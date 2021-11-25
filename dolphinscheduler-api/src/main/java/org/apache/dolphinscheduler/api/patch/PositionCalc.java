@@ -96,7 +96,7 @@ public class PositionCalc {
             JSONObject obj = new JSONObject(true);
             obj.put("name",nodePosition.getName());
             obj.put("nodenumber",nodePosition.getPreDeps()== null?"0":nodePosition.getPreDeps().size()+"");
-            obj.put("targetarr", StringUtils.join(nodePosition.getAfterDeps(),","));
+            obj.put("targetarr", StringUtils.join(nodePosition.getPreDeps(),","));
             obj.put("x", nodePosition.getWidth());
             obj.put("y", nodePosition.getDepth() * depthHight);
             json.put(nodePosition.getName(),obj);
