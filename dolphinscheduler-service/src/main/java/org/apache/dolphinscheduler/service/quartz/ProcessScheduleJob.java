@@ -107,7 +107,6 @@ public class ProcessScheduleJob implements Job {
         getProcessService().createCommand(command);
     }
 
-
     /**
      * delete job
      */
